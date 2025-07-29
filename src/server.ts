@@ -1,11 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
-import { logger } from '@utils/logger';
-import { errorHandler, notFoundHandler } from '@middleware/errorHandler';
+import { logger } from './utils/logger';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import authRoutes from './routes/auth';
+import userRoutes from './routes/users';
 
 dotenv.config();
 
@@ -32,6 +35,7 @@ app.use(
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url} - ${req.ip}`);
@@ -53,6 +57,10 @@ app.get('/', (req, res) => {
     version: '1.0.0',
   });
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 io.on('connection', (socket) => {
   logger.info(`User connected: ${socket.id}`);

@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(docker-compose exec app npx prisma migrate:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm start)",
+      "Bash(NODE_ENV=development npm start)",
+      "Bash(npx ts-node:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }
