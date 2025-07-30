@@ -22,7 +22,8 @@
       "Bash(docker logs:*)",
       "Bash(grep:*)",
       "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
