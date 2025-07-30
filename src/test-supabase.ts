@@ -14,8 +14,13 @@ async function testSupabase() {
   try {
     // 1. Test Auth - User erstellen
     console.log('1️⃣ Testing Auth - Creating user...');
+    const timestamp = Date.now();
+    const testEmail = `testplayer${timestamp}@example.com`;
+    let userId: string | undefined;
+    
+    // First try to create user with admin client
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email: 'testplayer@example.com',
+      email: testEmail,
       password: 'TestPassword123!',
       email_confirm: true,
       user_metadata: { username: 'testplayer' }
@@ -23,10 +28,26 @@ async function testSupabase() {
 
     if (authError) {
       console.error('❌ Auth Error:', authError.message);
-      return;
+      // Try alternative: regular signup
+      console.log('Trying alternative signup method...');
+      const { data: signupData, error: signupError } = await supabase.auth.signUp({
+        email: testEmail,
+        password: 'TestPassword123!',
+        options: {
+          data: { username: 'testplayer' }
+        }
+      });
+      
+      if (signupError) {
+        console.error('❌ Signup Error:', signupError.message);
+        return;
+      }
+      console.log('✅ User created via signup:', testEmail);
+      userId = signupData.user?.id;
+    } else {
+      console.log('✅ User created:', testEmail);
+      userId = authData.user?.id;
     }
-    console.log('✅ User created:', authData.user?.email);
-    const userId = authData.user?.id;
 
     // 2. Test Profile - Sollte automatisch erstellt sein
     console.log('\n2️⃣ Testing Profile - Checking auto-created profile...');

@@ -7,9 +7,9 @@ import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { logger } from './utils/logger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import authRoutes from './routes/auth-simple';
+import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
-import gameRoutes from './routes/games-simple';
+import gameRoutes from './routes/game.routes';
 import { initializeSocketServer } from './socket';
 
 dotenv.config();
