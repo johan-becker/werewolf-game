@@ -12,6 +12,26 @@ export class GameService {
    * Creates a new game with auto-generated code
    */
   async createGame(userId: string, data: CreateGameDTO): Promise<GameResponse> {
+    // Validate input
+    if (!data.name || data.name.trim().length < 3) {
+      throw new Error('Game name must be at least 3 characters long');
+    }
+    if (data.maxPlayers < 4 || data.maxPlayers > 12) {
+      throw new Error('Max players must be between 4 and 12');
+    }
+
+    // Check if user is already hosting a game
+    const { data: existingGame } = await supabase
+      .from('games')
+      .select('id')
+      .eq('creator_id', userId)
+      .eq('status', 'waiting')
+      .single();
+
+    if (existingGame) {
+      throw new Error('You are already hosting a game. Leave your current game first.');
+    }
+
     // Generate unique code (with retry logic)
     let code: string;
     let attempts = 0;
@@ -28,6 +48,10 @@ export class GameService {
       attempts++;
     } while (attempts < 10);
 
+    if (attempts >= 10) {
+      throw new Error('Unable to generate unique game code. Please try again.');
+    }
+
     // Create game
     const { data: game, error } = await supabase
       .from('games')
@@ -35,7 +59,7 @@ export class GameService {
         name: data.name,
         code,
         max_players: data.maxPlayers,
-        game_settings: data.settings || {},
+        settings: data.settings || {},
         creator_id: userId
       })
       .select()
@@ -43,11 +67,13 @@ export class GameService {
 
     if (error) throw new Error(`Failed to create game: ${error.message}`);
 
-    // Use RPC to join as host
+    // Add creator as host player
     const { error: joinError } = await supabase
-      .rpc('join_game', { 
-        game_id_param: game.id,
-        user_id_param: userId 
+      .from('players')
+      .insert({
+        game_id: game.id,
+        user_id: userId,
+        is_host: true
       });
 
     if (joinError) {
@@ -115,14 +141,26 @@ export class GameService {
       .single();
 
     if (!game) throw new Error('Game not found');
-    if (game.status !== 'waiting') throw new Error('Game already started');
+    if (game.status !== 'waiting') throw new Error('Game is no longer accepting players');
     if (game.current_players >= game.max_players) throw new Error('Game is full');
 
-    // Use RPC to join
+    // Check if user is already in the game
+    const { data: existingPlayer } = await supabase
+      .from('players')
+      .select('id')
+      .eq('game_id', gameId)
+      .eq('user_id', userId)
+      .single();
+
+    if (existingPlayer) throw new Error('You are already in this game');
+
+    // Add player to game
     const { error } = await supabase
-      .rpc('join_game', { 
-        game_id_param: gameId,
-        user_id_param: userId 
+      .from('players')
+      .insert({
+        game_id: gameId,
+        user_id: userId,
+        is_host: false
       });
 
     if (error) throw new Error(`Failed to join: ${error.message}`);
@@ -134,22 +172,45 @@ export class GameService {
    * Join game by code
    */
   async joinGameByCode(code: string, userId: string): Promise<GameResponse> {
-    const { data, error } = await supabase
-      .rpc('join_game_by_code', { 
-        code_param: code,
-        user_id_param: userId 
+    // Find game by code
+    const { data: game } = await supabase
+      .from('game_overview')
+      .select('*')
+      .eq('code', code)
+      .eq('status', 'waiting')
+      .single();
+
+    if (!game) throw new Error('Game not found or already started');
+    if (game.current_players >= game.max_players) throw new Error('Game is full');
+
+    // Check if already in game
+    const { data: existingPlayer } = await supabase
+      .from('players')
+      .select('id')
+      .eq('game_id', game.id)
+      .eq('user_id', userId)
+      .single();
+
+    if (existingPlayer) throw new Error('Already in this game');
+
+    // Add player to game
+    const { error } = await supabase
+      .from('players')
+      .insert({
+        game_id: game.id,
+        user_id: userId,
+        is_host: false
       });
 
     if (error) throw new Error(`Failed to join: ${error.message}`);
-    if (!data) throw new Error('Invalid game code');
 
-    return this.getGameDetails(data);
+    return this.getGameDetails(game.id);
   }
 
   /**
    * Leave game
    */
-  async leaveGame(gameId: string, userId: string): Promise<void> {
+  async leaveGame(gameId: string, userId: string): Promise<{ gameDeleted: boolean; newHostId?: string }> {
     // Check if user is in game
     const { data: player } = await supabase
       .from('players')
@@ -171,8 +232,10 @@ export class GameService {
 
     // Handle host transfer or game deletion
     if (player.is_host) {
-      await this.handleHostLeave(gameId);
+      return await this.handleHostLeave(gameId);
     }
+
+    return { gameDeleted: false };
   }
 
   /**
@@ -189,54 +252,86 @@ export class GameService {
 
     if (!player?.is_host) throw new Error('Only host can start the game');
 
-    // Check player count
+    // Check player count and game status
     const { data: game } = await supabase
       .from('game_overview')
-      .select('current_players')
+      .select('current_players, status, max_players')
       .eq('id', gameId)
       .single();
 
-    if (!game || game.current_players < 4) {
+    if (!game) throw new Error('Game not found');
+    if (game.status !== 'waiting') throw new Error('Game has already started or finished');
+    if (game.current_players < 4) {
       throw new Error('Need at least 4 players to start');
     }
+    if (game.current_players > game.max_players) {
+      throw new Error('Too many players in game');
+    }
 
-    // Update game status
+    // Use Supabase RPC to start the game with role assignment
     const { error } = await supabase
-      .from('games')
-      .update({ status: 'in_progress' })
-      .eq('id', gameId);
+      .rpc('start_game', { game_id_param: gameId });
 
     if (error) throw new Error(`Failed to start: ${error.message}`);
-
-    // TODO: Assign roles and initialize game state
   }
 
   /**
    * Handle host leaving - transfer or delete game
    */
-  private async handleHostLeave(gameId: string): Promise<void> {
-    // Get remaining players
+  private async handleHostLeave(gameId: string): Promise<{ gameDeleted: boolean; newHostId?: string }> {
+    // Get remaining players ordered by join time
     const { data: players } = await supabase
       .from('players')
-      .select('user_id')
+      .select('user_id, joined_at')
       .eq('game_id', gameId)
-      .order('created_at')
-      .limit(1);
+      .order('joined_at', { ascending: true });
 
     if (players && players.length > 0) {
-      // Transfer host to oldest player
-      await supabase
+      // Transfer host to oldest remaining player
+      const newHostId = players[0]!.user_id;
+      
+      const { error } = await supabase
         .from('players')
         .update({ is_host: true })
         .eq('game_id', gameId)
-        .eq('user_id', players[0]!.user_id);
+        .eq('user_id', newHostId);
+
+      if (error) {
+        console.error('Error transferring host:', error);
+      }
+
+      return { gameDeleted: false, newHostId };
     } else {
       // Delete empty game
-      await supabase
+      const { error } = await supabase
         .from('games')
         .delete()
         .eq('id', gameId);
+
+      if (error) {
+        console.error('Error deleting empty game:', error);
+      }
+
+      return { gameDeleted: true };
     }
+  }
+
+  /**
+   * Get host transfer info (used by socket events)
+   */
+  async getHostTransferInfo(gameId: string): Promise<{ newHostId?: string }> {
+    const { data: players } = await supabase
+      .from('players')
+      .select('user_id, is_host')
+      .eq('game_id', gameId)
+      .order('joined_at', { ascending: true });
+
+    const currentHost = players?.find(p => p.is_host);
+    if (!currentHost && players && players.length > 0) {
+      return { newHostId: players[0]!.user_id };
+    }
+
+    return {};
   }
 
   /**

@@ -102,11 +102,12 @@ export class GameController {
   async leaveGame(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      await gameService.leaveGame(req.params.id, userId);
+      const result = await gameService.leaveGame(req.params.id, userId);
       
       res.json({
         success: true,
-        message: 'Successfully left the game'
+        message: 'Successfully left the game',
+        data: result
       });
     } catch (error) {
       next(error);

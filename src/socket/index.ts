@@ -48,29 +48,13 @@ export function initializeSocketServer(httpServer: HttpServer) {
     });
 
     // Register event handlers
-    handleLobbyEvents(socket);
+    handleLobbyEvents(socket, io);
     handleGameEvents(io, socket, roomManager, gameService);
 
-    // Handle disconnect
+    // Handle disconnect is now in lobby.events.ts
     socket.on('disconnect', async () => {
       console.log(`User ${socket.data.username} disconnected`);
-      
-      const gameId = roomManager.handleDisconnect(socket.data.userId);
-      
-      if (gameId) {
-        // Try to leave game gracefully
-        try {
-          await gameService.leaveGame(gameId, socket.data.userId);
-          
-          // Notify other players
-          socket.to(`game:${gameId}`).emit('game:playerLeft', socket.data.userId);
-          
-          // Update lobby
-          io.emit('lobby:update', await gameService.getGameList());
-        } catch (error) {
-          console.error('Error handling disconnect:', error);
-        }
-      }
+      roomManager.handleDisconnect(socket.data.userId);
     });
   });
 
