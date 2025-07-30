@@ -22,8 +22,7 @@ async function testSupabase() {
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: testEmail,
       password: 'TestPassword123!',
-      email_confirm: true,
-      user_metadata: { username: 'testplayer' }
+      email_confirm: true
     });
 
     if (authError) {
@@ -32,10 +31,7 @@ async function testSupabase() {
       console.log('Trying alternative signup method...');
       const { data: signupData, error: signupError } = await supabase.auth.signUp({
         email: testEmail,
-        password: 'TestPassword123!',
-        options: {
-          data: { username: 'testplayer' }
-        }
+        password: 'TestPassword123!'
       });
       
       if (signupError) {
@@ -49,7 +45,10 @@ async function testSupabase() {
       userId = authData.user?.id;
     }
 
-    // 2. Test Profile - Sollte automatisch erstellt sein
+    // 2. Wait for trigger and test Profile
+    console.log('\n⏳ Waiting for profile trigger...');
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
     console.log('\n2️⃣ Testing Profile - Checking auto-created profile...');
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
