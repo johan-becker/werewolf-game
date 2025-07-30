@@ -39,16 +39,7 @@ export class AuthService {
         throw new Error('Failed to create user');
       }
 
-      // Create profile in profiles table
-      if (authData.user.id) {
-        await this.createProfile({
-          id: authData.user.id,
-          username: data.username,
-          full_name: data.full_name || data.username,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-      }
+      // Profile creation is handled by database trigger (handle_new_user)
 
       logger.info(`User signed up: ${data.username} (${authData.user.id})`);
 

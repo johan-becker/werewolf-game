@@ -21,7 +21,8 @@
       "Bash(docker-compose up:*)",
       "Bash(docker logs:*)",
       "Bash(grep:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
