@@ -1,5 +1,5 @@
 // src/services/authService.ts
-import { supabaseAdmin, supabase } from '../lib/supabase';
+import { supabaseAdmin, supabase, createAuthenticatedClient } from '../lib/supabase';
 import { logger } from '../utils/logger';
 import { SignUpData, SignInData, UpdateProfileData, SupabaseError, Profile } from '../types/auth';
 
@@ -169,7 +169,7 @@ export class AuthService {
     }
   }
 
-  // Create profile in profiles table
+  // Create profile in profiles table (use admin for setup operations)
   static async createProfile(profileData: Partial<Profile>) {
     try {
       const { data, error } = await supabaseAdmin
@@ -190,10 +190,12 @@ export class AuthService {
     }
   }
 
-  // Update user profile
-  static async updateProfile(userId: string, updates: UpdateProfileData) {
+  // Update user profile (use authenticated client to respect RLS)
+  static async updateProfile(userId: string, updates: UpdateProfileData, accessToken: string) {
     try {
-      const { data, error } = await supabaseAdmin
+      const authenticatedClient = createAuthenticatedClient(accessToken);
+      
+      const { data, error } = await authenticatedClient
         .from('profiles')
         .update({
           ...updates,
@@ -216,10 +218,10 @@ export class AuthService {
     }
   }
 
-  // Get public profile by ID
+  // Get public profile by ID (use regular client to respect RLS)
   static async getPublicProfile(userId: string) {
     try {
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await supabase
         .from('profiles')
         .select('id, username, full_name, avatar_url, bio, created_at')
         .eq('id', userId)

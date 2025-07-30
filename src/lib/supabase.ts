@@ -6,8 +6,9 @@ dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 
-// Für Server-Side (mit Admin-Rechten)
+// ❌ ADMIN CLIENT - Bypasses RLS (only for server admin operations)
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
@@ -15,8 +16,25 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   }
 });
 
-// Für Client-Side (mit RLS)
-export const supabase = createClient(
-  supabaseUrl, 
-  process.env.SUPABASE_ANON_KEY!
-);
+// ✅ CLIENT - Respects RLS (use this for user operations)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true
+  }
+});
+
+// Helper function to create authenticated client
+export const createAuthenticatedClient = (accessToken: string) => {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    },
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+};

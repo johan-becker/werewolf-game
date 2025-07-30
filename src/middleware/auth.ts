@@ -4,7 +4,11 @@ import rateLimit from 'express-rate-limit';
 import { supabaseAdmin } from '../lib/supabase';
 
 export interface AuthRequest extends Request {
-  user?: any;
+  user?: {
+    id: string;
+    email?: string;
+    [key: string]: any;
+  };
 }
 
 export async function requireAuth(

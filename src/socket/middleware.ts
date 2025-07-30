@@ -1,39 +1,75 @@
-// src/socket/middleware.ts
-import { supabaseAdmin } from '../lib/supabase';
-import { logger } from '../utils/logger';
+import { Socket } from 'socket.io';
+import { createClient } from '@supabase/supabase-js';
+import { ExtendedError } from 'socket.io/dist/namespace';
 
-export async function authenticateSocket(socket: any, next: any) {
-  const token = socket.handshake.auth.token;
-  
-  if (!token) {
-    logger.warn('Socket connection rejected: No token provided');
-    return next(new Error('No token provided'));
-  }
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!
+);
 
+export async function authenticateSocket(
+  socket: Socket,
+  next: (err?: ExtendedError) => void
+) {
   try {
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    // Get token from handshake
+    const token = socket.handshake.auth.token || 
+                 socket.handshake.headers.authorization?.replace('Bearer ', '');
+
+    if (!token) {
+      return next(new Error('No token provided'));
+    }
+
+    // Verify with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {
-      logger.warn('Socket connection rejected: Invalid token');
-      throw new Error('Invalid token');
+      return next(new Error('Invalid token'));
     }
-    
-    socket.userId = user.id;
-    socket.user = user;
-    
-    logger.info(`Socket authenticated for user: ${user.id}`);
+
+    // Get user profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .single();
+
+    // Attach user data to socket
+    socket.data.userId = user.id;
+    socket.data.username = profile?.username || 'Anonymous';
+
     next();
-  } catch (err: any) {
-    logger.error('Socket authentication error:', err);
+  } catch (error) {
     next(new Error('Authentication failed'));
   }
 }
 
-export async function requireSocketAuth(socket: any, next: any) {
-  if (!socket.userId || !socket.user) {
-    logger.warn('Socket action rejected: User not authenticated');
-    return next(new Error('User not authenticated'));
-  }
-  
-  next();
+// Rate limiting middleware
+const rateLimitMap = new Map<string, number[]>();
+
+export function rateLimitMiddleware(
+  eventName: string,
+  maxRequests: number = 10,
+  windowMs: number = 60000
+) {
+  return (socket: Socket, next: () => void) => {
+    const key = `${socket.data.userId}:${eventName}`;
+    const now = Date.now();
+    const requests = rateLimitMap.get(key) || [];
+    
+    // Clean old requests
+    const validRequests = requests.filter(time => now - time < windowMs);
+    
+    if (validRequests.length >= maxRequests) {
+      socket.emit('error', {
+        code: 'RATE_LIMIT',
+        message: `Too many requests for ${eventName}`
+      });
+      return;
+    }
+    
+    validRequests.push(now);
+    rateLimitMap.set(key, validRequests);
+    next();
+  };
 }

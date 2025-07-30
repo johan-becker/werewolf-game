@@ -7,19 +7,15 @@ import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { logger } from './utils/logger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import authRoutes from './routes/auth';
+import authRoutes from './routes/auth-simple';
 import userRoutes from './routes/users';
+import gameRoutes from './routes/games-simple';
+import { initializeSocketServer } from './socket';
 
 dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
-    methods: ['GET', 'POST'],
-  },
-});
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
@@ -37,8 +33,23 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
+// API Routes FIRST
+console.log('Loading auth routes...');
+console.log('Auth routes object:', authRoutes);
+app.use('/api/auth', authRoutes);
+console.log('Loading user routes...');
+app.use('/api/users', userRoutes);
+console.log('Loading game routes...');
+app.use('/api/games', gameRoutes);
+console.log('All routes loaded successfully');
+
+// Test route directly in server
+app.get('/api/test', (req, res) => {
+  res.json({ success: true, message: 'Direct route works' });
+});
+
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.url} - ${req.ip}`);
+  console.log(`${req.method} ${req.url} - ${req.ip}`);
   next();
 });
 
@@ -58,17 +69,8 @@ app.get('/', (req, res) => {
   });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-
-io.on('connection', (socket) => {
-  logger.info(`User connected: ${socket.id}`);
-
-  socket.on('disconnect', () => {
-    logger.info(`User disconnected: ${socket.id}`);
-  });
-});
+// Initialize Socket.IO server
+const io = initializeSocketServer(httpServer);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

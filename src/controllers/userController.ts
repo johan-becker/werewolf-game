@@ -74,7 +74,16 @@ export class UserController {
         return;
       }
 
-      const updatedProfile = await AuthService.updateProfile(req.user.id, updates);
+      // Get access token from request
+      const accessToken = req.headers.authorization?.replace('Bearer ', '');
+      if (!accessToken) {
+        res.status(401).json({
+          error: 'Access token required'
+        });
+        return;
+      }
+
+      const updatedProfile = await AuthService.updateProfile(req.user.id, updates, accessToken);
 
       res.status(200).json({
         success: true,

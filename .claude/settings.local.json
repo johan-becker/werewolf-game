@@ -11,7 +11,16 @@
       "Bash(npm start)",
       "Bash(NODE_ENV=development npm start)",
       "Bash(npx ts-node:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(node test-endpoints.js)",
+      "Bash(node:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker logs:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
