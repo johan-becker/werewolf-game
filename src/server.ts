@@ -24,7 +24,11 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+    origin: [
+      process.env.CORS_ORIGIN || 'http://localhost:3001',
+      'http://localhost:3000',
+      'file://'
+    ],
     credentials: true,
   })
 );
@@ -68,6 +72,7 @@ app.get('/', (req, res) => {
     version: '1.0.0',
   });
 });
+
 
 // Initialize Socket.IO server
 const io = initializeSocketServer(httpServer);

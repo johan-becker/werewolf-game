@@ -11,7 +11,19 @@ export class GameService {
   /**
    * Creates a new game with auto-generated code
    */
-  async createGame(userId: string, data: CreateGameDTO): Promise<GameResponse> {
+  async createGame(data: { creatorId: string; maxPlayers: number; isPrivate: boolean; name?: string }): Promise<GameResponse> {
+    const gameData: CreateGameDTO = {
+      name: data.name || `Game ${Date.now()}`,
+      maxPlayers: data.maxPlayers
+    };
+    
+    return this.createGameInternal(data.creatorId, gameData, data.isPrivate);
+  }
+
+  /**
+   * Internal method for creating games
+   */
+  private async createGameInternal(userId: string, data: CreateGameDTO, isPrivate: boolean = false): Promise<GameResponse> {
     // Validate input
     if (!data.name || data.name.trim().length < 3) {
       throw new Error('Game name must be at least 3 characters long');
@@ -60,6 +72,7 @@ export class GameService {
         code,
         max_players: data.maxPlayers,
         settings: data.settings || {},
+        is_private: isPrivate,
         creator_id: userId
       })
       .select()
@@ -317,6 +330,34 @@ export class GameService {
   }
 
   /**
+   * End game (host only)
+   */
+  async endGame(gameId: string, userId: string): Promise<GameResponse> {
+    // Check if user is host
+    const { data: player } = await supabase
+      .from('players')
+      .select('is_host')
+      .eq('game_id', gameId)
+      .eq('user_id', userId)
+      .single();
+
+    if (!player?.is_host) throw new Error('Only host can end the game');
+
+    // Update game status to finished
+    const { error } = await supabase
+      .from('games')
+      .update({ 
+        status: 'finished',
+        ended_at: new Date().toISOString()
+      })
+      .eq('id', gameId);
+
+    if (error) throw new Error(`Failed to end game: ${error.message}`);
+
+    return this.getGameDetails(gameId);
+  }
+
+  /**
    * Get host transfer info (used by socket events)
    */
   async getHostTransferInfo(gameId: string): Promise<{ newHostId?: string }> {
@@ -346,7 +387,8 @@ export class GameService {
       creatorId: game.creator_id,
       maxPlayers: game.max_players,
       currentPlayers: game.current_players || 0,
-      createdAt: game.created_at
+      createdAt: game.created_at,
+      isPrivate: game.is_private
     };
   }
 
@@ -362,7 +404,8 @@ export class GameService {
       avatarUrl: p.profiles.avatar_url,
       isHost: p.is_host,
       isAlive: p.is_alive,
-      joinedAt: p.created_at
+      joinedAt: p.created_at,
+      role: p.role
     }));
 
     return response;

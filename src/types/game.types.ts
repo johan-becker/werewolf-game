@@ -32,6 +32,7 @@ export interface GameResponse {
   maxPlayers: number;
   currentPlayers: number;
   createdAt: string;
+  isPrivate?: boolean;
   players?: PlayerResponse[];
 }
 
@@ -42,4 +43,5 @@ export interface PlayerResponse {
   isHost: boolean;
   isAlive: boolean;
   joinedAt: string;
+  role?: string;
 }

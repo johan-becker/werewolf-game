@@ -1,24 +1,69 @@
 import { Socket, Server } from 'socket.io';
 import { GameService } from '../../services/game.service';
+import { RoomManager } from '../rooms';
 
 const gameService = new GameService();
 
-export function handleLobbyEvents(socket: Socket, io: Server) {
+export function handleLobbyEvents(socket: Socket, io: Server, roomManager?: RoomManager) {
+  const manager = roomManager || new RoomManager();
+
   // Join lobby room to receive updates
-  socket.on('lobby:join', () => {
-    socket.join('lobby');
+  socket.on('lobby:join', async () => {
+    await manager.joinLobby(socket);
+    
+    // Send initial game list
+    try {
+      const games = await gameService.getGameList();
+      socket.emit('lobby:gameList', { games });
+    } catch (error: any) {
+      socket.emit('error', {
+        code: 'LOBBY_ERROR',
+        message: 'Failed to load game list'
+      });
+    }
   });
 
   // Leave lobby room
-  socket.on('lobby:leave', () => {
-    socket.leave('lobby');
+  socket.on('lobby:leave', async () => {
+    await manager.leaveLobby(socket);
   });
 
-  // List games
+  // List games with callback
   socket.on('lobby:list', async (callback) => {
     try {
       const games = await gameService.getGameList();
       callback({ success: true, games });
+    } catch (error: any) {
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // Create new game
+  socket.on('game:create', async (data: { maxPlayers?: number; isPrivate?: boolean }, callback) => {
+    try {
+      const game = await gameService.createGame({
+        creatorId: socket.data.userId,
+        maxPlayers: data.maxPlayers || 8,
+        isPrivate: data.isPrivate || false
+      });
+
+      // Join the game room as creator
+      await manager.joinRoom(socket, game.id);
+
+      // Broadcast new game to lobby (only if public)
+      if (!game.isPrivate) {
+        manager.broadcastToLobby(io, 'lobby:gameCreated', {
+          gameId: game.id,
+          name: game.name,
+          currentPlayers: game.currentPlayers,
+          maxPlayers: game.maxPlayers,
+          status: game.status,
+          isPrivate: game.isPrivate,
+          code: game.code
+        });
+      }
+
+      callback({ success: true, game });
     } catch (error: any) {
       callback({ success: false, error: error.message });
     }
@@ -29,19 +74,23 @@ export function handleLobbyEvents(socket: Socket, io: Server) {
     try {
       const game = await gameService.joinGame(data.gameId, socket.data.userId);
       
-      // Join game room
-      socket.join(`game:${data.gameId}`);
+      // Join game room via room manager
+      await manager.joinRoom(socket, data.gameId);
+      
+      // Get player that just joined
+      const joinedPlayer = game.players?.find(p => p.userId === socket.data.userId);
       
       // Notify game room about new player
-      io.to(`game:${data.gameId}`).emit('game:playerJoined', {
+      manager.broadcastToRoom(io, data.gameId, 'game:playerJoined', {
         gameId: data.gameId,
-        player: game.players?.find(p => p.userId === socket.data.userId)
+        player: joinedPlayer
       });
       
       // Update lobby with new player count
-      io.to('lobby').emit('lobby:gameUpdated', {
+      manager.broadcastToLobby(io, 'lobby:gameUpdated', {
         gameId: data.gameId,
-        currentPlayers: game.currentPlayers
+        currentPlayers: game.currentPlayers,
+        maxPlayers: game.maxPlayers
       });
       
       callback({ success: true, game });
@@ -55,20 +104,26 @@ export function handleLobbyEvents(socket: Socket, io: Server) {
     try {
       const game = await gameService.joinGameByCode(data.code, socket.data.userId);
       
-      // Join game room
-      socket.join(`game:${game.id}`);
+      // Join game room via room manager
+      await manager.joinRoom(socket, game.id);
+      
+      // Get player that just joined
+      const joinedPlayer = game.players?.find(p => p.userId === socket.data.userId);
       
       // Notify game room about new player
-      io.to(`game:${game.id}`).emit('game:playerJoined', {
+      manager.broadcastToRoom(io, game.id, 'game:playerJoined', {
         gameId: game.id,
-        player: game.players?.find(p => p.userId === socket.data.userId)
+        player: joinedPlayer
       });
       
-      // Update lobby
-      io.to('lobby').emit('lobby:gameUpdated', {
-        gameId: game.id,
-        currentPlayers: game.currentPlayers
-      });
+      // Update lobby (if public game)
+      if (!game.isPrivate) {
+        manager.broadcastToLobby(io, 'lobby:gameUpdated', {
+          gameId: game.id,
+          currentPlayers: game.currentPlayers,
+          maxPlayers: game.maxPlayers
+        });
+      }
       
       callback({ success: true, game });
     } catch (error: any) {
@@ -81,18 +136,19 @@ export function handleLobbyEvents(socket: Socket, io: Server) {
     try {
       const result = await gameService.leaveGame(data.gameId, socket.data.userId);
       
-      // Leave game room
-      socket.leave(`game:${data.gameId}`);
+      // Leave game room via room manager
+      await manager.leaveCurrentRoom(socket);
       
       // Notify game room about player leaving
-      io.to(`game:${data.gameId}`).emit('game:playerLeft', {
+      manager.broadcastToRoom(io, data.gameId, 'game:playerLeft', {
         gameId: data.gameId,
-        userId: socket.data.userId
+        userId: socket.data.userId,
+        username: socket.data.username
       });
       
       // Handle host transfer
       if (result.newHostId) {
-        io.to(`game:${data.gameId}`).emit('game:hostTransferred', {
+        manager.broadcastToRoom(io, data.gameId, 'game:hostTransferred', {
           gameId: data.gameId,
           newHostId: result.newHostId
         });
@@ -100,17 +156,20 @@ export function handleLobbyEvents(socket: Socket, io: Server) {
       
       // Update lobby - get updated game info or remove if deleted
       if (result.gameDeleted) {
-        io.to('lobby').emit('lobby:gameRemoved', { gameId: data.gameId });
+        manager.broadcastToLobby(io, 'lobby:gameRemoved', { gameId: data.gameId });
       } else {
         try {
           const updatedGame = await gameService.getGameDetails(data.gameId);
-          io.to('lobby').emit('lobby:gameUpdated', {
-            gameId: data.gameId,
-            currentPlayers: updatedGame.currentPlayers
-          });
+          if (!updatedGame.isPrivate) {
+            manager.broadcastToLobby(io, 'lobby:gameUpdated', {
+              gameId: data.gameId,
+              currentPlayers: updatedGame.currentPlayers,
+              maxPlayers: updatedGame.maxPlayers
+            });
+          }
         } catch {
           // Game might have been deleted by race condition
-          io.to('lobby').emit('lobby:gameRemoved', { gameId: data.gameId });
+          manager.broadcastToLobby(io, 'lobby:gameRemoved', { gameId: data.gameId });
         }
       }
       
@@ -123,65 +182,60 @@ export function handleLobbyEvents(socket: Socket, io: Server) {
   // Start game via socket
   socket.on('game:start', async (data: { gameId: string }, callback) => {
     try {
-      await gameService.startGame(data.gameId, socket.data.userId);
+      const game = await gameService.startGame(data.gameId, socket.data.userId);
       
       // Notify game room that game started
-      io.to(`game:${data.gameId}`).emit('game:started', {
-        gameId: data.gameId
+      manager.broadcastToRoom(io, data.gameId, 'game:started', {
+        gameId: data.gameId,
+        game: game
       });
       
       // Remove from lobby (game no longer waiting)
-      io.to('lobby').emit('lobby:gameRemoved', { gameId: data.gameId });
+      manager.broadcastToLobby(io, 'lobby:gameRemoved', { gameId: data.gameId });
       
-      callback({ success: true });
+      callback({ success: true, game });
     } catch (error: any) {
       callback({ success: false, error: error.message });
     }
   });
 
-  // Handle disconnect - auto-leave games
+  // Handle disconnect - delegate to room manager
   socket.on('disconnect', async () => {
-    const rooms = Array.from(socket.rooms);
+    console.log(`User ${socket.data.username} disconnected`);
     
-    for (const room of rooms) {
-      if (room.startsWith('game:')) {
-        const gameId = room.replace('game:', '');
-        try {
-          const result = await gameService.leaveGame(gameId, socket.data.userId);
-          
-          // Notify remaining players
-          io.to(room).emit('game:playerLeft', {
-            gameId,
-            userId: socket.data.userId
-          });
-          
-          // Handle host transfer
-          if (result.newHostId) {
-            io.to(room).emit('game:hostTransferred', {
-              gameId,
-              newHostId: result.newHostId
-            });
-          }
-          
-          // Update lobby
-          if (result.gameDeleted) {
-            io.to('lobby').emit('lobby:gameRemoved', { gameId });
-          } else {
-            try {
-              const updatedGame = await gameService.getGameDetails(gameId);
-              io.to('lobby').emit('lobby:gameUpdated', {
-                gameId,
-                currentPlayers: updatedGame.currentPlayers
-              });
-            } catch {
-              // Game was deleted by race condition
-              io.to('lobby').emit('lobby:gameRemoved', { gameId });
-            }
-          }
-        } catch (error) {
-          // Game might not exist anymore
-          console.log(`Error leaving game ${gameId} on disconnect:`, error);
-        }
+    // Room manager handles the grace period and cleanup
+    const gameId = manager.handleDisconnect(socket.data.userId);
+    
+    if (gameId) {
+      // Notify the game room about temporary disconnect
+      manager.broadcastToRoom(io, gameId, 'game:playerDisconnected', {
+        gameId,
+        userId: socket.data.userId,
+        username: socket.data.username
+      });
+    }
+  });
+
+  // Handle reconnection
+  socket.on('reconnect', async () => {
+    console.log(`User ${socket.data.username} attempting reconnection`);
+    
+    const gameId = await manager.handleReconnection(socket);
+    
+    if (gameId) {
+      // Notify the game room about reconnection
+      manager.broadcastToRoom(io, gameId, 'game:playerReconnected', {
+        gameId,
+        userId: socket.data.userId,
+        username: socket.data.username
+      });
+      
+      // Send current game state to reconnected user
+      try {
+        const game = await gameService.getGameDetails(gameId);
+        socket.emit('game:stateSync', { game });
+      } catch (error) {
+        console.error('Failed to sync game state on reconnection:', error);
       }
     }
   });

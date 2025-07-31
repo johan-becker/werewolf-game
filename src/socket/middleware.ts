@@ -7,40 +7,127 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY!
 );
 
+// Connection tracking for reconnection handling
+const activeConnections = new Map<string, {
+  socket: Socket;
+  lastSeen: number;
+  gameId?: string;
+}>();
+
 export async function authenticateSocket(
   socket: Socket,
   next: (err?: ExtendedError) => void
 ) {
   try {
-    // Get token from handshake
-    const token = socket.handshake.auth.token || 
-                 socket.handshake.headers.authorization?.replace('Bearer ', '');
+    let token: string | undefined;
+
+    // Get token from multiple sources (priority order)
+    // 1. Auth object (most common for direct connections)
+    if (socket.handshake.auth.token) {
+      token = socket.handshake.auth.token;
+    }
+    // 2. Authorization header
+    else if (socket.handshake.headers.authorization) {
+      token = socket.handshake.headers.authorization.replace('Bearer ', '');
+    }
+    // 3. Query parameter (useful for browser connections)
+    else if (socket.handshake.query.token && typeof socket.handshake.query.token === 'string') {
+      token = socket.handshake.query.token;
+    }
+    // 4. Cookie (if set by browser)
+    else if (socket.handshake.headers.cookie) {
+      const cookies = parseCookies(socket.handshake.headers.cookie);
+      token = cookies['access_token'] || cookies['sb_access_token'];
+    }
 
     if (!token) {
-      return next(new Error('No token provided'));
+      return next(new Error('No authentication token provided'));
     }
 
     // Verify with Supabase
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {
-      return next(new Error('Invalid token'));
+      return next(new Error('Invalid or expired token'));
     }
 
     // Get user profile
     const { data: profile } = await supabase
       .from('profiles')
-      .select('username')
+      .select('username, full_name')
       .eq('id', user.id)
       .single();
 
     // Attach user data to socket
     socket.data.userId = user.id;
-    socket.data.username = profile?.username || 'Anonymous';
+    socket.data.username = profile?.username || profile?.full_name || 'Anonymous';
+
+    // Handle reconnection - check if user was previously connected
+    const existingConnection = activeConnections.get(user.id);
+    if (existingConnection) {
+      // Disconnect old socket if still connected
+      if (existingConnection.socket.connected) {
+        existingConnection.socket.disconnect(true);
+      }
+      
+      // Transfer game room if user was in one
+      if (existingConnection.gameId) {
+        (socket.data as any).gameId = existingConnection.gameId;
+        await socket.join(`game:${existingConnection.gameId}`);
+      }
+    }
+
+    // Track new connection
+    activeConnections.set(user.id, {
+      socket,
+      lastSeen: Date.now(),
+      gameId: (socket.data as any).gameId
+    });
+
+    // Auto-disconnect on invalid token (session expired)
+    socket.on('disconnect', () => {
+      const connection = activeConnections.get(user.id);
+      if (connection && connection.socket.id === socket.id) {
+        // Start grace period for reconnection
+        setTimeout(() => {
+          const stillExists = activeConnections.get(user.id);
+          if (stillExists && stillExists.socket.id === socket.id) {
+            activeConnections.delete(user.id);
+          }
+        }, 30000); // 30 second grace period
+      }
+    });
 
     next();
   } catch (error) {
+    console.error('Socket authentication error:', error);
     next(new Error('Authentication failed'));
+  }
+}
+
+// Helper function to parse cookies
+function parseCookies(cookieHeader: string): Record<string, string> {
+  const cookies: Record<string, string> = {};
+  cookieHeader.split(';').forEach(cookie => {
+    const parts = cookie.trim().split('=');
+    if (parts.length === 2) {
+      cookies[parts[0]] = decodeURIComponent(parts[1]);
+    }
+  });
+  return cookies;
+}
+
+// Get active connection for user (useful for reconnection logic)
+export function getActiveConnection(userId: string) {
+  return activeConnections.get(userId);
+}
+
+// Update connection game room
+export function updateConnectionGame(userId: string, gameId: string | undefined) {
+  const connection = activeConnections.get(userId);
+  if (connection) {
+    connection.gameId = gameId;
+    connection.lastSeen = Date.now();
   }
 }
 
