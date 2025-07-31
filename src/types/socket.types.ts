@@ -33,6 +33,16 @@ export interface ClientToServerEvents {
   'game:pause': (callback: (response: any) => void) => void;
   'game:resume': (callback: (response: any) => void) => void;
   
+  // Role-based actions
+  'game:nightAction': (data: { 
+    actionType: string; 
+    targetId?: string; 
+    secondTargetId?: string;
+  }, callback: (response: any) => void) => void;
+  'game:vote': (data: { targetId: string }, callback: (response: any) => void) => void;
+  'game:getRole': (callback: (response: any) => void) => void;
+  'game:getAvailableActions': (callback: (response: any) => void) => void;
+  
   // Game state
   'game:getState': (callback: (response: any) => void) => void;
   'game:ready': (callback: (response: any) => void) => void;
@@ -77,12 +87,18 @@ export interface ServerToClientEvents {
   'game:playerLeft': (data: { gameId: string; userId: string; username: string }) => void;
   'game:playerDisconnected': (data: { gameId: string; userId: string; username: string; reason?: string }) => void;
   'game:playerReconnected': (data: { gameId: string; userId: string; username: string }) => void;
-  'game:started': (data: { gameId: string; game?: any }) => void;
-  'game:ended': (data: { endedBy: string; timestamp: string }) => void;
+  'game:started': (data: { gameId: string; game?: any; roleAssignments?: any[] }) => void;
+  'game:ended': (data: { winner: string; endedBy: string; timestamp: string }) => void;
   'game:cancelled': (reason: string) => void;
   'game:paused': (data: { pausedBy: string; timestamp: string }) => void;
   'game:resumed': (data: { resumedBy: string; timestamp: string }) => void;
   'game:hostTransferred': (data: { gameId: string; newHostId: string }) => void;
+  
+  // Role and phase updates
+  'game:phaseChanged': (data: { phase: 'DAY' | 'NIGHT'; dayNumber: number }) => void;
+  'game:roleAssigned': (data: { role: string; abilities: any[] }) => void;
+  'game:playerEliminated': (data: { playerId: string; playerName: string; role?: string }) => void;
+  'game:nightResolved': (data: { deaths: string[]; phase: 'DAY' | 'NIGHT' }) => void;
   
   // Game state sync
   'game:stateSync': (data: { game: any }) => void;

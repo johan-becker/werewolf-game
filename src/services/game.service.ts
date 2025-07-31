@@ -1,6 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateGameCode } from '../utils/gameCode';
 import { CreateGameDTO, GameResponse } from '../types/game.types';
+import { RoleService } from './role.service';
+import { NightActionService } from './night-action.service';
+import { 
+  PlayerRole, 
+  PlayerState, 
+  GamePhaseState, 
+  WinCondition,
+  ActionType,
+  NightAction 
+} from '../types/roles.types';
+import { GameRoleConfig } from '../types/werewolf-roles.types';
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -13,6 +24,16 @@ const supabaseAdmin = createClient(
 );
 
 export class GameService {
+  private roleService: RoleService;
+  private nightActionService: NightActionService;
+  private gameStates: Map<string, GamePhaseState> = new Map();
+  private playerStates: Map<string, PlayerState[]> = new Map();
+  private roleConfigurations: Map<string, GameRoleConfig> = new Map();
+
+  constructor() {
+    this.roleService = new RoleService();
+    this.nightActionService = new NightActionService();
+  }
   /**
    * Creates a new game with auto-generated code
    */
@@ -432,5 +453,416 @@ export class GameService {
     }));
 
     return response;
+  }
+
+  // =================== ROLE SYSTEM METHODS ===================
+
+  /**
+   * Startet ein Spiel und vergibt Rollen
+   */
+  async startGameWithRoles(gameId: string, hostId: string): Promise<{
+    success: boolean;
+    message: string;
+    roleAssignments?: Array<{ userId: string; role: PlayerRole }>;
+  }> {
+    try {
+      // Hol Spieldetails
+      const game = await this.getGameDetails(gameId);
+      
+      if (game.creatorId !== hostId) {
+        throw new Error('Nur der Host kann das Spiel starten');
+      }
+
+      if (game.status !== 'WAITING') {
+        throw new Error('Spiel kann nicht gestartet werden');
+      }
+
+      if (game.players.length < 4) {
+        throw new Error('Mindestens 4 Spieler erforderlich');
+      }
+
+      // Rollen verteilen
+      const roles = this.roleService.generateRoleDistribution(game.players.length);
+      const playerStates: PlayerState[] = [];
+
+      for (let i = 0; i < game.players.length; i++) {
+        const player = game.players[i];
+        const role = roles[i];
+        
+        const playerState = this.roleService.initializePlayerState(
+          player.userId,
+          role,
+          player.isHost
+        );
+        
+        playerStates.push(playerState);
+
+        // Update database mit Rolle
+        await supabaseAdmin
+          .from('players')
+          .update({ role: role })
+          .eq('game_id', gameId)
+          .eq('user_id', player.userId);
+      }
+
+      // Game Status aktualisieren
+      await supabaseAdmin
+        .from('games')
+        .update({ 
+          status: 'IN_PROGRESS',
+          phase: 'NIGHT',
+          started_at: new Date().toISOString()
+        })
+        .eq('id', gameId);
+
+      // Spielzustand initialisieren
+      const gamePhase: GamePhaseState = {
+        phase: 'NIGHT',
+        dayNumber: 1,
+        pendingActions: []
+      };
+
+      this.gameStates.set(gameId, gamePhase);
+      this.playerStates.set(gameId, playerStates);
+
+      return {
+        success: true,
+        message: 'Spiel gestartet und Rollen vergeben',
+        roleAssignments: playerStates.map(p => ({
+          userId: p.userId,
+          role: p.role
+        }))
+      };
+
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message
+      };
+    }
+  }
+
+  /**
+   * Holt die Rolle eines Spielers
+   */
+  getPlayerRole(gameId: string, userId: string): PlayerRole | null {
+    const players = this.playerStates.get(gameId);
+    if (!players) return null;
+
+    const player = players.find(p => p.userId === userId);
+    return player?.role || null;
+  }
+
+  /**
+   * Holt verfügbare Aktionen für einen Spieler
+   */
+  getAvailableActions(gameId: string, userId: string): ActionType[] {
+    const players = this.playerStates.get(gameId);
+    const gamePhase = this.gameStates.get(gameId);
+    
+    if (!players || !gamePhase) return [];
+
+    const player = players.find(p => p.userId === userId);
+    if (!player) return [];
+
+    return this.nightActionService.getAvailableActions(player, gamePhase.phase === 'NIGHT');
+  }
+
+  /**
+   * Führt eine Nacht-Aktion durch
+   */
+  async performNightAction(
+    gameId: string,
+    action: NightAction
+  ): Promise<{ success: boolean; message: string; revealedInfo?: any }> {
+    const players = this.playerStates.get(gameId);
+    const gamePhase = this.gameStates.get(gameId);
+
+    if (!players || !gamePhase) {
+      return { success: false, message: 'Spiel nicht gefunden' };
+    }
+
+    if (gamePhase.phase !== 'NIGHT') {
+      return { success: false, message: 'Aktionen nur nachts möglich' };
+    }
+
+    const result = await this.nightActionService.submitNightAction(gameId, action, players);
+    
+    // Aktualisierte Spieler speichern
+    this.playerStates.set(gameId, players);
+
+    return {
+      success: result.success,
+      message: result.message,
+      revealedInfo: result.revealedInfo
+    };
+  }
+
+  /**
+   * Löst alle Nacht-Aktionen auf
+   */
+  async resolveNightPhase(gameId: string): Promise<{
+    success: boolean;
+    message: string;
+    deaths: string[];
+    gameEnded: boolean;
+    winner?: WinCondition;
+  }> {
+    const players = this.playerStates.get(gameId);
+    const gamePhase = this.gameStates.get(gameId);
+
+    if (!players || !gamePhase) {
+      return { success: false, message: 'Spiel nicht gefunden', deaths: [], gameEnded: false };
+    }
+
+    // Nacht-Aktionen auflösen
+    const resolution = await this.nightActionService.resolveNightActions(gameId, players, gamePhase);
+
+    // Spieler-Status aktualisieren
+    this.playerStates.set(gameId, resolution.updatedPlayers);
+
+    // Tote Spieler in der Datenbank markieren
+    for (const deadPlayerId of resolution.deaths) {
+      await supabaseAdmin
+        .from('players')
+        .update({ 
+          is_alive: false,
+          eliminated_at: new Date().toISOString()
+        })
+        .eq('game_id', gameId)
+        .eq('user_id', deadPlayerId);
+    }
+
+    // Win Conditions prüfen
+    const alivePlayers = resolution.updatedPlayers.filter(p => p.isAlive);
+    const winner = this.roleService.checkWinConditions(alivePlayers);
+
+    let gameEnded = false;
+    if (winner) {
+      gameEnded = true;
+      await supabaseAdmin
+        .from('games')
+        .update({ 
+          status: 'FINISHED',
+          finished_at: new Date().toISOString()
+        })
+        .eq('id', gameId);
+
+      // Cleanup
+      this.gameStates.delete(gameId);
+      this.playerStates.delete(gameId);
+    } else {
+      // Zur Tag-Phase wechseln
+      gamePhase.phase = 'DAY';
+      this.gameStates.set(gameId, gamePhase);
+
+      await supabaseAdmin
+        .from('games')
+        .update({ phase: 'DAY' })
+        .eq('id', gameId);
+    }
+
+    return {
+      success: true,
+      message: 'Nacht-Phase aufgelöst',
+      deaths: resolution.deaths,
+      gameEnded,
+      winner
+    };
+  }
+
+  /**
+   * Wechselt zur Nacht-Phase
+   */  
+  async startNightPhase(gameId: string): Promise<{ success: boolean; message: string }> {
+    const gamePhase = this.gameStates.get(gameId);
+    
+    if (!gamePhase) {
+      return { success: false, message: 'Spiel nicht gefunden' };
+    }
+
+    if (gamePhase.phase !== 'DAY') {
+      return { success: false, message: 'Kann nur vom Tag zur Nacht wechseln' };
+    }
+
+    gamePhase.phase = 'NIGHT';
+    gamePhase.dayNumber += 1;
+    gamePhase.pendingActions = [];
+    
+    this.gameStates.set(gameId, gamePhase);
+
+    await supabaseAdmin
+      .from('games')
+      .update({ phase: 'NIGHT' })
+      .eq('id', gameId);
+
+    return {
+      success: true,
+      message: 'Nacht-Phase gestartet'
+    };
+  }
+
+  /**
+   * Set role configuration for a game (host only)
+   */
+  async setRoleConfiguration(gameId: string, config: GameRoleConfig): Promise<void> {
+    // Store configuration in memory (in production, this should be stored in database)
+    this.roleConfigurations.set(gameId, config);
+    
+    // Update game table with role configuration
+    const { error } = await supabaseAdmin
+      .from('games')
+      .update({ 
+        role_config: JSON.stringify(config),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', gameId);
+    
+    if (error) throw new Error(`Failed to save role configuration: ${error.message}`);
+  }
+
+  /**
+   * Get role configuration for a game
+   */
+  getRoleConfiguration(gameId: string): GameRoleConfig | null {
+    return this.roleConfigurations.get(gameId) || null;
+  }
+
+  /**
+   * Holt den aktuellen Spielzustand
+   */
+  getGameState(gameId: string): {
+    phase: GamePhaseState | null;
+    players: PlayerState[] | null;
+  } {
+    return {
+      phase: this.gameStates.get(gameId) || null,
+      players: this.playerStates.get(gameId) || null
+    };
+  }
+
+  /**
+   * Prüft ob alle erforderlichen Nacht-Aktionen eingereicht wurden
+   */
+  areAllNightActionsSubmitted(gameId: string): boolean {
+    const players = this.playerStates.get(gameId);
+    if (!players) return false;
+
+    return this.nightActionService.areAllNightActionsSubmitted(gameId, players);
+  }
+
+  /**
+   * Holt Zusammenfassung der Nacht-Aktionen
+   */
+  getNightActionsSummary(gameId: string): any {
+    const players = this.playerStates.get(gameId);
+    if (!players) return null;
+
+    return this.nightActionService.getNightActionsSummary(gameId, players);
+  }
+
+  /**
+   * Führt eine Dorf-Abstimmung durch
+   */
+  async performVillageVote(
+    gameId: string,
+    votes: Array<{ voterId: string; targetId: string }>
+  ): Promise<{
+    success: boolean;
+    message: string;
+    eliminatedPlayer?: string;
+    gameEnded: boolean;
+    winner?: WinCondition;
+  }> {
+    const players = this.playerStates.get(gameId);
+    const gamePhase = this.gameStates.get(gameId);
+
+    if (!players || !gamePhase) {
+      return { success: false, message: 'Spiel nicht gefunden', gameEnded: false };
+    }
+
+    if (gamePhase.phase !== 'DAY') {
+      return { success: false, message: 'Abstimmung nur am Tag möglich', gameEnded: false };
+    }
+
+    // Stimmen zählen
+    const voteCount: Record<string, number> = {};
+    votes.forEach(vote => {
+      voteCount[vote.targetId] = (voteCount[vote.targetId] || 0) + 1;
+    });
+
+    // Spieler mit den meisten Stimmen finden
+    let maxVotes = 0;
+    let eliminatedPlayer: string | undefined;
+    
+    Object.entries(voteCount).forEach(([playerId, votes]) => {
+      if (votes > maxVotes) {
+        maxVotes = votes;
+        eliminatedPlayer = playerId;
+      }
+    });
+
+    if (!eliminatedPlayer || maxVotes === 0) {
+      return { success: false, message: 'Keine gültigen Stimmen', gameEnded: false };
+    }
+
+    // Spieler eliminieren
+    const playerToEliminate = players.find(p => p.userId === eliminatedPlayer);
+    if (playerToEliminate) {
+      playerToEliminate.isAlive = false;
+
+      // Jäger-Fähigkeit prüfen
+      if (playerToEliminate.role === PlayerRole.HUNTER && playerToEliminate.specialStates.canRevenge) {
+        // Jäger kann jemanden mitnehmen - das sollte in einem separaten Schritt behandelt werden
+      }
+
+      // Liebespaar-Mechanik
+      if (playerToEliminate.specialStates.loverId) {
+        const lover = players.find(p => p.userId === playerToEliminate.specialStates.loverId);
+        if (lover && lover.isAlive) {
+          lover.isAlive = false;
+        }
+      }
+
+      // Datenbank aktualisieren
+      await supabaseAdmin
+        .from('players')
+        .update({ 
+          is_alive: false,
+          eliminated_at: new Date().toISOString()
+        })
+        .eq('game_id', gameId)
+        .eq('user_id', eliminatedPlayer);
+    }
+
+    // Win Conditions prüfen
+    const alivePlayers = players.filter(p => p.isAlive);
+    const winner = this.roleService.checkWinConditions(alivePlayers);
+
+    let gameEnded = false;
+    if (winner) {
+      gameEnded = true;
+      await supabaseAdmin
+        .from('games')
+        .update({ 
+          status: 'FINISHED',
+          finished_at: new Date().toISOString()
+        })
+        .eq('id', gameId);
+
+      // Cleanup
+      this.gameStates.delete(gameId);
+      this.playerStates.delete(gameId);
+    }
+
+    this.playerStates.set(gameId, players);
+
+    return {
+      success: true,
+      message: `${eliminatedPlayer} wurde eliminiert`,
+      eliminatedPlayer,
+      gameEnded,
+      winner
+    };
   }
 }

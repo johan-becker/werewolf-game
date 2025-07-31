@@ -16,6 +16,10 @@ This is a TypeScript-based real-time multiplayer werewolf game backend with dual
 
 **Game Code System**: Uses 6-character alphanumeric codes excluding ambiguous characters (0, 1, I, O) for easy game joining.
 
+**Role Strategy Pattern**: Modular role system using strategy pattern with `BaseRoleStrategy` interface. Each werewolf role (Villager, Seer, Witch, Hunter, etc.) implements specific behaviors through dedicated strategy classes in `src/services/role-strategies/`.
+
+**Night Phase Management**: Structured night phases with `WerewolfNightManager` coordinating sequential role actions (Seer → Werewolves → Witch → Hunter) and automatic phase transitions.
+
 ## Terminal Commands
 
 **Development**:
@@ -33,10 +37,11 @@ This is a TypeScript-based real-time multiplayer werewolf game backend with dual
 - `npm run lint`: ESLint code checking
 - `npm run format`: Prettier code formatting
 
-**Chat System Testing**:
+**System Testing**:
 - `node test-chat-system.js`: Comprehensive chat system test suite
 - `node test-socket-events.js`: Socket.IO event testing
-- Tests cover: lobby chat, mentions, spam protection, typing indicators, message editing
+- `node test-role-system.js`: Werewolf role system and strategy pattern testing
+- Tests cover: lobby chat, mentions, spam protection, typing indicators, message editing, role mechanics
 
 ## Database Architecture
 
@@ -93,7 +98,15 @@ supabase.from('games').select(...)
 - `src/services/authService.ts`: Supabase auth integration with error mapping
 - `src/services/game.service.ts`: Core game operations using database functions
 - `src/services/chat.service.ts`: Chat system with spam protection, permissions, and moderation
+- `src/services/werewolf-game-manager.service.ts`: Main game manager coordinating roles, phases, and win conditions
+- `src/services/werewolf-night-manager.service.ts`: Night phase orchestration and action processing
+- `src/services/role-factory.ts`: Role instantiation using factory pattern with strategy implementations
 - `src/lib/supabase.ts`: Database client configuration and RLS patterns
+
+**Role Strategy Architecture**:
+- `src/services/role-strategies/base-role-strategy.ts`: Abstract base class defining role behavior interface
+- `src/services/role-strategies/`: Individual role implementations (villager, seer, witch, werewolf, hunter, cupid, little-girl)
+- Each strategy handles role-specific actions, night abilities, and win condition checks
 
 **Socket Architecture**:
 - `src/socket/index.ts`: Main Socket.IO server setup with authentication
@@ -105,17 +118,27 @@ supabase.from('games').select(...)
 - `src/types/`: Comprehensive TypeScript definitions for game state, auth, socket events, and chat
 - `src/types/socket.types.ts`: Complete Socket.IO event typing for both client and server
 - `src/types/chat.types.ts`: Chat message interfaces and channel definitions
-- Strict typing for game phases, player roles, and API responses
+- `src/types/werewolf-roles.types.ts`: Werewolf-specific types including roles, teams, win conditions, and night phases
+- `src/types/roles.types.ts`: General role interfaces and action types
+- Strict typing for game phases, player roles, night actions, and API responses
 
 ## Development Workflow
 
 **Adding Game Features**:
-1. Update types in `src/types/game.types.ts`
+1. Update types in `src/types/game.types.ts` and relevant role types
 2. Add database functions/policies if needed
 3. Implement service layer methods
 4. Create socket event handlers
 5. Add REST endpoints in controllers
 6. Test with `npx ts-node src/test-supabase.ts`
+
+**Adding New Werewolf Roles**:
+1. Add role enum to `src/types/werewolf-roles.types.ts`
+2. Create strategy class in `src/services/role-strategies/[role]-strategy.ts` extending `BaseRoleStrategy`
+3. Implement required methods: `canUseNightAbility()`, `executeNightAction()`, `getWinCondition()`
+4. Register role in `src/services/role-factory.ts`
+5. Update night phase ordering in `WerewolfNightManager` if needed
+6. Test with `node test-role-system.js`
 
 **Database Changes**:
 1. Update Prisma schema

@@ -23,12 +23,40 @@ enum GamePhase {
   NIGHT
 }
 
-enum PlayerRole {
-  WEREWOLF
-  VILLAGER
-  SEER
-  DOCTOR
-  HUNTER
+// Klassische Werwolf-Rollen
+enum WerewolfRole {
+  VILLAGER      // Dorfbewohner
+  SEER         // Seherin
+  WITCH        // Hexe
+  HUNTER       // Jäger
+  CUPID        // Amor
+  LITTLE_GIRL  // Mädchen
+  WEREWOLF     // Werwolf
+}
+
+enum Team {
+  VILLAGE      // Dorfbewohner-Team
+  WEREWOLF     // Werwolf-Team
+  LOVERS       // Verliebte (Sonderteam)
+}
+
+enum NightPhase {
+  CUPID_PHASE     // Amor bestimmt Verliebte (nur Nacht 1)
+  SEER_PHASE      // Seherin untersucht
+  WEREWOLF_PHASE  // Werwölfe töten (Mädchen kann spionieren)
+  WITCH_PHASE     // Hexe heilt/vergiftet
+}
+
+enum ActionType {
+  SEER_INVESTIGATE
+  WEREWOLF_KILL
+  WITCH_HEAL
+  WITCH_POISON
+  CUPID_LINK
+  LITTLE_GIRL_SPY
+  VILLAGE_VOTE
+  HUNTER_SHOOT
+  NO_ACTION
 }
 
 enum ChatChannel {
@@ -48,29 +76,6 @@ enum MessageType {
   ROLE_REVEAL
 }
 
-// Profile entity - linked to Supabase auth.users
-model Profile {
-  id            String    @id @db.Uuid // References auth.users(id)
-  username      String?   @unique @db.VarChar(50)
-  full_name     String?   @db.VarChar(100)
-  avatar_url    String?   @db.VarChar(500)
-  updated_at    DateTime? @updatedAt @db.Timestamptz
-  created_at    DateTime  @default(now()) @db.Timestamptz
-
-  // Game statistics
-  games_played  Int       @default(0)
-  games_won     Int       @default(0)
-  
-  // Relations
-  created_games Game[]         @relation("GameCreator")
-  players       Player[]
-  game_logs     GameLog[]
-  chat_messages ChatMessage[]
-
-  @@map("profiles")
-  @@index([username])
-  @@index([created_at])
-}
 
 // Game entity - represents game rooms
 model Game {
@@ -78,10 +83,13 @@ model Game {
   name             String     @db.VarChar(100)
   code             String     @unique @db.VarChar(6)
   status           GameStatus @default(WAITING)
-  phase            GamePhase? 
+  phase            GamePhase?
+  night_phase      NightPhase?
+  day_number       Int        @default(1)
   max_players      Int        @default(12)
   current_players  Int        @default(0)
   game_settings    Json       @db.JsonB
+  winner           String?    @db.VarChar(20) // VILLAGE_WINS, WEREWOLVES_WIN, LOVERS_WIN
   creator_id       String     @db.Uuid
   created_at       DateTime   @default(now()) @db.Timestamptz
   started_at       DateTime?  @db.Timestamptz
@@ -89,10 +97,12 @@ model Game {
   updated_at       DateTime   @updatedAt @db.Timestamptz
 
   // Relations
-  creator          Profile    @relation("GameCreator", fields: [creator_id], references: [id], onDelete: Cascade)
+  creator          Profile          @relation("GameCreator", fields: [creator_id], references: [id], onDelete: Cascade)
   players          Player[]
   game_logs        GameLog[]
   chat_messages    ChatMessage[]
+  role_config      GameRoleConfig?
+  night_actions    NightAction[]
 
   @@map("games")
   @@index([code])
@@ -103,19 +113,30 @@ model Game {
 
 // Player entity - represents a user's participation in a specific game
 model Player {
-  user_id       String      @db.Uuid
-  game_id       String      @db.Uuid
-  role          PlayerRole?
-  is_alive      Boolean     @default(true)
-  is_host       Boolean     @default(false)
-  joined_at     DateTime    @default(now()) @db.Timestamptz
-  eliminated_at DateTime?   @db.Timestamptz
-  votes_cast    Int         @default(0)
+  user_id       String        @db.Uuid
+  game_id       String        @db.Uuid
+  role          WerewolfRole?
+  team          Team?
+  is_alive      Boolean       @default(true)
+  is_host       Boolean       @default(false)
+  joined_at     DateTime      @default(now()) @db.Timestamptz
+  eliminated_at DateTime?     @db.Timestamptz
+  votes_cast    Int           @default(0)
+  
+  // Werwolf-spezifische Zuständer
+  lover_id         String?   @db.Uuid      // Verliebter Partner
+  has_heal_potion  Boolean   @default(false) // Hexe Heiltrank
+  has_poison_potion Boolean  @default(false) // Hexe Gifttrank
+  can_shoot        Boolean   @default(false) // Jäger Schuss
+  has_spied        Boolean   @default(false) // Mädchen Spionage
+  spy_risk         Int       @default(10)    // Mädchen Entdeckungsrisiko
+  is_protected     Boolean   @default(false) // Schutz vor Tod
   
   // Relations
-  user          Profile     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  game          Game        @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  user          Profile       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  game          Game          @relation(fields: [game_id], references: [id], onDelete: Cascade)
   game_logs     GameLog[]
+  night_actions NightAction[] @relation("ActionPerformer")
 
   @@id([user_id, game_id])
   @@map("players")
@@ -169,4 +190,84 @@ model ChatMessage {
   @@index([channel])
   @@index([created_at])
   @@index([type])
+}
+
+// Spielleiter-Rollen-Konfiguration
+model GameRoleConfig {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_id      String   @unique @db.Uuid
+  villagers    Int      @default(0)
+  werewolves   Int      @default(1)
+  seer         Boolean  @default(false)
+  witch        Boolean  @default(false)
+  hunter       Boolean  @default(false)
+  cupid        Boolean  @default(false)
+  little_girl  Boolean  @default(false)
+  created_by   String   @db.Uuid
+  created_at   DateTime @default(now()) @db.Timestamptz
+  
+  // Relations
+  game         Game     @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  creator      Profile  @relation(fields: [created_by], references: [id], onDelete: Cascade)
+  
+  @@map("game_role_configs")
+  @@index([game_id])
+  @@index([created_by])
+}
+
+// Nacht-Aktionen für Audit-Trail
+model NightAction {
+  id               String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_id          String      @db.Uuid
+  player_id        String      @db.Uuid
+  action_type      ActionType
+  target_id        String?     @db.Uuid
+  second_target_id String?     @db.Uuid  // Für Amor (zwei Ziele)
+  phase            NightPhase
+  day_number       Int
+  resolved         Boolean     @default(false)
+  success          Boolean?
+  result_message   String?     @db.Text
+  revealed_info    Json?       @db.JsonB // Für Seher-Ergebnisse
+  effects          Json?       @db.JsonB // Deaths, protections, etc.
+  created_at       DateTime    @default(now()) @db.Timestamptz
+  resolved_at      DateTime?   @db.Timestamptz
+  
+  // Relations
+  game             Game        @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  performer        Player      @relation("ActionPerformer", fields: [player_id, game_id], references: [user_id, game_id], onDelete: Cascade)
+  
+  @@map("night_actions")
+  @@index([game_id])
+  @@index([player_id])
+  @@index([phase])
+  @@index([day_number])
+  @@index([action_type])
+  @@index([resolved])
+  @@index([created_at])
+}
+
+// Erweiterte Profile-Relations
+model Profile {
+  id            String    @id @db.Uuid // References auth.users(id)
+  username      String?   @unique @db.VarChar(50)
+  full_name     String?   @db.VarChar(100)
+  avatar_url    String?   @db.VarChar(500)
+  updated_at    DateTime? @updatedAt @db.Timestamptz
+  created_at    DateTime  @default(now()) @db.Timestamptz
+
+  // Game statistics
+  games_played  Int       @default(0)
+  games_won     Int       @default(0)
+  
+  // Relations
+  created_games    Game[]             @relation("GameCreator")
+  players          Player[]
+  game_logs        GameLog[]
+  chat_messages    ChatMessage[]
+  role_configs     GameRoleConfig[]
+
+  @@map("profiles")
+  @@index([username])
+  @@index([created_at])
 }

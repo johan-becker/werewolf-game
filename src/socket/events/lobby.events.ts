@@ -1,6 +1,8 @@
 import { Socket, Server } from 'socket.io';
 import { GameService } from '../../services/game.service';
 import { RoomManager } from '../rooms';
+import { RoleFactory } from '../../services/role-factory';
+import { GameRoleConfig, ConfigValidationResult } from '../../types/werewolf-roles.types';
 
 const gameService = new GameService();
 
@@ -167,6 +169,94 @@ export function handleLobbyEvents(socket: Socket, io: Server, roomManager?: Room
       }
       
       callback({ success: true });
+    } catch (error: any) {
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // Configure game roles (host only)
+  socket.on('game:configureRoles', async (data: { 
+    gameId: string; 
+    config: GameRoleConfig 
+  }, callback) => {
+    try {
+      const game = await gameService.getGameDetails(data.gameId);
+      
+      // Check if user is host
+      if (game.creatorId !== socket.data.userId) {
+        return callback({ success: false, error: 'Only host can configure roles' });
+      }
+      
+      // Check if game is in waiting state
+      if (game.status !== 'waiting') {
+        return callback({ success: false, error: 'Cannot configure roles after game has started' });
+      }
+      
+      // Validate configuration
+      const validation = RoleFactory.validateConfig(data.config, game.currentPlayers);
+      if (!validation.isValid) {
+        return callback({ 
+          success: false, 
+          error: validation.errors.join(', '),
+          validation 
+        });
+      }
+      
+      // Store configuration (would need to be implemented in GameService)
+      await gameService.setRoleConfiguration(data.gameId, data.config);
+      
+      // Notify all players in the game about role configuration
+      manager.broadcastToRoom(io, data.gameId, 'game:rolesConfigured', {
+        config: data.config,
+        validation,
+        configuredBy: socket.data.username
+      });
+      
+      callback({ success: true, config: data.config, validation });
+    } catch (error: any) {
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // Validate role configuration (host only)
+  socket.on('game:validateRoleConfig', async (data: {
+    gameId: string;
+    config: GameRoleConfig
+  }, callback) => {
+    try {
+      const game = await gameService.getGameDetails(data.gameId);
+      
+      // Check if user is host
+      if (game.creatorId !== socket.data.userId) {
+        return callback({ success: false, error: 'Only host can validate role configuration' });
+      }
+      
+      const validation = RoleFactory.validateConfig(data.config, game.currentPlayers);
+      
+      callback({ success: true, validation });
+    } catch (error: any) {
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // Get optimal role configuration suggestion (host only)
+  socket.on('game:getOptimalRoleConfig', async (data: { gameId: string }, callback) => {
+    try {
+      const game = await gameService.getGameDetails(data.gameId);
+      
+      // Check if user is host
+      if (game.creatorId !== socket.data.userId) {
+        return callback({ success: false, error: 'Only host can get role suggestions' });
+      }
+      
+      const optimalConfig = RoleFactory.createOptimalConfig(game.currentPlayers);
+      const validation = RoleFactory.validateConfig(optimalConfig, game.currentPlayers);
+      
+      callback({ 
+        success: true, 
+        config: optimalConfig,
+        validation 
+      });
     } catch (error: any) {
       callback({ success: false, error: error.message });
     }
