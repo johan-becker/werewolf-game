@@ -41,6 +41,23 @@ export interface ClientToServerEvents {
   // Communication
   'game:message': (data: { message: string; channel?: string }) => void;
   'game:typing': (data: { isTyping: boolean }) => void;
+  
+  // Chat Events
+  'chat:send': (data: { 
+    content: string; 
+    channel: 'LOBBY' | 'DAY' | 'NIGHT' | 'DEAD' | 'SYSTEM';
+    gameId?: string;
+  }, callback: (response: any) => void) => void;
+  'chat:history': (data: {
+    channel: 'LOBBY' | 'DAY' | 'NIGHT' | 'DEAD' | 'SYSTEM';
+    gameId?: string;
+    limit?: number;
+    before?: string;
+  }, callback: (response: any) => void) => void;
+  'chat:typing:start': (data: { channel: string; gameId?: string }) => void;
+  'chat:typing:stop': (data: { channel: string; gameId?: string }) => void;
+  'chat:edit': (data: { messageId: string; content: string }, callback: (response: any) => void) => void;
+  'chat:delete': (data: { messageId: string }, callback: (response: any) => void) => void;
 }
 
 // Server to Client Events
@@ -84,6 +101,32 @@ export interface ServerToClientEvents {
     isAlive?: boolean;
   }) => void;
   'game:userTyping': (data: { userId: string; username: string; isTyping: boolean }) => void;
+  
+  // Chat Events
+  'chat:message': (data: {
+    id: string;
+    gameId?: string;
+    userId: string;
+    username: string;
+    avatarUrl?: string;
+    channel: 'LOBBY' | 'DAY' | 'NIGHT' | 'DEAD' | 'SYSTEM';
+    type: 'TEXT' | 'SYSTEM' | 'JOIN' | 'LEAVE' | 'DEATH' | 'ROLE_REVEAL';
+    content: string;
+    mentions: string[];
+    edited: boolean;
+    editedAt?: string;
+    createdAt: string;
+  }) => void;
+  'chat:history': (data: { messages: any[]; hasMore: boolean }) => void;
+  'chat:typing': (data: { 
+    userId: string; 
+    username: string; 
+    channel: string; 
+    gameId?: string; 
+    isTyping: boolean 
+  }) => void;
+  'chat:messageEdited': (data: { messageId: string; content: string; editedAt: string }) => void;
+  'chat:messageDeleted': (data: { messageId: string }) => void;
   
   // Error handling
   'error': (error: SocketError) => void;

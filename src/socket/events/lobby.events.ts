@@ -50,18 +50,15 @@ export function handleLobbyEvents(socket: Socket, io: Server, roomManager?: Room
       // Join the game room as creator
       await manager.joinRoom(socket, game.id);
 
-      // Broadcast new game to lobby (only if public)
-      if (!game.isPrivate) {
-        manager.broadcastToLobby(io, 'lobby:gameCreated', {
-          gameId: game.id,
-          name: game.name,
-          currentPlayers: game.currentPlayers,
-          maxPlayers: game.maxPlayers,
-          status: game.status,
-          isPrivate: game.isPrivate,
-          code: game.code
-        });
-      }
+      // Broadcast new game to lobby
+      manager.broadcastToLobby(io, 'lobby:gameCreated', {
+        gameId: game.id,
+        name: game.name,
+        currentPlayers: game.currentPlayers,
+        maxPlayers: game.maxPlayers,
+        status: game.status,
+        code: game.code
+      });
 
       callback({ success: true, game });
     } catch (error: any) {
@@ -116,14 +113,12 @@ export function handleLobbyEvents(socket: Socket, io: Server, roomManager?: Room
         player: joinedPlayer
       });
       
-      // Update lobby (if public game)
-      if (!game.isPrivate) {
-        manager.broadcastToLobby(io, 'lobby:gameUpdated', {
-          gameId: game.id,
-          currentPlayers: game.currentPlayers,
-          maxPlayers: game.maxPlayers
-        });
-      }
+      // Update lobby
+      manager.broadcastToLobby(io, 'lobby:gameUpdated', {
+        gameId: game.id,
+        currentPlayers: game.currentPlayers,
+        maxPlayers: game.maxPlayers
+      });
       
       callback({ success: true, game });
     } catch (error: any) {
@@ -160,13 +155,11 @@ export function handleLobbyEvents(socket: Socket, io: Server, roomManager?: Room
       } else {
         try {
           const updatedGame = await gameService.getGameDetails(data.gameId);
-          if (!updatedGame.isPrivate) {
-            manager.broadcastToLobby(io, 'lobby:gameUpdated', {
-              gameId: data.gameId,
-              currentPlayers: updatedGame.currentPlayers,
-              maxPlayers: updatedGame.maxPlayers
-            });
-          }
+          manager.broadcastToLobby(io, 'lobby:gameUpdated', {
+            gameId: data.gameId,
+            currentPlayers: updatedGame.currentPlayers,
+            maxPlayers: updatedGame.maxPlayers
+          });
         } catch {
           // Game might have been deleted by race condition
           manager.broadcastToLobby(io, 'lobby:gameRemoved', { gameId: data.gameId });

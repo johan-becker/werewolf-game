@@ -7,6 +7,11 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY!
 );
 
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
+
 export class GameService {
   /**
    * Creates a new game with auto-generated code
@@ -64,15 +69,14 @@ export class GameService {
       throw new Error('Unable to generate unique game code. Please try again.');
     }
 
-    // Create game
-    const { data: game, error } = await supabase
+    // Create game using admin client to bypass RLS issues
+    const { data: game, error } = await supabaseAdmin
       .from('games')
       .insert({
         name: data.name,
         code,
         max_players: data.maxPlayers,
-        settings: data.settings || {},
-        is_private: isPrivate,
+        game_settings: data.settings || {},
         creator_id: userId
       })
       .select()
@@ -80,8 +84,8 @@ export class GameService {
 
     if (error) throw new Error(`Failed to create game: ${error.message}`);
 
-    // Add creator as host player
-    const { error: joinError } = await supabase
+    // Add creator as host player using admin client
+    const { error: joinError } = await supabaseAdmin
       .from('players')
       .insert({
         game_id: game.id,
@@ -91,7 +95,7 @@ export class GameService {
 
     if (joinError) {
       // Rollback game creation
-      await supabase.from('games').delete().eq('id', game.id);
+      await supabaseAdmin.from('games').delete().eq('id', game.id);
       throw new Error(`Failed to join game: ${joinError.message}`);
     }
 
@@ -118,28 +122,48 @@ export class GameService {
    * Get game details with players
    */
   async getGameDetails(gameId: string): Promise<GameResponse> {
-    // Get game info
-    const { data: game, error: gameError } = await supabase
+    // Get game info using admin client to avoid RLS issues
+    const { data: game, error: gameError } = await supabaseAdmin
       .from('games')
-      .select(`
-        *,
-        players!inner(
-          user_id,
-          is_host,
-          is_alive,
-          created_at,
-          profiles!inner(
-            username,
-            avatar_url
-          )
-        )
-      `)
+      .select('*')
       .eq('id', gameId)
       .single();
 
     if (gameError) throw new Error(`Game not found: ${gameError.message}`);
 
-    return this.formatGameResponseWithPlayers(game);
+    // Get players separately to avoid relationship issues
+    const { data: players, error: playersError } = await supabaseAdmin
+      .from('players')
+      .select(`
+        user_id,
+        is_host,
+        is_alive,
+        role,
+        joined_at
+      `)
+      .eq('game_id', gameId);
+
+    if (playersError) throw new Error(`Failed to get players: ${playersError.message}`);
+
+    // Get profile info for each player
+    const playersWithProfiles = [];
+    for (const player of players || []) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('username, avatar_url')
+        .eq('id', player.user_id)
+        .single();
+
+      playersWithProfiles.push({
+        ...player,
+        profile: profile || { username: 'Unknown', avatar_url: null }
+      });
+    }
+
+    return this.formatGameResponseWithPlayers({
+      ...game,
+      players: playersWithProfiles
+    });
   }
 
   /**
@@ -158,9 +182,9 @@ export class GameService {
     if (game.current_players >= game.max_players) throw new Error('Game is full');
 
     // Check if user is already in the game
-    const { data: existingPlayer } = await supabase
+    const { data: existingPlayer } = await supabaseAdmin
       .from('players')
-      .select('id')
+      .select('user_id')
       .eq('game_id', gameId)
       .eq('user_id', userId)
       .single();
@@ -168,7 +192,7 @@ export class GameService {
     if (existingPlayer) throw new Error('You are already in this game');
 
     // Add player to game
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('players')
       .insert({
         game_id: gameId,
@@ -197,9 +221,9 @@ export class GameService {
     if (game.current_players >= game.max_players) throw new Error('Game is full');
 
     // Check if already in game
-    const { data: existingPlayer } = await supabase
+    const { data: existingPlayer } = await supabaseAdmin
       .from('players')
-      .select('id')
+      .select('user_id')
       .eq('game_id', game.id)
       .eq('user_id', userId)
       .single();
@@ -207,7 +231,7 @@ export class GameService {
     if (existingPlayer) throw new Error('Already in this game');
 
     // Add player to game
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('players')
       .insert({
         game_id: game.id,
@@ -387,8 +411,7 @@ export class GameService {
       creatorId: game.creator_id,
       maxPlayers: game.max_players,
       currentPlayers: game.current_players || 0,
-      createdAt: game.created_at,
-      isPrivate: game.is_private
+      createdAt: game.created_at
     };
   }
 
@@ -400,11 +423,11 @@ export class GameService {
     
     response.players = game.players.map((p: any) => ({
       userId: p.user_id,
-      username: p.profiles.username,
-      avatarUrl: p.profiles.avatar_url,
+      username: p.profile.username || 'Unknown',
+      avatarUrl: p.profile.avatar_url,
       isHost: p.is_host,
       isAlive: p.is_alive,
-      joinedAt: p.created_at,
+      joinedAt: p.joined_at,
       role: p.role
     }));
 

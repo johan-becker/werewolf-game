@@ -33,6 +33,11 @@ This is a TypeScript-based real-time multiplayer werewolf game backend with dual
 - `npm run lint`: ESLint code checking
 - `npm run format`: Prettier code formatting
 
+**Chat System Testing**:
+- `node test-chat-system.js`: Comprehensive chat system test suite
+- `node test-socket-events.js`: Socket.IO event testing
+- Tests cover: lobby chat, mentions, spam protection, typing indicators, message editing
+
 ## Database Architecture
 
 **Supabase Integration**:
@@ -45,6 +50,7 @@ This is a TypeScript-based real-time multiplayer werewolf game backend with dual
 - `profiles`: User data linked to Supabase auth.users
 - `games`: Game instances with creator_id, status, and unique codes
 - `players`: Game participants with roles and state
+- `chat_messages`: Real-time chat with channel-based permissions and moderation
 - `game_logs`: Audit trail for game events
 
 **Client Separation**:
@@ -64,6 +70,16 @@ supabase.from('games').select(...)
 4. Middleware `authenticateToken()` validates requests
 5. Socket.IO uses same JWT for real-time connection auth
 
+## Chat System Architecture
+
+**Real-time Communication**: Socket.IO-based chat with 5 channel types (LOBBY, DAY, NIGHT, DEAD, SYSTEM) and channel-specific permissions based on player status and game phase.
+
+**Message Persistence**: All messages stored in Supabase with full audit trail, edit history, and @mention support.
+
+**Moderation Features**: Built-in spam protection (5 messages/minute), word filtering, and role-based access control ensuring players only see appropriate channels.
+
+**Typing Indicators**: Real-time typing notifications with automatic cleanup and channel-aware broadcasting.
+
 ## Game Service Patterns
 
 **Game Creation**: Uses `generateGameCode()` utility with collision detection
@@ -76,15 +92,19 @@ supabase.from('games').select(...)
 **Critical Service Files**:
 - `src/services/authService.ts`: Supabase auth integration with error mapping
 - `src/services/game.service.ts`: Core game operations using database functions
+- `src/services/chat.service.ts`: Chat system with spam protection, permissions, and moderation
 - `src/lib/supabase.ts`: Database client configuration and RLS patterns
 
 **Socket Architecture**:
 - `src/socket/index.ts`: Main Socket.IO server setup with authentication
-- `src/socket/events/`: Event handlers for lobby and game phases
+- `src/socket/events/`: Event handlers for lobby, game phases, and chat
+- `src/socket/events/chat.events.ts`: Real-time chat with typing indicators and message broadcasting
 - `src/socket/middleware.ts`: JWT validation for socket connections
 
 **Type System**:
-- `src/types/`: Comprehensive TypeScript definitions for game state, auth, and socket events
+- `src/types/`: Comprehensive TypeScript definitions for game state, auth, socket events, and chat
+- `src/types/socket.types.ts`: Complete Socket.IO event typing for both client and server
+- `src/types/chat.types.ts`: Chat message interfaces and channel definitions
 - Strict typing for game phases, player roles, and API responses
 
 ## Development Workflow
@@ -100,8 +120,11 @@ supabase.from('games').select(...)
 **Database Changes**:
 1. Update Prisma schema
 2. Run `npm run db:migrate`
-3. Apply Supabase policies/functions manually
+3. Apply Supabase policies/functions manually (SQL files in root directory)
 4. Test RLS policies with integration tests
+
+**Chat System Setup**:
+The chat system requires manual database setup via Supabase SQL editor. Use `simple_chat_setup.sql` in the project root to create the `chat_messages` table with proper RLS policies and helper functions.
 
 ## Security Considerations
 

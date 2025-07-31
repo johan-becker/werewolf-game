@@ -23,7 +23,10 @@
       "Bash(grep:*)",
       "Bash(git push:*)",
       "Bash(git commit:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(true)",
+      "Bash(npm run:*)",
+      "Bash(psql:*)"
     ],
     "deny": []
   }

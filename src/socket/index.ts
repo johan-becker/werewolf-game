@@ -4,6 +4,7 @@ import { authenticateSocket, rateLimitMiddleware } from './middleware';
 import { RoomManager } from './rooms';
 import { handleLobbyEvents } from './events/lobby.events';
 import { handleGameEvents } from './events/game.events';
+import { handleChatEvents } from './events/chat.events';
 import { GameService } from '../services/game.service';
 import { 
   ClientToServerEvents, 
@@ -71,6 +72,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
     // Register event handlers with shared room manager instance
     handleLobbyEvents(socket, io, roomManager);
     handleGameEvents(io, socket, roomManager, gameService);
+    handleChatEvents(socket, io, roomManager);
 
     // Handle heartbeat/ping
     socket.on('ping', (callback) => {
