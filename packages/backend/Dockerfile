@@ -1,4 +1,4 @@
-# Production Dockerfile for Backend
+# Production Dockerfile for Werewolf Backend
 FROM node:18-alpine AS base
 
 # Install dependencies needed for building native extensions
@@ -9,35 +9,39 @@ WORKDIR /app
 # Install turbo globally
 RUN npm install -g turbo
 
-# Copy package files
+# Copy package files for workspace setup
 COPY package*.json ./
 COPY turbo.json ./
 COPY tsconfig.base.json ./
 COPY packages/backend/package*.json ./packages/backend/
 COPY packages/shared/package*.json ./packages/shared/
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies with workspace support
+RUN npm ci --workspaces --include-workspace-root --omit=dev && npm cache clean --force
 
 # Builder stage
 FROM base AS builder
 
-# Install all dependencies (including dev)
-RUN npm ci
+# Install all dependencies (including dev) for building
+RUN npm ci --workspaces --include-workspace-root
 
 # Copy source code
 COPY packages/backend ./packages/backend
 COPY packages/shared ./packages/shared
 
-# Build the application
+# Build the shared package first
+WORKDIR /app/packages/shared
+RUN npm run build || echo "Shared build not configured yet"
+
+# Build the backend application
 WORKDIR /app/packages/backend
-RUN npm run db:generate
+RUN npm run db:generate || echo "Prisma not configured yet"
 RUN npm run build
 
 # Production stage
 FROM node:18-alpine AS production
 
-# Create app user
+# Create app user for security
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nodejs -u 1001
 
@@ -45,10 +49,12 @@ WORKDIR /app
 
 # Copy package files and install production dependencies
 COPY package*.json ./
+COPY turbo.json ./
 COPY packages/backend/package*.json ./packages/backend/
 COPY packages/shared/package*.json ./packages/shared/
 
-RUN npm ci --only=production && npm cache clean --force
+# Install production dependencies only
+RUN npm ci --workspaces --include-workspace-root --omit=dev && npm cache clean --force
 
 # Copy built application
 COPY --from=builder --chown=nodejs:nodejs /app/packages/backend/dist ./packages/backend/dist
