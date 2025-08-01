@@ -5,9 +5,14 @@ echo "🔍 Checking platform compatibility..."
 
 # If on ARM64, regenerate lockfile for CI
 if [[ $(uname -m) == "arm64" ]]; then
-  echo "⚠️  ARM64 detected, preparing CI lockfile..."
-  npm run ci:prepare
-  git add package-lock.json
+  echo "⚠️  ARM64 detected, checking Docker..."
+  if docker --version >/dev/null 2>&1; then
+    echo "🐳 Docker available, preparing CI lockfile..."
+    npm run ci:prepare
+    git add package-lock.json
+  else
+    echo "⚠️  Docker not running - GitHub Actions will handle platform compatibility"
+  fi
 fi
 
 npm run lint
