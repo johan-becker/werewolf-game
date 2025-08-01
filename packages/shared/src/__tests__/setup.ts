@@ -1,27 +1,44 @@
-// Global test setup for werewolf shared package
+/* eslint-env jest */
 
+// Test setup
 beforeAll(() => {
-  console.log('🌕 Setting up werewolf shared utilities test environment...');
+  console.log('Setting up test environment');
 });
 
 beforeEach(() => {
-  // Clear any mocks before each test
   jest.clearAllMocks();
 });
 
 afterAll(() => {
-  console.log('🌑 Cleaning up werewolf shared utilities test environment...');
+  console.log('Cleaning up test environment');
 });
 
-// Global test timeout
-jest.setTimeout(5000);
-
-// Mock console methods to reduce noise in tests
-global.console = {
-  ...console,
-  log: jest.fn(),
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
+// Global test utilities
+global.testUtils = {
+  delay: (ms: number) => new Promise(resolve => setTimeout(resolve, ms)),
+  randomId: () => Math.random().toString(36).substring(7)
 };
+
+// Jest configuration
+jest.setTimeout(10000);
+
+// Mock implementations
+jest.mock('../utils/logger', () => ({
+  logger: {
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn()
+  }
+}));
+
+// TypeScript declarations for global test utilities
+declare global {
+  // eslint-disable-next-line no-var
+  var testUtils: {
+    delay: (ms: number) => Promise<void>;
+    randomId: () => string;
+  };
+}
+
+export {};
