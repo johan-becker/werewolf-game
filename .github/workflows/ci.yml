@@ -165,7 +165,7 @@ jobs:
         run: npm audit --audit-level moderate
 
       - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v3
         with:
           languages: typescript, javascript
 
