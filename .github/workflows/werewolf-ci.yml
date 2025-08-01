@@ -130,7 +130,7 @@ jobs:
         run: npm run build
 
       - name: 📦 Archive werewolf build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: werewolf-build-artifacts
           path: |
@@ -139,6 +139,7 @@ jobs:
             packages/frontend/out/
             packages/shared/dist/
           retention-days: 7
+          compression-level: 9
 
   # Security scanning
   security:

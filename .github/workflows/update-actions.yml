@@ -1,0 +1,54 @@
+name: Update GitHub Actions
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+  workflow_dispatch:
+
+jobs:
+  update-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for outdated actions
+        run: |
+          echo "Checking for deprecated GitHub Actions..."
+          grep -r "uses:" .github/workflows/ | grep -E "@v[1-3]$" || echo "All actions up to date!"
+          
+      - name: List all actions with versions
+        run: |
+          echo "Current action versions in workflows:"
+          grep -r "uses:" .github/workflows/ | grep -E "@v[0-9]+" | sort | uniq
+          
+      - name: Check for common deprecated actions
+        run: |
+          echo "Checking for commonly deprecated actions..."
+          
+          # Check for upload-artifact v3
+          if grep -r "actions/upload-artifact@v3" .github/workflows/; then
+            echo "❌ Found upload-artifact@v3 - should be updated to v4"
+          else
+            echo "✅ No upload-artifact@v3 found"
+          fi
+          
+          # Check for download-artifact v3
+          if grep -r "actions/download-artifact@v3" .github/workflows/; then
+            echo "❌ Found download-artifact@v3 - should be updated to v4"  
+          else
+            echo "✅ No download-artifact@v3 found"
+          fi
+          
+          # Check for setup-node v3
+          if grep -r "actions/setup-node@v3" .github/workflows/; then
+            echo "❌ Found setup-node@v3 - should be updated to v4"
+          else
+            echo "✅ No setup-node@v3 found"
+          fi
+          
+          # Check for checkout v3
+          if grep -r "actions/checkout@v3" .github/workflows/; then
+            echo "❌ Found checkout@v3 - should be updated to v4"
+          else
+            echo "✅ No checkout@v3 found"
+          fi
