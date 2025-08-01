@@ -1,0 +1,214 @@
+# Pre-commit hooks for Werewolf Game
+# See https://pre-commit.com for more information
+
+repos:
+  # General code quality hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: 🐺 Remove trailing whitespace
+      - id: end-of-file-fixer
+        name: 🌙 Fix end of files
+      - id: check-merge-conflict
+        name: ⚔️ Check for merge conflicts
+      - id: check-added-large-files
+        name: 📦 Check file sizes
+        args: ['--maxkb=1000']
+      - id: check-json
+        name: 📝 Validate JSON files
+      - id: check-yaml
+        name: 📝 Validate YAML files
+        exclude: ^\.github/workflows/.*\.yml$
+      - id: check-toml
+        name: 📝 Validate TOML files
+      - id: detect-private-key
+        name: 🔒 Detect private keys
+
+  # TypeScript and JavaScript linting
+  - repo: local
+    hooks:
+      - id: eslint-backend
+        name: 🔍 ESLint Backend (Werewolf Services)
+        entry: bash -c 'cd packages/backend && npm run lint'
+        language: system
+        files: ^packages/backend/.*\.(ts|js)$
+        pass_filenames: false
+
+      - id: eslint-frontend
+        name: 🔍 ESLint Frontend (Werewolf UI)
+        entry: bash -c 'cd packages/frontend && npm run lint'
+        language: system
+        files: ^packages/frontend/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+
+      - id: eslint-shared
+        name: 🔍 ESLint Shared (Werewolf Types)
+        entry: bash -c 'cd packages/shared && npm run lint'
+        language: system
+        files: ^packages/shared/.*\.(ts|js)$
+        pass_filenames: false
+
+  # Prettier code formatting
+  - repo: local
+    hooks:
+      - id: prettier-backend
+        name: 🎨 Prettier Backend
+        entry: bash -c 'cd packages/backend && npm run format'
+        language: system
+        files: ^packages/backend/.*\.(ts|js|json|md)$
+        pass_filenames: false
+
+      - id: prettier-frontend
+        name: 🎨 Prettier Frontend
+        entry: bash -c 'cd packages/frontend && npm run format'
+        language: system
+        files: ^packages/frontend/.*\.(ts|tsx|js|jsx|css|json|md)$
+        pass_filenames: false
+
+      - id: prettier-shared
+        name: 🎨 Prettier Shared
+        entry: bash -c 'cd packages/shared && npm run format'
+        language: system
+        files: ^packages/shared/.*\.(ts|js|json|md)$
+        pass_filenames: false
+
+  # TypeScript type checking
+  - repo: local
+    hooks:
+      - id: typescript-backend
+        name: 📝 TypeScript Check Backend
+        entry: bash -c 'cd packages/backend && npm run typecheck'
+        language: system
+        files: ^packages/backend/.*\.ts$
+        pass_filenames: false
+
+      - id: typescript-frontend
+        name: 📝 TypeScript Check Frontend
+        entry: bash -c 'cd packages/frontend && npm run typecheck'
+        language: system
+        files: ^packages/frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+
+      - id: typescript-shared
+        name: 📝 TypeScript Check Shared
+        entry: bash -c 'cd packages/shared && npm run typecheck'
+        language: system
+        files: ^packages/shared/.*\.ts$
+        pass_filenames: false
+
+  # Werewolf-specific hooks
+  - repo: local
+    hooks:
+      - id: werewolf-role-validation
+        name: 🐺 Validate Werewolf Roles
+        entry: bash -c 'cd packages/backend && npm run validate:roles'
+        language: system
+        files: ^packages/backend/src/services/role-strategies/.*\.ts$
+        pass_filenames: false
+
+      - id: werewolf-moon-phase-check
+        name: 🌙 Validate Moon Phase Logic
+        entry: bash -c 'cd packages/backend && npm run validate:moon-phases'
+        language: system
+        files: ^packages/backend/src/services/.*moon.*\.ts$
+        pass_filenames: false
+
+      - id: werewolf-game-rules-check
+        name: ⚖️ Validate Game Rules
+        entry: bash -c 'cd packages/backend && npm run validate:game-rules'
+        language: system
+        files: ^packages/backend/src/services/werewolf-game-manager\.ts$
+        pass_filenames: false
+
+  # Security hooks
+  - repo: local
+    hooks:
+      - id: security-audit
+        name: 🔒 Security Audit
+        entry: bash -c 'npm audit --audit-level moderate'
+        language: system
+        files: ^package.*\.json$
+        pass_filenames: false
+
+      - id: werewolf-secrets-check
+        name: 🗝️ Check for Hardcoded Werewolf Secrets
+        entry: bash -c 'if grep -r "werewolf.*secret\|pack.*password\|alpha.*key" packages/ --include="*.ts" --include="*.js" --exclude-dir=node_modules; then echo "❌ Found hardcoded werewolf secrets!"; exit 1; else echo "✅ No hardcoded secrets found"; fi'
+        language: system
+        files: ^packages/.*\.(ts|js)$
+        pass_filenames: false
+
+  # Test hooks (run only relevant tests)
+  - repo: local
+    hooks:
+      - id: test-werewolf-units
+        name: 🧪 Test Werewolf Core Logic
+        entry: bash -c 'cd packages/backend && npm run test -- --testPathPattern="werewolf|role-strategies" --passWithNoTests'
+        language: system
+        files: ^packages/backend/src/(services|types)/.*werewolf.*\.(ts|js)$
+        pass_filenames: false
+
+      - id: test-chat-system
+        name: 💬 Test Chat System
+        entry: bash -c 'cd packages/backend && npm run test -- --testPathPattern="chat" --passWithNoTests'
+        language: system
+        files: ^packages/backend/src/services/chat.*\.(ts|js)$
+        pass_filenames: false
+
+  # Database validation
+  - repo: local
+    hooks:
+      - id: prisma-validate
+        name: 🗃️ Validate Prisma Schema
+        entry: bash -c 'cd packages/backend && npx prisma validate'
+        language: system
+        files: ^packages/backend/prisma/schema\.prisma$
+        pass_filenames: false
+
+      - id: werewolf-schema-check
+        name: 🐺 Validate Werewolf Database Schema
+        entry: bash -c 'cd packages/backend && npm run validate:schema'
+        language: system
+        files: ^packages/backend/prisma/.*\.(prisma|sql)$
+        pass_filenames: false
+
+  # Documentation hooks
+  - repo: local
+    hooks:
+      - id: werewolf-docs-sync
+        name: 📚 Sync Werewolf Documentation
+        entry: bash -c 'npm run docs:generate'
+        language: system
+        files: ^(packages/.*/src/.*\.(ts|tsx)|README\.md|CLAUDE\.md)$
+        pass_filenames: false
+
+  # Docker validation
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        name: 🐳 Lint Dockerfiles
+        files: ^.*Dockerfile.*$
+
+  # Commit message validation
+  - repo: local
+    hooks:
+      - id: werewolf-commit-msg
+        name: 📝 Validate Werewolf Commit Message
+        entry: bash -c 'if ! echo "$1" | grep -qE "^(🐺|🌙|🌕|⚡|🔒|🧪|📚|🐳|✨|🐛|🎨|♻️|⚡|🔧|📝)" && ! echo "$1" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|chore|build|ci)(\(.+\))?: .+"; then echo "❌ Commit message must start with werewolf emoji or conventional commit format"; echo "Examples:"; echo "  🐺 feat: add alpha werewolf role"; echo "  🌙 fix: correct moon phase calculations"; echo "  feat(werewolf): implement pack hunting mechanics"; exit 1; fi'
+        language: system
+        stages: [commit-msg]
+        pass_filenames: false
+
+# Configuration
+ci:
+  autofix_commit_msg: |
+    🎨 [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false
