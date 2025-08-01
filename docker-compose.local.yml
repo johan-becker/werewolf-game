@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./packages/frontend:/app/packages/frontend
+      - ./packages/shared:/app/packages/shared
+      - /app/node_modules
+      - /app/packages/frontend/node_modules
+      - /app/packages/shared/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/werewolf_dev
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./packages/backend:/app/packages/backend
+      - ./packages/shared:/app/packages/shared
+      - /app/node_modules
+      - /app/packages/backend/node_modules
+      - /app/packages/shared/node_modules
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: werewolf_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:

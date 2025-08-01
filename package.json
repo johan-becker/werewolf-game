@@ -4,9 +4,13 @@
   "description": "Online Werewolf Game Full-Stack Application",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/frontend",
+    "packages/backend", 
+    "packages/shared"
   ],
   "scripts": {
+    "preinstall": "npx only-allow npm",
+    "prepare": "node -e \"if (process.env.NODE_ENV !== 'production') { require('husky').install() }\" || true",
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",

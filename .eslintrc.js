@@ -2,15 +2,14 @@ module.exports = {
   root: true,
   extends: [
     'eslint:recommended',
-    '@typescript-eslint/recommended',
-    'prettier'
+    'next/core-web-vitals'
   ],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
-    project: ['./tsconfig.base.json', './packages/*/tsconfig.json']
+    project: './tsconfig.json'
   },
   env: {
     node: true,
