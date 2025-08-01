@@ -10,8 +10,8 @@ RUN npm install -g turbo
 COPY package*.json ./
 COPY turbo.json ./
 COPY tsconfig.base.json ./
-COPY packages/frontend/package*.json ./packages/frontend/
-COPY packages/shared/package*.json ./packages/shared/
+COPY packages/frontend/package.json ./packages/frontend/
+COPY packages/shared/package.json ./packages/shared/
 
 # Install dependencies with workspace support
 RUN npm ci --workspaces --include-workspace-root --omit=dev && npm cache clean --force
@@ -46,8 +46,8 @@ WORKDIR /app
 # Copy package files and install production dependencies
 COPY package*.json ./
 COPY turbo.json ./
-COPY packages/frontend/package*.json ./packages/frontend/
-COPY packages/shared/package*.json ./packages/shared/
+COPY packages/frontend/package.json ./packages/frontend/
+COPY packages/shared/package.json ./packages/shared/
 
 # Install production dependencies only
 RUN npm ci --workspaces --include-workspace-root --omit=dev && npm cache clean --force
