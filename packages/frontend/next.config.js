@@ -11,7 +11,17 @@ const nextConfig = {
     NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001'
   },
   webpack: (config) => {
-    config.resolve.alias['@'] = path.resolve(__dirname, 'src');
+    // Ensure @ alias resolves correctly to src directory
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+      '@/components': path.resolve(__dirname, 'src/components'),
+      '@/lib': path.resolve(__dirname, 'src/lib'),
+      '@/hooks': path.resolve(__dirname, 'src/hooks'),
+      '@/styles': path.resolve(__dirname, 'src/styles'),
+      '@/stores': path.resolve(__dirname, 'src/stores'),
+      '@/providers': path.resolve(__dirname, 'src/providers'),
+    };
     return config;
   },
   // TypeScript strict checking is enabled, ESLint temporarily disabled due to config issues
