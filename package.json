@@ -9,7 +9,8 @@
     "packages/shared"
   ],
   "scripts": {
-    "preinstall": "npx only-allow npm",
+    "preinstall": "node scripts/check-platform.js",
+    "postinstall": "node scripts/verify-lockfile.js",
     "prepare": "node -e \"if (process.env.NODE_ENV !== 'production') { require('husky').install() }\" || true",
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
@@ -20,7 +21,10 @@
     "clean": "turbo run clean && rm -rf node_modules",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:build": "docker-compose build --no-cache"
+    "docker:build": "docker buildx build --platform linux/amd64 -f packages/frontend/Dockerfile .",
+    "docker:test": "docker buildx build --platform linux/amd64 -f packages/frontend/Dockerfile .",
+    "ci:prepare": "node scripts/prepare-ci-lockfile.js",
+    "ci:validate": "node scripts/verify-lockfile.js"
   },
   "devDependencies": {
     "@turbo/gen": "^1.12.4",
@@ -34,7 +38,7 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "node": "18.19.0",
+    "npm": "10.2.4"
   }
 }

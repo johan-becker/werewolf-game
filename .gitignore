@@ -216,3 +216,9 @@ dist
 ehthumbs.db
 Thumbs.db
 /src/generated/prisma
+
+# Local development lockfile
+package-lock.local.json
+
+# Keep CI lockfile
+!package-lock.json

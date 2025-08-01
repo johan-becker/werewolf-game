@@ -1,0 +1,13 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 Checking platform compatibility..."
+
+# If on ARM64, regenerate lockfile for CI
+if [[ $(uname -m) == "arm64" ]]; then
+  echo "⚠️  ARM64 detected, preparing CI lockfile..."
+  npm run ci:prepare
+  git add package-lock.json
+fi
+
+npm run lint
