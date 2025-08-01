@@ -1,0 +1,195 @@
+/* Werewolf Transformation Theme Styles */
+
+/* Loading states with werewolf theming */
+@layer utilities {
+  .loading-pulse {
+    @apply animate-loading-pulse bg-gradient-to-r from-transparent via-moonlight-300 to-transparent;
+  }
+  
+  .card-werewolf {
+    @apply bg-card/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-sm;
+    transition: all 0.3s ease;
+  }
+  
+  .card-werewolf:hover {
+    @apply shadow-md border-border;
+  }
+  
+  .container-werewolf {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Transformation mode global styles */
+.transforming {
+  /* Global transformation effects */
+  --primary: color-mix(in srgb, theme(colors.blood.500) 70%, theme(colors.blood.700));
+  --ring: color-mix(in srgb, theme(colors.blood.400) 60%, theme(colors.blood.600));
+}
+
+.transforming * {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter;
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Transformation intensity effects based on CSS custom properties */
+.transforming .card-werewolf {
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 calc(var(--moon-intensity, 0) * 0.5px) rgba(239, 68, 68, 0.4);
+  border-color: color-mix(in srgb, theme(colors.border) calc(100% - var(--moon-intensity, 0) * 1%), theme(colors.blood.500));
+}
+
+/* Enhanced button transformations */
+.transforming .btn-primary {
+  background: linear-gradient(135deg, 
+    color-mix(in srgb, theme(colors.blood.600) calc(60% + var(--moon-intensity, 0) * 0.4%), theme(colors.blood.800)),
+    color-mix(in srgb, theme(colors.blood.500) calc(70% + var(--moon-intensity, 0) * 0.3%), theme(colors.blood.700))
+  );
+}
+
+/* Text enhancements during transformation */
+.transforming .text-blood-600 {
+  color: color-mix(in srgb, theme(colors.blood.600) calc(80% + var(--moon-intensity, 0) * 0.2%), theme(colors.blood.800));
+  text-shadow: 0 0 calc(var(--moon-intensity, 0) * 0.1px) rgba(239, 68, 68, 0.3);
+}
+
+/* Moon phase indicator special effects */
+.transforming .moon-phase-indicator {
+  animation: transformation-glow 2s ease-in-out infinite;
+  filter: brightness(calc(1 + var(--moon-intensity, 0) * 0.003));
+}
+
+/* Transformation ripple effect */
+@keyframes transformation-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+.transformation-ripple::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.3);
+  transform: translate(-50%, -50%);
+  animation: transformation-ripple 0.6s ease-out;
+}
+
+/* Dark mode transformation enhancements */
+.dark.transforming {
+  --background: color-mix(in srgb, theme(colors.shadow.950) calc(100% - var(--moon-intensity, 0) * 0.1%), theme(colors.blood.950));
+}
+
+.dark.transforming .card-werewolf {
+  background: color-mix(in srgb, 
+    theme(colors.shadow.900) calc(95% - var(--moon-intensity, 0) * 0.05%), 
+    theme(colors.blood.900)
+  );
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0 0 calc(var(--moon-intensity, 0) * 0.8px) rgba(239, 68, 68, 0.6);
+}
+
+/* Light mode transformation enhancements */
+.light.transforming {
+  --background: color-mix(in srgb, theme(colors.moonlight.50) calc(100% - var(--moon-intensity, 0) * 0.05%), theme(colors.blood.50));
+}
+
+.light.transforming .card-werewolf {
+  background: color-mix(in srgb, 
+    theme(colors.moonlight.100) calc(95% - var(--moon-intensity, 0) * 0.03%), 
+    theme(colors.blood.100)
+  );
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06),
+    0 0 calc(var(--moon-intensity, 0) * 0.3px) rgba(239, 68, 68, 0.4);
+}
+
+/* Transformation warning states */
+.transformation-warning {
+  @apply border-blood-300 bg-blood-50 text-blood-800;
+}
+
+.dark .transformation-warning {
+  @apply border-blood-700 bg-blood-950 text-blood-200;
+}
+
+.transformation-critical {
+  @apply border-blood-500 bg-blood-100 text-blood-900;
+  animation: blood-pulse 1s ease-in-out infinite;
+}
+
+.dark .transformation-critical {
+  @apply border-blood-400 bg-blood-900 text-blood-100;
+}
+
+/* Smooth theme transitions */
+html {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+html * {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .transforming *,
+  .transformation-ripple::before,
+  .moon-phase-indicator {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  html,
+  html * {
+    transition: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .transforming .card-werewolf {
+    border-width: 2px;
+    border-color: theme(colors.blood.600);
+  }
+  
+  .transformation-critical {
+    border-width: 3px;
+    font-weight: bold;
+  }
+}
+
+/* Custom scrollbar for transformation mode */
+.transforming ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.transforming ::-webkit-scrollbar-track {
+  background: color-mix(in srgb, theme(colors.background) 90%, theme(colors.blood.100));
+}
+
+.transforming ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, theme(colors.blood.400) 70%, theme(colors.blood.600));
+  border-radius: 4px;
+}
+
+.transforming ::-webkit-scrollbar-thumb:hover {
+  background: theme(colors.blood.500);
+}

@@ -1,0 +1,23 @@
+# Frontend Development Dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+COPY packages/frontend/package*.json ./packages/frontend/
+COPY packages/shared/package*.json ./packages/shared/
+
+RUN npm ci
+
+# Copy source code
+COPY packages/frontend ./packages/frontend
+COPY packages/shared ./packages/shared
+COPY turbo.json ./
+COPY tsconfig.base.json ./
+
+WORKDIR /app/packages/frontend
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

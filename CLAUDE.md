@@ -12,13 +12,15 @@ This is a TypeScript-based real-time multiplayer werewolf game backend with dual
 
 **Security-First Design**: Database operations use Row Level Security (RLS) with separate admin and user clients. The `supabaseAdmin` client bypasses RLS for setup operations, while regular `supabase` client respects user permissions.
 
-**Real-time Game Architecture**: Socket.IO handles real-time events with typed interfaces, room-based game isolation (`game:${gameId}`), and automatic cleanup on disconnect.
+**Real-time Game Architecture**: Socket.IO handles real-time events with typed interfaces, room-based game isolation (`game:${gameId}`), and automatic cleanup on disconnect. Features mandatory authentication state machine with 5-second timeout enforcement.
 
 **Game Code System**: Uses 6-character alphanumeric codes excluding ambiguous characters (0, 1, I, O) for easy game joining.
 
 **Role Strategy Pattern**: Modular role system using strategy pattern with `BaseRoleStrategy` interface. Each werewolf role (Villager, Seer, Witch, Hunter, etc.) implements specific behaviors through dedicated strategy classes in `src/services/role-strategies/`.
 
 **Night Phase Management**: Structured night phases with `WerewolfNightManager` coordinating sequential role actions (Seer → Werewolves → Witch → Hunter) and automatic phase transitions.
+
+**Socket Authentication State Machine**: Mandatory authentication enforcement with three states (PENDING, AUTHENTICATED, REJECTED). Implements 5-second timeout, message queuing during authentication, typed event interfaces requiring user context, and automatic cleanup.
 
 ## Terminal Commands
 
@@ -41,7 +43,8 @@ This is a TypeScript-based real-time multiplayer werewolf game backend with dual
 - `node test-chat-system.js`: Comprehensive chat system test suite
 - `node test-socket-events.js`: Socket.IO event testing
 - `node test-role-system.js`: Werewolf role system and strategy pattern testing
-- Tests cover: lobby chat, mentions, spam protection, typing indicators, message editing, role mechanics
+- `npx ts-node test-socket-auth-state.ts`: Socket authentication state machine testing
+- Tests cover: lobby chat, mentions, spam protection, typing indicators, message editing, role mechanics, authentication flows
 
 ## Database Architecture
 
@@ -73,7 +76,9 @@ supabase.from('games').select(...)
 2. Database trigger `handle_new_user()` automatically creates profile
 3. JWT tokens managed by Supabase with refresh token support
 4. Middleware `authenticateToken()` validates requests
-5. Socket.IO uses same JWT for real-time connection auth
+5. Socket.IO uses mandatory authentication state machine with 5-second timeout
+6. Socket connections start in PENDING state, transition to AUTHENTICATED or REJECTED
+7. Messages are queued during pending authentication and processed after success
 
 ## Chat System Architecture
 
@@ -110,17 +115,20 @@ supabase.from('games').select(...)
 
 **Socket Architecture**:
 - `src/socket/index.ts`: Main Socket.IO server setup with authentication
+- `src/socket/index.enhanced.ts`: Enhanced server with authentication state machine
+- `src/socket/authenticated-events.ts`: Event handlers requiring authenticated user context
 - `src/socket/events/`: Event handlers for lobby, game phases, and chat
 - `src/socket/events/chat.events.ts`: Real-time chat with typing indicators and message broadcasting
-- `src/socket/middleware.ts`: JWT validation for socket connections
+- `src/middleware/socket-auth-state.middleware.ts`: Authentication state machine implementation
 
 **Type System**:
 - `src/types/`: Comprehensive TypeScript definitions for game state, auth, socket events, and chat
 - `src/types/socket.types.ts`: Complete Socket.IO event typing for both client and server
+- `src/types/socket-auth.types.ts`: Authentication state machine types and interfaces
 - `src/types/chat.types.ts`: Chat message interfaces and channel definitions
 - `src/types/werewolf-roles.types.ts`: Werewolf-specific types including roles, teams, win conditions, and night phases
 - `src/types/roles.types.ts`: General role interfaces and action types
-- Strict typing for game phases, player roles, night actions, and API responses
+- Strict typing for game phases, player roles, night actions, API responses, and authentication states
 
 ## Development Workflow
 
@@ -156,6 +164,8 @@ The chat system requires manual database setup via Supabase SQL editor. Use `sim
 **Function Security**: Database functions use `SECURITY DEFINER` with explicit `SET search_path = 'public'` to prevent SQL injection.
 
 **Token Management**: JWT tokens stored in HTTP-only cookies, validated on every request and socket connection.
+
+**Socket Authentication**: Mandatory authentication state machine prevents undefined userId/username states. All game events require authenticated user context with 5-second timeout enforcement, message queuing, and automatic disconnection for failed authentication.
 
 ## Common Issues
 

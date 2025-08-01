@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Light mode colors */
+    --background: 248 250 252; /* moonlight-50 */
+    --foreground: 15 23 42; /* moonlight-900 */
+    --card: 255 255 255;
+    --card-foreground: 15 23 42;
+    --popover: 255 255 255;
+    --popover-foreground: 15 23 42;
+    --primary: 51 65 85; /* moonlight-700 */
+    --primary-foreground: 248 250 252;
+    --secondary: 241 245 249; /* moonlight-100 */
+    --secondary-foreground: 15 23 42;
+    --muted: 241 245 249;
+    --muted-foreground: 100 116 139;
+    --accent: 241 245 249;
+    --accent-foreground: 15 23 42;
+    --destructive: 220 38 38; /* blood-600 */
+    --destructive-foreground: 248 250 252;
+    --border: 226 232 240; /* moonlight-200 */
+    --input: 226 232 240;
+    --ring: 51 65 85;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark mode colors - werewolf night theme */
+    --background: 15 23 42; /* moonlight-900 */
+    --foreground: 248 250 252; /* moonlight-50 */
+    --card: 30 41 59; /* moonlight-800 */
+    --card-foreground: 248 250 252;
+    --popover: 30 41 59;
+    --popover-foreground: 248 250 252;
+    --primary: 203 213 225; /* moonlight-300 */
+    --primary-foreground: 15 23 42;
+    --secondary: 51 65 85; /* moonlight-700 */
+    --secondary-foreground: 248 250 252;
+    --muted: 51 65 85;
+    --muted-foreground: 148 163 184;
+    --accent: 51 65 85;
+    --accent-foreground: 248 250 252;
+    --destructive: 220 38 38; /* blood-600 */
+    --destructive-foreground: 248 250 252;
+    --border: 51 65 85;
+    --input: 51 65 85;
+    --ring: 203 213 225;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-body;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Werewolf-themed scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-moonlight-100 dark:bg-moonlight-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-moonlight-400 dark:bg-moonlight-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-moonlight-500 dark:bg-moonlight-500;
+  }
+
+  /* Custom selection colors */
+  ::selection {
+    @apply bg-moonlight-300 dark:bg-moonlight-600 text-moonlight-900 dark:text-moonlight-100;
+  }
+}
+
+@layer components {
+  /* Werewolf-themed button styles */
+  .btn-werewolf {
+    @apply bg-gradient-blood text-white font-semibold py-2 px-4 rounded-lg;
+    @apply hover:shadow-lg hover:scale-105 transition-all duration-200;
+    @apply active:scale-95;
+  }
+
+  .btn-pack {
+    @apply bg-gradient-forest text-white font-semibold py-2 px-4 rounded-lg;
+    @apply hover:shadow-lg hover:scale-105 transition-all duration-200;
+    @apply active:scale-95;
+  }
+
+  .btn-moon {
+    @apply bg-gradient-moon text-white font-semibold py-2 px-4 rounded-lg;
+    @apply hover:shadow-lg hover:scale-105 transition-all duration-200;
+    @apply active:scale-95 animate-moon-glow;
+  }
+
+  /* Card styles */
+  .card-werewolf {
+    @apply bg-card border border-border rounded-xl p-6 shadow-lg;
+    @apply hover:shadow-xl transition-all duration-300;
+    @apply dark:bg-moonlight-800 dark:border-moonlight-700;
+  }
+
+  .card-pack {
+    @apply card-werewolf border-forest-200 dark:border-forest-800;
+    @apply hover:border-forest-300 dark:hover:border-forest-700;
+  }
+
+  .card-territory {
+    @apply card-werewolf border-blood-200 dark:border-blood-800;
+    @apply hover:border-blood-300 dark:hover:border-blood-700;
+  }
+
+  .card-moon {
+    @apply card-werewolf border-moonlight-200 dark:border-moonlight-600;
+    @apply hover:border-moonlight-300 dark:hover:border-moonlight-500;
+  }
+
+  /* Input styles */
+  .input-werewolf {
+    @apply w-full px-4 py-2 border border-border rounded-lg;
+    @apply bg-background text-foreground placeholder-muted-foreground;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply transition-all duration-200;
+  }
+
+  /* Text styles */
+  .text-display {
+    @apply font-display font-bold text-4xl md:text-5xl lg:text-6xl;
+    @apply bg-gradient-to-r from-moonlight-600 to-moonlight-400 bg-clip-text text-transparent;
+    @apply dark:from-moonlight-300 dark:to-moonlight-100;
+  }
+
+  .text-heading {
+    @apply font-display font-semibold text-2xl md:text-3xl;
+    @apply text-foreground;
+  }
+
+  .text-subheading {
+    @apply font-display font-medium text-xl;
+    @apply text-muted-foreground;
+  }
+
+  /* Layout utilities */
+  .container-werewolf {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-werewolf {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+
+  /* Loading animations */
+  .loading-moon {
+    @apply animate-spin rounded-full h-8 w-8 border-2 border-moonlight-200;
+    @apply border-t-moonlight-600 dark:border-moonlight-700 dark:border-t-moonlight-300;
+  }
+
+  .loading-pulse {
+    @apply animate-pulse bg-moonlight-200 dark:bg-moonlight-700 rounded;
+  }
+
+  /* Status indicators */
+  .status-online {
+    @apply w-3 h-3 bg-forest-500 rounded-full animate-pulse;
+  }
+
+  .status-offline {
+    @apply w-3 h-3 bg-shadow-400 rounded-full;
+  }
+
+  .status-away {
+    @apply w-3 h-3 bg-blood-400 rounded-full;
+  }
+}
+
+@layer utilities {
+  /* Glass morphism effect */
+  .glass {
+    @apply backdrop-blur-md bg-white/10 dark:bg-black/10;
+    @apply border border-white/20 dark:border-white/10;
+  }
+
+  /* Werewolf-themed gradients */
+  .gradient-text-werewolf {
+    @apply bg-gradient-to-r from-blood-500 to-blood-700 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-pack {
+    @apply bg-gradient-to-r from-forest-500 to-forest-700 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-moon {
+    @apply bg-gradient-to-r from-moonlight-400 to-moonlight-600 bg-clip-text text-transparent;
+  }
+
+  /* Custom shadows */
+  .shadow-werewolf {
+    box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.1), 0 4px 6px -2px rgba(220, 38, 38, 0.05);
+  }
+
+  .shadow-pack {
+    box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.1), 0 4px 6px -2px rgba(22, 163, 74, 0.05);
+  }
+
+  .shadow-moon {
+    box-shadow: 0 10px 25px -5px rgba(100, 116, 139, 0.1), 0 4px 6px -2px rgba(100, 116, 139, 0.05);
+  }
+}

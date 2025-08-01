@@ -1,0 +1,140 @@
+// Werewolf Game Database Schema
+// PostgreSQL database with Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum GameStatus {
+  WAITING
+  RUNNING
+  FINISHED
+}
+
+enum GamePhase {
+  DAY
+  NIGHT
+}
+
+// User entity - represents registered players
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username     String    @unique @db.VarChar(50)
+  email        String    @unique @db.VarChar(255)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  isActive     Boolean   @default(true) @map("is_active")
+  gamesPlayed  Int       @default(0) @map("games_played")
+  gamesWon     Int       @default(0) @map("games_won")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  lastLogin    DateTime? @map("last_login") @db.Timestamptz
+
+  // Relations
+  createdGames  Game[]         @relation("GameCreator")
+  players       Player[]
+  gameLogs      GameLog[]
+  refreshTokens RefreshToken[]
+
+  @@index([username])
+  @@index([email])
+  @@index([createdAt])
+  @@map("users")
+}
+
+// Game entity - represents game rooms
+model Game {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String     @db.VarChar(100)
+  code           String     @unique @db.VarChar(6)
+  status         GameStatus @default(WAITING)
+  maxPlayers     Int        @default(12) @map("max_players")
+  currentPlayers Int        @default(0) @map("current_players")
+  gameSettings   Json       @map("game_settings") @db.JsonB
+  creatorId      String     @map("creator_id") @db.Uuid
+  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  startedAt      DateTime?  @map("started_at") @db.Timestamptz
+  finishedAt     DateTime?  @map("finished_at") @db.Timestamptz
+
+  // Relations
+  creator  User      @relation("GameCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  players  Player[]
+  gameLogs GameLog[]
+
+  @@index([code])
+  @@index([status])
+  @@index([creatorId])
+  @@index([createdAt])
+  @@map("games")
+}
+
+// Player entity - represents a user's participation in a specific game
+model Player {
+  userId       String    @map("user_id") @db.Uuid
+  gameId       String    @map("game_id") @db.Uuid
+  role         String?   @db.VarChar(50)
+  isAlive      Boolean   @default(true) @map("is_alive")
+  isHost       Boolean   @default(false) @map("is_host")
+  joinedAt     DateTime  @default(now()) @map("joined_at") @db.Timestamptz
+  eliminatedAt DateTime? @map("eliminated_at") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@id([userId, gameId])
+  @@index([gameId])
+  @@index([userId])
+  @@index([role])
+  @@map("players")
+}
+
+// GameLog entity - tracks all game events and actions
+model GameLog {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  gameId      String    @map("game_id") @db.Uuid
+  roundNumber Int       @map("round_number")
+  phase       GamePhase
+  actionType  String    @map("action_type") @db.VarChar(50)
+  actorId     String?   @map("actor_id") @db.Uuid
+  targetId    String?   @map("target_id") @db.Uuid
+  details     Json?     @db.JsonB
+  timestamp   DateTime  @default(now()) @db.Timestamptz
+
+  // Relations
+  game  Game  @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([gameId])
+  @@index([roundNumber])
+  @@index([phase])
+  @@index([actionType])
+  @@index([timestamp])
+  @@map("game_logs")
+}
+
+// RefreshToken entity - manages JWT refresh tokens
+model RefreshToken {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token        String   @unique @db.VarChar(500)
+  userId       String   @map("user_id") @db.Uuid
+  tokenVersion Int      @default(0) @map("token_version")
+  expiresAt    DateTime @map("expires_at") @db.Timestamptz
+  isRevoked    Boolean  @default(false) @map("is_revoked")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@index([isRevoked])
+  @@map("refresh_tokens")
+}
