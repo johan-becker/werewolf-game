@@ -26,7 +26,7 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --include-workspace-root
 
       - name: 🔍 Run ESLint on werewolf code
         run: npm run lint || echo "Linting not configured yet"
@@ -84,29 +84,22 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --include-workspace-root
 
       - name: 🗃️ Setup werewolf test database
         run: |
           echo "🌕 Setting up werewolf test database..."
-          cd packages/backend
-          npm run db:generate || echo "Prisma not configured yet"
-          npm run db:migrate || echo "Database migrations not configured yet"
+          npm run db:generate --workspace=packages/backend || echo "Prisma not configured yet"
+          npm run db:migrate --workspace=packages/backend || echo "Database migrations not configured yet"
 
       - name: 🧪 Run backend unit tests
-        run: |
-          cd packages/backend
-          npm run test || echo "Backend tests not configured yet"
+        run: npm run test --workspace=packages/backend || echo "Backend tests not configured yet"
 
       - name: 🧪 Run frontend unit tests  
-        run: |
-          cd packages/frontend
-          npm run test || echo "Frontend tests not configured yet"
+        run: npm run test --workspace=packages/frontend || echo "Frontend tests not configured yet"
 
       - name: 🧪 Run shared package tests
-        run: |
-          cd packages/shared
-          npm run test || echo "Shared tests not configured yet"
+        run: npm run test --workspace=packages/shared || echo "Shared tests not configured yet"
 
   # Build applications
   build:
@@ -125,7 +118,7 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --include-workspace-root
 
       - name: 🏗️ Build werewolf applications
         run: npm run build
@@ -156,7 +149,7 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --include-workspace-root
 
       - name: 🔒 Run npm audit for werewolf dependencies
         run: |
