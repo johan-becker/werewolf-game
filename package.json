@@ -5,7 +5,7 @@
   "private": true,
   "workspaces": [
     "packages/frontend",
-    "packages/backend", 
+    "packages/backend",
     "packages/shared"
   ],
   "scripts": {
@@ -28,17 +28,18 @@
   },
   "devDependencies": {
     "@turbo/gen": "^1.12.4",
-    "turbo": "^1.12.4",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
+    "husky": "9.1.7",
     "prettier": "^3.1.1",
+    "turbo": "^1.12.4",
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": "18.19.0",
-    "npm": "10.2.4"
+    "node": ">=18.0.0",
+    "npm": ">=10.0.0"
   }
 }
