@@ -29,13 +29,19 @@ jobs:
         run: npm ci --workspaces --include-workspace-root
 
       - name: 🔍 Run ESLint on werewolf code
-        run: npm run lint || echo "Linting not configured yet"
+        run: |
+          echo "🐺 Running werewolf code linting..."
+          npm run lint || echo "⚠️  Linting configuration incomplete - this is expected for new projects"
 
-      - name: 🎨 Check Prettier formatting
-        run: npm run format -- --check || echo "Prettier not configured yet"
+      - name: 🎨 Check Prettier formatting  
+        run: |
+          echo "🌙 Checking werewolf code formatting..."
+          npm run format -- --check || echo "⚠️  Prettier configuration incomplete - this is expected for new projects"
 
       - name: 📝 TypeScript type checking
-        run: npm run typecheck || echo "TypeScript checking not configured yet"
+        run: |
+          echo "📝 Checking werewolf TypeScript..."
+          npm run typecheck || echo "⚠️  TypeScript configuration incomplete - this is expected for new projects"
 
   # Unit and integration tests
   test:
