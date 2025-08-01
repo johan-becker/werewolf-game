@@ -133,6 +133,7 @@ export function TransformationTimer({
       
       return () => clearInterval(interval)
     }
+    return undefined
   }, [timeRemaining.total, isTransforming, transformationDuration, onTransformationStart, onTransformationEnd, calculateTimeRemaining])
 
   // Update timer every second
@@ -188,7 +189,13 @@ export function TransformationTimer({
             <div>
               <p className="text-sm font-medium">Next Full Moon</p>
               <p className="text-lg font-mono">
-                {isTransforming ? 'TRANSFORMING' : formatTime(timeRemaining)}
+                {isTransforming ? 'TRANSFORMING' : 
+                  size === 'compact' ? formatTime(timeRemaining) as string :
+                  (() => {
+                    const formatted = formatTime(timeRemaining) as { days: number; hours: string; minutes: string; seconds: string; }
+                    return `${formatted.days}d ${formatted.hours}:${formatted.minutes}:${formatted.seconds}`
+                  })()
+                }
               </p>
             </div>
           </div>
@@ -198,6 +205,9 @@ export function TransformationTimer({
   }
 
   const formattedTime = formatTime(timeRemaining)
+  const timeObject = typeof formattedTime === 'string' ? 
+    { days: timeRemaining.days, hours: timeRemaining.hours.toString().padStart(2, '0'), minutes: timeRemaining.minutes.toString().padStart(2, '0'), seconds: timeRemaining.seconds.toString().padStart(2, '0') } : 
+    formattedTime
 
   return (
     <Card className={cn('card-werewolf', className)}>
@@ -244,7 +254,7 @@ export function TransformationTimer({
               {size === 'detailed' ? (
                 <div className="grid grid-cols-4 gap-2">
                   {['days', 'hours', 'minutes', 'seconds'].map((unit, index) => {
-                    const values = [formattedTime.days, formattedTime.hours, formattedTime.minutes, formattedTime.seconds]
+                    const values = [timeObject.days, timeObject.hours, timeObject.minutes, timeObject.seconds]
                     return (
                       <div key={unit} className="text-center">
                         <div className="text-2xl font-mono font-bold">{values[index]}</div>
@@ -255,8 +265,8 @@ export function TransformationTimer({
                 </div>
               ) : (
                 <div className="text-3xl font-mono font-bold">
-                  {formattedTime.days > 0 && `${formattedTime.days}d `}
-                  {formattedTime.hours}:{formattedTime.minutes}:{formattedTime.seconds}
+                  {timeObject.days > 0 && `${timeObject.days}d `}
+                  {timeObject.hours}:{timeObject.minutes}:{timeObject.seconds}
                 </div>
               )}
             </div>

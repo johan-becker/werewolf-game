@@ -375,8 +375,8 @@ export const useAuthStore = create<AuthState>()(
           set((state) => {
             state.isLoading = false
             if (state.user) {
-              state.user.packId = undefined
-              state.user.packRole = undefined
+              delete state.user.packId
+              delete state.user.packRole
             }
           })
         } catch (error) {

@@ -76,6 +76,7 @@ export function MoonPhaseIndicator({
       }, 2000)
       return () => clearInterval(interval)
     }
+    return undefined
   }, [currentPhase, animated])
 
   const phaseData = moonPhases[currentPhase]
@@ -88,9 +89,9 @@ export function MoonPhaseIndicator({
           'relative flex items-center justify-center rounded-full border-2 transition-all duration-500',
           sizeClasses[size],
           isFullMoon
-            ? 'border-blood-400 bg-gradient-to-br from-moonlight-100 to-moonlight-300'
-            : 'border-moonlight-600 bg-gradient-to-br from-shadow-800 to-shadow-900',
-          animated && isFullMoon && isGlowing && 'shadow-lg shadow-blood-400/50 scale-105',
+            ? 'border-red-400 bg-gradient-to-br from-gray-100 to-gray-300'
+            : 'border-gray-600 bg-gradient-to-br from-gray-800 to-gray-900',
+          animated && isFullMoon && isGlowing && 'shadow-lg shadow-red-400/50 scale-105',
           animated && 'hover:scale-110'
         )}
       >
@@ -100,7 +101,7 @@ export function MoonPhaseIndicator({
         
         {/* Transformation danger indicator for full moon */}
         {isFullMoon && (
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-blood-500 rounded-full animate-pulse" />
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
         )}
       </div>
 
@@ -109,17 +110,17 @@ export function MoonPhaseIndicator({
           <p className={cn(
             'font-medium',
             size === 'small' ? 'text-xs' : size === 'medium' ? 'text-sm' : 'text-base',
-            isFullMoon ? 'text-blood-600' : 'text-foreground'
+            isFullMoon ? 'text-red-600' : 'text-foreground'
           )}>
             {phaseData.name}
           </p>
           <div className="flex items-center space-x-2">
             <div className={cn(
-              'h-1 rounded-full bg-moonlight-200',
+              'h-1 rounded-full bg-gray-200',
               size === 'small' ? 'w-16' : size === 'medium' ? 'w-20' : 'w-24'
             )}>
               <div
-                className="h-full rounded-full bg-gradient-to-r from-moonlight-400 to-blood-400 transition-all duration-1000"
+                className="h-full rounded-full bg-gradient-to-r from-gray-400 to-red-400 transition-all duration-1000"
                 style={{ width: `${phaseData.luminosity}%` }}
               />
             </div>

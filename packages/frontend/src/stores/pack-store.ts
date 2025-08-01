@@ -271,14 +271,14 @@ export const usePackStore = create<PackState>()(
 
         set((state) => {
           const index = state.packs.findIndex(p => p.id === packId)
-          if (index !== -1) {
-            state.packs[index] = { ...state.packs[index], ...updates }
+          if (index !== -1 && state.packs[index]) {
+            Object.assign(state.packs[index], updates)
           }
-          if (state.currentPack?.id === packId) {
-            state.currentPack = { ...state.currentPack, ...updates }
+          if (state.currentPack?.id === packId && state.currentPack) {
+            Object.assign(state.currentPack, updates)
           }
-          if (state.userPack?.id === packId) {
-            state.userPack = { ...state.userPack, ...updates }
+          if (state.userPack?.id === packId && state.userPack) {
+            Object.assign(state.userPack, updates)
           }
         })
 
@@ -362,9 +362,11 @@ export const usePackStore = create<PackState>()(
             
             // Update pack member count optimistically
             const packIndex = state.packs.findIndex(p => p.id === packId)
-            if (packIndex !== -1) {
+            if (packIndex !== -1 && state.packs[packIndex]) {
               state.packs[packIndex].members.push(response.member)
-              state.packs[packIndex].statistics.onlineMembers++
+              if (state.packs[packIndex].statistics) {
+                state.packs[packIndex].statistics.onlineMembers++
+              }
             }
           })
 
@@ -399,11 +401,13 @@ export const usePackStore = create<PackState>()(
             
             // Update pack member count optimistically
             const packIndex = state.packs.findIndex(p => p.id === packId)
-            if (packIndex !== -1) {
+            if (packIndex !== -1 && state.packs[packIndex]) {
               state.packs[packIndex].members = state.packs[packIndex].members.filter(
                 m => m.userId !== user.id
               )
-              state.packs[packIndex].statistics.onlineMembers--
+              if (state.packs[packIndex].statistics) {
+                state.packs[packIndex].statistics.onlineMembers--
+              }
             }
           })
 
@@ -451,12 +455,14 @@ export const usePackStore = create<PackState>()(
 
         set((state) => {
           const packIndex = state.packs.findIndex(p => p.id === packId)
-          if (packIndex !== -1) {
+          if (packIndex !== -1 && state.packs[packIndex]) {
             const memberIndex = state.packs[packIndex].members.findIndex(m => m.userId === userId)
-            if (memberIndex !== -1) {
+            if (memberIndex !== -1 && state.packs[packIndex].members[memberIndex]) {
               originalMember = state.packs[packIndex].members[memberIndex]
               state.packs[packIndex].members.splice(memberIndex, 1)
-              state.packs[packIndex].statistics.onlineMembers--
+              if (state.packs[packIndex].statistics) {
+                state.packs[packIndex].statistics.onlineMembers--
+              }
             }
           }
         })
@@ -465,9 +471,11 @@ export const usePackStore = create<PackState>()(
           if (originalMember) {
             set((state) => {
               const packIndex = state.packs.findIndex(p => p.id === packId)
-              if (packIndex !== -1) {
+              if (packIndex !== -1 && state.packs[packIndex]) {
                 state.packs[packIndex].members.push(originalMember!)
-                state.packs[packIndex].statistics.onlineMembers++
+                if (state.packs[packIndex].statistics) {
+                  state.packs[packIndex].statistics.onlineMembers++
+                }
               }
             })
           }
@@ -499,9 +507,9 @@ export const usePackStore = create<PackState>()(
 
         set((state) => {
           const packIndex = state.packs.findIndex(p => p.id === packId)
-          if (packIndex !== -1) {
+          if (packIndex !== -1 && state.packs[packIndex]) {
             const memberIndex = state.packs[packIndex].members.findIndex(m => m.userId === userId)
-            if (memberIndex !== -1) {
+            if (memberIndex !== -1 && state.packs[packIndex].members[memberIndex]) {
               originalRole = state.packs[packIndex].members[memberIndex].role
               state.packs[packIndex].members[memberIndex].role = role
             }
@@ -512,9 +520,9 @@ export const usePackStore = create<PackState>()(
           if (originalRole) {
             set((state) => {
               const packIndex = state.packs.findIndex(p => p.id === packId)
-              if (packIndex !== -1) {
+              if (packIndex !== -1 && state.packs[packIndex]) {
                 const memberIndex = state.packs[packIndex].members.findIndex(m => m.userId === userId)
-                if (memberIndex !== -1) {
+                if (memberIndex !== -1 && state.packs[packIndex].members[memberIndex]) {
                   state.packs[packIndex].members[memberIndex].role = originalRole!
                 }
               }

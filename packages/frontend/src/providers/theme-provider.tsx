@@ -172,7 +172,8 @@ export function ThemeProvider({
 
     // Update user preferences if logged in
     if (user) {
-      updatePreferences({ theme: newTheme })
+      const mappedTheme = newTheme === 'system' ? 'auto' : newTheme
+      updatePreferences({ theme: mappedTheme as 'dark' | 'auto' | 'light' })
     }
   }
 

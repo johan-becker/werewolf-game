@@ -26,8 +26,8 @@ export function WebSocketProvider({
   const { userPack } = usePackStore()
   
   const websocket = useWebSocket({
-    url,
-    autoConnect: autoConnect && isAuthenticated,
+    url: url || '',
+    autoConnect: autoConnect && isAuthenticated && !!url,
     onConnect: () => {
       console.log('🔌 WebSocket connected')
     },
@@ -45,6 +45,7 @@ export function WebSocketProvider({
       const unsubscribe = websocket.subscribeToMoonPhase()
       return unsubscribe
     }
+    return undefined
   }, [websocket.isConnected, isAuthenticated, websocket])
 
   // Subscribe to user-specific updates
@@ -53,6 +54,7 @@ export function WebSocketProvider({
       const unsubscribe = websocket.subscribeToUserUpdates()
       return unsubscribe
     }
+    return undefined
   }, [websocket.isConnected, user, websocket])
 
   // Subscribe to pack updates if user is in a pack
@@ -61,6 +63,7 @@ export function WebSocketProvider({
       const unsubscribe = websocket.subscribeToPackUpdates(userPack.id)
       return unsubscribe
     }
+    return undefined
   }, [websocket.isConnected, userPack, websocket])
 
   const contextValue: WebSocketContextValue = {
@@ -93,6 +96,7 @@ export function useMoonPhaseUpdates() {
       const unsubscribe = websocket.subscribeToMoonPhase()
       return unsubscribe
     }
+    return undefined
   }, [websocket.isConnected, websocket])
 
   return {
@@ -112,6 +116,7 @@ export function usePackRealTimeUpdates(packId?: string) {
       const unsubscribe = websocket.subscribeToPackUpdates(packId)
       return unsubscribe
     }
+    return undefined
   }, [websocket.isConnected, packId, websocket])
 
   return {

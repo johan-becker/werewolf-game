@@ -16,8 +16,8 @@ export default function HomePage() {
         <div className="container-werewolf flex h-16 items-center">
           <div className="mr-4 flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
-              <Moon className="h-6 w-6 text-moonlight-500" />
-              <span className="font-display font-bold text-xl">Werewolf Game</span>
+              <Moon className="h-6 w-6 text-gray-500" />
+              <span className="font-bold text-xl">Werewolf Game</span>
             </Link>
           </div>
           <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
@@ -59,7 +59,7 @@ export default function HomePage() {
         </Suspense>
 
         {/* Current Moon Phase */}
-        <section className="section-werewolf bg-moonlight-50 dark:bg-moonlight-900">
+        <section className="section-werewolf bg-gray-50 dark:bg-gray-900">
           <div className="container-werewolf">
             <div className="text-center mb-12">
               <h2 className="text-heading mb-4">Current Lunar Cycle</h2>
@@ -69,7 +69,7 @@ export default function HomePage() {
             </div>
             <div className="flex justify-center">
               <Suspense fallback={<div className="w-64 h-64 loading-pulse rounded-full" />}>
-                <MoonPhaseIndicator size="large" showDetails />
+                <MoonPhaseIndicator size="large" showLabel />
               </Suspense>
             </div>
           </div>
@@ -81,8 +81,8 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="card-werewolf text-center">
                 <CardHeader>
-                  <Users className="h-12 w-12 mx-auto text-forest-500 mb-4" />
-                  <CardTitle className="text-2xl font-display">
+                  <Users className="h-12 w-12 mx-auto text-green-500 mb-4" />
+                  <CardTitle className="text-2xl font-bold">
                     <StatsCounter end={1247} duration={2000} />
                   </CardTitle>
                   <CardDescription>Active Werewolves</CardDescription>
@@ -91,8 +91,8 @@ export default function HomePage() {
 
               <Card className="card-werewolf text-center">
                 <CardHeader>
-                  <Users className="h-12 w-12 mx-auto text-blood-500 mb-4" />
-                  <CardTitle className="text-2xl font-display">
+                  <Users className="h-12 w-12 mx-auto text-red-500 mb-4" />
+                  <CardTitle className="text-2xl font-bold">
                     <StatsCounter end={156} duration={2000} />
                   </CardTitle>
                   <CardDescription>Active Packs</CardDescription>
@@ -101,8 +101,8 @@ export default function HomePage() {
 
               <Card className="card-werewolf text-center">
                 <CardHeader>
-                  <Map className="h-12 w-12 mx-auto text-moonlight-500 mb-4" />
-                  <CardTitle className="text-2xl font-display">
+                  <Map className="h-12 w-12 mx-auto text-gray-500 mb-4" />
+                  <CardTitle className="text-2xl font-bold">
                     <StatsCounter end={89} duration={2000} />
                   </CardTitle>
                   <CardDescription>Claimed Territories</CardDescription>
@@ -111,8 +111,8 @@ export default function HomePage() {
 
               <Card className="card-werewolf text-center">
                 <CardHeader>
-                  <Timer className="h-12 w-12 mx-auto text-shadow-500 mb-4" />
-                  <CardTitle className="text-2xl font-display">
+                  <Timer className="h-12 w-12 mx-auto text-gray-600 mb-4" />
+                  <CardTitle className="text-2xl font-bold">
                     <StatsCounter end={23} duration={2000} />
                   </CardTitle>
                   <CardDescription>Days to Full Moon</CardDescription>
@@ -128,12 +128,12 @@ export default function HomePage() {
         </Suspense>
 
         {/* Call to Action */}
-        <section className="section-werewolf bg-gradient-to-br from-moonlight-900 via-moonlight-800 to-blood-900">
+        <section className="section-werewolf bg-gradient-to-br from-gray-900 via-gray-800 to-red-900">
           <div className="container-werewolf text-center">
             <h2 className="text-display mb-6 text-white">
               Join the Hunt Tonight
             </h2>
-            <p className="text-xl text-moonlight-200 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
               The moon is calling. Answer its call and discover your true nature among the pack.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -146,7 +146,7 @@ export default function HomePage() {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="text-lg px-8 py-4 border-moonlight-300 text-moonlight-100 hover:bg-moonlight-100 hover:text-moonlight-900"
+                  className="text-lg px-8 py-4 border-gray-300 text-gray-100 hover:bg-gray-100 hover:text-gray-900"
                 >
                   Learn More
                 </Button>
@@ -157,13 +157,13 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-moonlight-50 dark:bg-moonlight-900">
+      <footer className="border-t border-border bg-gray-50 dark:bg-gray-900">
         <div className="container-werewolf py-8 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
-                <Moon className="h-5 w-5 text-moonlight-500" />
-                <span className="font-display font-bold">Werewolf Game</span>
+                <Moon className="h-5 w-5 text-gray-500" />
+                <span className="font-bold">Werewolf Game</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 The ultimate werewolf pack experience.

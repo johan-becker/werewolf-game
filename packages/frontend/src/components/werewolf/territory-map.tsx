@@ -104,10 +104,10 @@ export function TerritoryMap({
     }
   }
 
-  const getTerritory StatusBadge = (status: TerritoryStatus) => {
+  const getTerritoryStatusBadge = (status: TerritoryStatus) => {
     const statusInfo = {
-      CONTROLLED: { label: 'Controlled', color: 'bg-forest-100 text-forest-800' },
-      CONTESTED: { label: 'Contested', color: 'bg-blood-100 text-blood-800' },
+      CONTROLLED: { label: 'Controlled', color: 'bg-green-100 text-green-800' },
+      CONTESTED: { label: 'Contested', color: 'bg-red-100 text-red-800' },
       NEUTRAL: { label: 'Neutral', color: 'bg-gray-100 text-gray-800' },
       ENEMY: { label: 'Enemy', color: 'bg-red-100 text-red-800' },
     }
@@ -189,7 +189,7 @@ export function TerritoryMap({
                 </pattern>
                 <pattern id="coastal-pattern" patternUnits="userSpaceOnUse" width="20" height="20">
                   <rect width="20" height="20" fill="#3b82f6" opacity="0.1" />
-                  <wave cx="10" cy="10" r="2" fill="#2563eb" opacity="0.3" />
+                  <circle cx="10" cy="10" r="2" fill="#2563eb" opacity="0.3" />
                 </pattern>
               </defs>
 
@@ -245,8 +245,8 @@ export function TerritoryMap({
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">{territory.name}</h4>
-                        <Badge className={getTerritory StatusBadge(territory.status).color}>
-                          {getTerritory StatusBadge(territory.status).label}
+                        <Badge className={getTerritoryStatusBadge(territory.status).color}>
+                          {getTerritoryStatusBadge(territory.status).label}
                         </Badge>
                       </div>
                       
