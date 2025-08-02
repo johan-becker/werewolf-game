@@ -1,7 +1,7 @@
 import { ActionType } from './werewolf-roles.types';
 
 // Re-export ActionType for compatibility
-export type { ActionType } from './werewolf-roles.types';
+export { ActionType } from './werewolf-roles.types';
 
 export enum PlayerRole {
   VILLAGER = 'VILLAGER',

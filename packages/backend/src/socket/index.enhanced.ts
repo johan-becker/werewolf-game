@@ -249,7 +249,7 @@ function setupDisconnectHandling(socket: AuthenticatedSocket, stats: any): void 
     console.log(`Socket ${socket.id} disconnected (state: ${authState}, reason: ${reason})`);
     
     if (user) {
-      console.log(`User ${user.id} (${user.username || user.email}) disconnected from game ${gameId || 'none'}`);
+      console.log(`User ${user.userId} (${user.username || user.email}) disconnected from game ${gameId || 'none'}`);
     }
 
     // Update connection stats
@@ -268,7 +268,7 @@ function setupDisconnectHandling(socket: AuthenticatedSocket, stats: any): void 
     if (gameId && user) {
       socket.to(`game:${gameId}`).emit('game:playerDisconnected', {
         gameId,
-        playerId: user.id,
+        playerId: user.userId,
         username: user.username || user.email.split('@')[0],
         reason,
         timestamp: new Date()

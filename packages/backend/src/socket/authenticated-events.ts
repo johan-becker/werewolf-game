@@ -68,14 +68,14 @@ export class AuthenticatedSocketEventHandler {
           // Notify other systems about successful authentication
           socket.emit('auth:success', {
             user: {
-              id: result.user.id,
+              id: result.user.userId,
               username: result.user.username || result.user.email.split('@')[0],
               role: result.user.role
             },
             session: result.metadata
           });
 
-          console.log(`User ${result.user.id} authenticated on socket ${socket.id}`);
+          console.log(`User ${result.user.userId} authenticated on socket ${socket.id}`);
         }
       } catch (error) {
         console.error('Authentication event error:', error);
@@ -128,8 +128,8 @@ export class AuthenticatedSocketEventHandler {
         const user = socketAuthStateMachine.getAuthenticatedUser(socket);
         
         const game = await this.gameService.createGame({
-          creatorId: user.id,
-          name: data.name,
+          creatorId: user.userId,
+          name: data.name || '',
           maxPlayers: data.maxPlayers,
           isPrivate: data.isPrivate
         });
@@ -153,7 +153,7 @@ export class AuthenticatedSocketEventHandler {
 
         callback(response);
 
-        console.log(`User ${user.id} created game ${game.id}`);
+        console.log(`User ${user.userId} created game ${game.id}`);
       } catch (error) {
         console.error('Game creation error:', error);
         callback({
@@ -177,9 +177,9 @@ export class AuthenticatedSocketEventHandler {
         let game;
 
         if (data.gameCode) {
-          game = await this.gameService.joinGameByCode(data.gameCode, user.id);
+          game = await this.gameService.joinGameByCode(data.gameCode, user.userId);
         } else if (data.gameId) {
-          game = await this.gameService.joinGame(data.gameId, user.id);
+          game = await this.gameService.joinGame(data.gameId, user.userId);
         } else {
           callback({
             success: false,
@@ -203,7 +203,7 @@ export class AuthenticatedSocketEventHandler {
             gameCode: game.code,
             status: game.status,
             playerCount: game.playerCount || 1,
-            isHost: game.creatorId === user.id
+            isHost: game.creatorId === user.userId
           }
         };
 
@@ -213,14 +213,14 @@ export class AuthenticatedSocketEventHandler {
         socket.to(`game:${game.id}`).emit('game:playerJoined', {
           gameId: game.id,
           player: {
-            id: user.id,
+            id: user.userId,
             username: user.username || user.email.split('@')[0],
-            isHost: game.creatorId === user.id
+            isHost: game.creatorId === user.userId
           },
           playerCount: game.playerCount || 1
         });
 
-        console.log(`User ${user.id} joined game ${game.id}`);
+        console.log(`User ${user.userId} joined game ${game.id}`);
       } catch (error) {
         console.error('Game join error:', error);
         callback({
@@ -242,25 +242,25 @@ export class AuthenticatedSocketEventHandler {
       try {
         const user = socketAuthStateMachine.getAuthenticatedUser(socket);
         
-        await this.gameService.leaveGame(data.gameId, user.id);
+        await this.gameService.leaveGame(data.gameId, user.userId);
 
         // Leave the game room
         socket.leave(`game:${data.gameId}`);
-        socket.data.currentGame = undefined;
-        socket.data.roomId = undefined;
+        delete socket.data.currentGame;
+        delete socket.data.roomId;
 
         callback({ success: true });
 
         // Notify other players
         socket.to(`game:${data.gameId}`).emit('game:playerLeft', {
           gameId: data.gameId,
-          playerId: user.id,
+          playerId: user.userId,
           username: user.username || user.email.split('@')[0],
           reason: data.reason,
           playerCount: 0 // Would need to get actual count
         });
 
-        console.log(`User ${user.id} left game ${data.gameId}`);
+        console.log(`User ${user.userId} left game ${data.gameId}`);
       } catch (error) {
         console.error('Game leave error:', error);
         callback({
@@ -282,7 +282,7 @@ export class AuthenticatedSocketEventHandler {
       try {
         const user = socketAuthStateMachine.getAuthenticatedUser(socket);
         
-        await this.gameService.startGame(data.gameId, user.id);
+        await this.gameService.startGame(data.gameId, user.userId);
 
         callback({ success: true });
 
@@ -297,7 +297,7 @@ export class AuthenticatedSocketEventHandler {
           teammates: []
         });
 
-        console.log(`User ${user.id} started game ${data.gameId}`);
+        console.log(`User ${user.userId} started game ${data.gameId}`);
       } catch (error) {
         console.error('Game start error:', error);
         callback({
@@ -412,7 +412,7 @@ export class AuthenticatedSocketEventHandler {
 
         callback(response);
 
-        console.log(`User ${user.id} performed night action ${data.action} in game ${data.gameId}`);
+        console.log(`User ${user.userId} performed night action ${data.action} in game ${data.gameId}`);
       } catch (error) {
         console.error('Night action error:', error);
         callback({
@@ -458,7 +458,7 @@ export class AuthenticatedSocketEventHandler {
 
         callback(response);
 
-        console.log(`User ${user.id} voted for ${data.targetId} in game ${data.gameId}`);
+        console.log(`User ${user.userId} voted for ${data.targetId} in game ${data.gameId}`);
       } catch (error) {
         console.error('Vote error:', error);
         callback({
@@ -499,7 +499,7 @@ export class AuthenticatedSocketEventHandler {
         this.io.to(`game:${data.gameId}`).emit('game:chatMessage', {
           gameId: data.gameId,
           messageId,
-          playerId: user.id,
+          playerId: user.userId,
           username: user.username || user.email.split('@')[0],
           message: data.message,
           channel: data.channel,
@@ -519,7 +519,7 @@ export class AuthenticatedSocketEventHandler {
 
         callback(response);
 
-        console.log(`User ${user.id} sent chat message in game ${data.gameId}`);
+        console.log(`User ${user.userId} sent chat message in game ${data.gameId}`);
       } catch (error) {
         console.error('Chat error:', error);
         callback({

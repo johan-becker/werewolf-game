@@ -65,6 +65,7 @@ export interface NightAction {
   id: string;
   gameId: string;
   playerId: string;
+  actorId: string;                      // Actor performing the action (for compatibility)
   actionType: ActionType;
   targetId: string;                     // Primäres Ziel (required, use empty string if not needed)
   secondTargetId?: string;              // Zweites Ziel (für Amor)

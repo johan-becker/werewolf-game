@@ -43,7 +43,7 @@ export class AuthController {
         success: true,
         message: result.message,
         user: {
-          id: result.user.id,
+          id: result.user.userId,
           email: result.user.email,
           username: result.user.user_metadata?.username
         },
@@ -83,7 +83,7 @@ export class AuthController {
         success: true,
         message: 'Login successful',
         user: {
-          id: result.user.id,
+          id: result.user.userId,
           email: result.user.email,
           username: result.user.user_metadata?.username
         },
@@ -120,7 +120,7 @@ export class AuthController {
         success: true,
         message: 'Tokens refreshed successfully',
         user: {
-          id: result.user.id,
+          id: result.user.userId,
           email: result.user.email,
           username: result.user.user_metadata?.username
         },
@@ -166,7 +166,7 @@ export class AuthController {
         return;
       }
 
-      const profile = await AuthService.getUserProfile(req.user.id);
+      const profile = await AuthService.getUserProfile(req.user.userId);
 
       res.status(200).json({
         success: true,

@@ -278,7 +278,7 @@ export class WerewolfChatFactory {
       moon_phase_bonus: faker.datatype.boolean(0.15),
       territory_message: faker.datatype.boolean(0.1),
       created_at: faker.date.recent({ days: 1 }),
-      edited_at: faker.datatype.boolean(0.1) ? faker.date.recent({ hours: 1 }) : null,
+      edited_at: faker.datatype.boolean(0.1) ? faker.date.recent({ days: 1/24 }) : null,
       ...overrides,
     };
   }
@@ -394,7 +394,7 @@ export class WerewolfGameLogFactory {
     logs.push(this.create({
       game_id: gameId,
       action: 'game_started',
-      created_at: faker.date.recent({ hours: 2 }),
+      created_at: faker.date.recent({ days: 2/24 }),
     }));
     
     return logs.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());

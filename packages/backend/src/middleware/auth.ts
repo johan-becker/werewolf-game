@@ -229,7 +229,7 @@ export const gameplayRateLimit = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => {
     const authReq = req as OptionalAuthRequest;
-    return authReq.user ? `gameplay:${authReq.user.id}` : `gameplay:${getClientIP(req)}`;
+    return authReq.user ? `gameplay:${authReq.user.userId}` : `gameplay:${getClientIP(req)}`;
   }
 });
 
@@ -296,7 +296,9 @@ export const validateRequiredFields = (fields: string[]) => {
  * Type guards for request types
  */
 export function isAuthenticatedRequest(req: Request): req is AuthenticatedRequest {
-  return 'user' in req && req.user !== undefined;
+  return 'user' in req && 
+         req.user !== undefined &&
+         'userId' in req.user;
 }
 
 export function hasOptionalAuth(req: Request): req is OptionalAuthRequest {

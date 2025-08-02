@@ -10,7 +10,7 @@ export class GameController {
    */
   async createGame(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId;
       const game = await gameService.createGame({
         creatorId: userId,
         maxPlayers: req.body.maxPlayers || 8,
@@ -77,7 +77,7 @@ export class GameController {
    */
   async joinGame(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId;
       const gameId = req.params.id;
       if (!gameId) {
         res.status(400).json({ success: false, error: 'Game ID is required' });
@@ -99,7 +99,7 @@ export class GameController {
    */
   async joinByCode(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId;
       const code = req.params.code;
       if (!code) {
         res.status(400).json({ success: false, error: 'Game code is required' });
@@ -121,7 +121,7 @@ export class GameController {
    */
   async leaveGame(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId;
       const gameId = req.params.id;
       if (!gameId) {
         res.status(400).json({ success: false, error: 'Game ID is required' });
@@ -144,7 +144,7 @@ export class GameController {
    */
   async startGame(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId;
       const gameId = req.params.id;
       if (!gameId) {
         res.status(400).json({ success: false, error: 'Game ID is required' });

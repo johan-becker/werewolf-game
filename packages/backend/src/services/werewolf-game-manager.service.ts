@@ -403,7 +403,7 @@ export class WerewolfGameManager {
         nextRole: resolution.nextRole,
         nightCompleted: resolution.nightCompleted,
         gameEnded,
-        winner
+        ...(winner && { winner })
       };
 
     } catch (error: any) {
@@ -532,7 +532,7 @@ export class WerewolfGameManager {
         eliminatedPlayer: eliminatedPlayerId,
         votes: voteCount,
         gameEnded,
-        winner
+        ...(winner && { winner })
       };
 
     } catch (error: any) {

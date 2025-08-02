@@ -110,7 +110,7 @@ export class EnhancedGameController {
       // Check if user already has an active game
       const existingGames = await this.gameService.getGameList(10, 0);
       const userActiveGame = existingGames.find(game => 
-        game.creatorId === req.user.id && 
+        game.creatorId === req.user.userId && 
         (game.status === 'waiting' || game.status === 'in_progress')
       );
 
@@ -133,7 +133,7 @@ export class EnhancedGameController {
 
       // Create the game
       const game = await this.gameService.createGame({
-        creatorId: req.user.id,
+        creatorId: req.user.userId,
         maxPlayers: maxPlayers || 8,
         isPrivate: isPrivate || false,
         name: name?.trim()
@@ -261,8 +261,8 @@ export class EnhancedGameController {
       }
 
       // Check if user has permission to view this game
-      const isParticipant = game.players?.some(player => player.id === req.user.id);
-      const isHost = game.creatorId === req.user.id;
+      const isParticipant = game.players?.some(player => player.id === req.user.userId);
+      const isHost = game.creatorId === req.user.userId;
       
       if (game.isPrivate && !isParticipant && !isHost) {
         return {
@@ -332,7 +332,7 @@ export class EnhancedGameController {
   async joinGame(req: AuthenticatedRequest, res: Response): Promise<GameJoinResult> {
     try {
       const gameId = req.params.id;
-      const userId = req.user.id;
+      const userId = req.user.userId;
       
       // Check if game exists first
       const game = await this.gameService.getGameDetails(gameId);
@@ -478,7 +478,7 @@ export class EnhancedGameController {
   async joinByCode(req: AuthenticatedRequest, res: Response): Promise<GameJoinResult> {
     try {
       const code = req.params.code.toUpperCase();
-      const userId = req.user.id;
+      const userId = req.user.userId;
 
       // Code validation handled by middleware
 
@@ -517,7 +517,7 @@ export class EnhancedGameController {
   async leaveGame(req: AuthenticatedRequest, res: Response): Promise<GameLeaveResult> {
     try {
       const gameId = req.params.id;
-      const userId = req.user.id;
+      const userId = req.user.userId;
 
       // Check if game exists
       const game = await this.gameService.getGameDetails(gameId);
@@ -607,7 +607,7 @@ export class EnhancedGameController {
   async startGame(req: AuthenticatedRequest, res: Response): Promise<GameStartResult> {
     try {
       const gameId = req.params.id;
-      const userId = req.user.id;
+      const userId = req.user.userId;
 
       // Check if game exists
       const game = await this.gameService.getGameDetails(gameId);

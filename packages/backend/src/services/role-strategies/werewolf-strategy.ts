@@ -37,9 +37,16 @@ export class WerewolfStrategy extends BaseRoleStrategy {
   }
 
   /**
+   * Werwolf kann nachts seine Fähigkeit nutzen
+   */
+  canUseNightAbility(player: WerewolfPlayer, gameState: WerewolfGameState): boolean {
+    return player.isAlive && gameState.phase === 'NIGHT';
+  }
+
+  /**
    * Führt Werwolf-Angriff durch
    */
-  async executeAction(
+  async executeNightAction(
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
@@ -91,6 +98,35 @@ export class WerewolfStrategy extends BaseRoleStrategy {
         lovers: []
       }
     };
+  }
+
+  /**
+   * Validiert Werwolf-Zielauswahl
+   */
+  validateTarget(action: NightAction, gameState: WerewolfGameState): boolean {
+    // Werwölfe können nur nachts während der Werwolf-Phase angreifen
+    return gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE;
+  }
+
+  /**
+   * Prüft Werwolf-Siegbedingungen
+   */
+  getWinCondition(gameState: WerewolfGameState): any | null {
+    // Werwölfe gewinnen, wenn sie die Mehrheit haben
+    // Diese Logik sollte vom WerewolfGameManager gehandhabt werden
+    return null;
+  }
+
+  /**
+   * Führt Werwolf-Angriff durch (alias für executeNightAction)
+   */
+  async executeAction(
+    player: WerewolfPlayer,
+    action: NightAction,
+    allPlayers: WerewolfPlayer[],
+    gameState: WerewolfGameState
+  ): Promise<ActionResult> {
+    return this.executeNightAction(player, action, allPlayers, gameState);
   }
 
   /**
