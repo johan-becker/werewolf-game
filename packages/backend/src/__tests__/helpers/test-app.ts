@@ -155,10 +155,11 @@ function createTestRoutes(): express.Router {
           break;
           
         default:
-          return res.status(400).json({ 
+          res.status(400).json({ 
             error: 'Unknown werewolf scenario',
             available_scenarios: ['full-moon-pack', 'new-moon-mystery', 'alpha-showdown'],
           });
+          return;
       }
       
       res.json({
@@ -186,10 +187,11 @@ function createTestRoutes(): express.Router {
       ];
 
       if (!phase || !validPhases.includes(phase)) {
-        return res.status(400).json({
+        res.status(400).json({
           error: 'Invalid moon phase',
           valid_phases: validPhases,
         });
+        return;
       }
 
       // Simulate moon phase effects
