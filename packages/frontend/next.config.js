@@ -36,9 +36,10 @@ const nextConfig = {
     
     return config;
   },
-  // TypeScript strict checking is enabled, ESLint temporarily disabled due to config issues
+  // TypeScript strict checking is enabled, ESLint now properly configured
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
+    dirs: ['src'], // Only lint src directory
   },
   // typescript: {
   //   ignoreBuildErrors: true,

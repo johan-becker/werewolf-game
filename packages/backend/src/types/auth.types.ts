@@ -15,6 +15,7 @@ export interface AuthenticationResult {
 }
 
 export interface AuthenticatedUser {
+  readonly id: string; // Alias for userId for compatibility
   readonly userId: string;
   readonly username: string;
   readonly email: string;
