@@ -38,7 +38,7 @@ router.post('/',
   asyncControllerWithStatus(
     gameController.createGame.bind(gameController), 
     201
-  )
+  ) as any
 );
 
 /**
@@ -48,7 +48,7 @@ router.post('/',
  */
 router.get('/', 
   validatePagination,
-  asyncController(gameController.listGames.bind(gameController))
+  asyncController(gameController.listGames.bind(gameController)) as any
 );
 
 /**
@@ -58,7 +58,7 @@ router.get('/',
  */
 router.get('/:id', 
   validateGameId('id'),
-  asyncController(gameController.getGame.bind(gameController))
+  asyncController(gameController.getGame.bind(gameController)) as any
 );
 
 /**
@@ -68,7 +68,7 @@ router.get('/:id',
  */
 router.post('/:id/join', 
   validateGameId('id'),
-  asyncController(gameController.joinGame.bind(gameController))
+  asyncController(gameController.joinGame.bind(gameController)) as any
 );
 
 /**
@@ -78,7 +78,7 @@ router.post('/:id/join',
  */
 router.post('/join/:code', 
   validateGameCode('code'),
-  asyncController(gameController.joinByCode.bind(gameController))
+  asyncController(gameController.joinByCode.bind(gameController)) as any
 );
 
 /**
@@ -88,7 +88,7 @@ router.post('/join/:code',
  */
 router.delete('/:id/leave', 
   validateGameId('id'),
-  asyncController(gameController.leaveGame.bind(gameController))
+  asyncController(gameController.leaveGame.bind(gameController)) as any
 );
 
 /**
@@ -98,7 +98,7 @@ router.delete('/:id/leave',
  */
 router.post('/:id/start', 
   validateGameId('id'),
-  asyncController(gameController.startGame.bind(gameController))
+  asyncController(gameController.startGame.bind(gameController)) as any
 );
 
 // Apply global error interceptor for unhandled exceptions
