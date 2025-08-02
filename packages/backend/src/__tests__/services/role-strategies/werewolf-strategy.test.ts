@@ -83,9 +83,18 @@ describe('WerewolfStrategy', () => {
     it('should successfully execute werewolf kill action', async () => {
       const targetId = mockVillagerPlayer.id;
 
+      const nightAction = {
+        actionType: 'WEREWOLF_KILL' as any,
+        actorId: mockWerewolfPlayer.id,
+        targetId: targetId,
+        timestamp: new Date(),
+        resolved: false
+      };
+
       const result = await werewolfStrategy.executeNightAction(
         mockWerewolfPlayer,
-        targetId,
+        nightAction,
+        [mockWerewolfPlayer, mockVillagerPlayer],
         mockGameData
       );
 
