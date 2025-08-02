@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { createClient } from '@supabase/supabase-js';
 import { faker } from '@faker-js/faker';
+import { WerewolfRole } from '../types/werewolf-roles.types';
 
 // Test database configuration for werewolf game
 export class TestDatabaseManager {
@@ -147,9 +148,10 @@ export class TestDatabaseManager {
   }
 
   private async createWerewolfPlayers(games: TestGame[], users: TestUser[]): Promise<TestPlayer[]> {
-    const werewolfRoles = [
-      'villager', 'werewolf', 'seer', 'witch', 'hunter', 
-      'cupid', 'little_girl', 'alpha_werewolf', 'pack_leader'
+    const werewolfRoles: WerewolfRole[] = [
+      WerewolfRole.VILLAGER, WerewolfRole.WEREWOLF, WerewolfRole.SEER, 
+      WerewolfRole.WITCH, WerewolfRole.HUNTER, WerewolfRole.CUPID, 
+      WerewolfRole.LITTLE_GIRL
     ];
 
     const players: TestPlayer[] = [];
@@ -164,7 +166,7 @@ export class TestDatabaseManager {
 
       for (let i = 0; i < gameUsers.length; i++) {
         const user = gameUsers[i];
-        const role = i === 0 ? 'werewolf' : faker.helpers.arrayElement(werewolfRoles);
+        const role = i === 0 ? WerewolfRole.WEREWOLF : faker.helpers.arrayElement(werewolfRoles);
         
         const player = await this.prisma.player.create({
           data: {
@@ -175,8 +177,8 @@ export class TestDatabaseManager {
             is_host: i === 0,
             position: i,
             night_action_target: null,
-            werewolf_team: role.includes('werewolf') ? 'werewolf' : 'villager',
-            pack_rank: role.includes('werewolf') ? 
+            werewolf_team: role === WerewolfRole.WEREWOLF ? 'werewolf' : 'villager',
+            pack_rank: role === WerewolfRole.WEREWOLF ? 
               faker.helpers.arrayElement(['alpha', 'beta', 'omega']) : null,
             territory_bonus_active: faker.datatype.boolean(0.3),
             moon_phase_power_used: faker.datatype.boolean(0.2),
@@ -220,9 +222,9 @@ export class TestDatabaseManager {
             message_type: 'PLAYER',
             is_system: false,
             mentions: [],
-            werewolf_role_hint: sender.role === 'werewolf' ? 
+            werewolf_role_hint: sender.role === WerewolfRole.WEREWOLF ? 
               faker.datatype.boolean(0.1) : false, // 10% chance for werewolves to hint
-            pack_communication: sender.role.includes('werewolf') && 
+            pack_communication: sender.role === WerewolfRole.WEREWOLF && 
               faker.datatype.boolean(0.3), // 30% chance for pack communication
             created_at: faker.date.recent({ days: 1 }),
           },

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { WerewolfRole, GamePhase, ChatChannel } from '../../types/werewolf-roles.types';
+import { WerewolfRole } from '../../types/werewolf-roles.types';
 import { ChatMessageType } from '../../types/chat.types';
 
 /**
@@ -151,8 +151,9 @@ export class WerewolfGameFactory {
 export class WerewolfPlayerFactory {
   static create(overrides: Partial<any> = {}): any {
     const werewolfRoles: WerewolfRole[] = [
-      'villager', 'werewolf', 'seer', 'witch', 'hunter', 
-      'cupid', 'little_girl', 'alpha_werewolf'
+      WerewolfRole.VILLAGER, WerewolfRole.WEREWOLF, WerewolfRole.SEER, 
+      WerewolfRole.WITCH, WerewolfRole.HUNTER, WerewolfRole.CUPID, 
+      WerewolfRole.LITTLE_GIRL
     ];
 
     return {
@@ -182,7 +183,7 @@ export class WerewolfPlayerFactory {
 
   static createWerewolf(overrides: Partial<any> = {}): any {
     return this.create({
-      role: 'werewolf',
+      role: WerewolfRole.WEREWOLF,
       werewolf_team: 'werewolf',
       pack_rank: faker.helpers.arrayElement(['alpha', 'beta', 'omega']),
       werewolf_abilities: {
@@ -197,7 +198,7 @@ export class WerewolfPlayerFactory {
 
   static createVillager(overrides: Partial<any> = {}): any {
     return this.create({
-      role: 'villager',
+      role: WerewolfRole.VILLAGER,
       werewolf_team: 'villager',
       pack_rank: null,
       werewolf_abilities: {
@@ -212,7 +213,7 @@ export class WerewolfPlayerFactory {
 
   static createAlphaWerewolf(overrides: Partial<any> = {}): any {
     return this.create({
-      role: 'alpha_werewolf',
+      role: WerewolfRole.WEREWOLF,
       werewolf_team: 'werewolf',
       pack_rank: 'alpha',
       werewolf_abilities: {
