@@ -105,10 +105,10 @@ function createTestRoutes(): express.Router {
         message: 'Test database reset successfully',
         werewolf_status: 'territory_cleared',
       });
-    } catch (error) {
+    } catch (error: unknown) {
       res.status(500).json({ 
         success: false, 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         werewolf_status: 'pack_scattered',
       });
     }
@@ -167,10 +167,10 @@ function createTestRoutes(): express.Router {
         data: scenarioData,
         werewolf_status: 'scenario_prepared',
       });
-    } catch (error) {
+    } catch (error: unknown) {
       res.status(500).json({ 
         success: false, 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         werewolf_status: 'scenario_failed',
       });
     }
@@ -185,7 +185,7 @@ function createTestRoutes(): express.Router {
         'full_moon', 'waning_gibbous', 'third_quarter', 'waning_crescent'
       ];
 
-      if (!validPhases.includes(phase)) {
+      if (!phase || !validPhases.includes(phase)) {
         return res.status(400).json({
           error: 'Invalid moon phase',
           valid_phases: validPhases,
@@ -203,14 +203,14 @@ function createTestRoutes(): express.Router {
       res.json({
         success: true,
         moon_phase: phase,
-        effects: effects[phase] || {},
+        effects: (phase && effects[phase as keyof typeof effects]) || {},
         werewolf_status: `moon_phase_${phase}`,
         next_transition: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
       });
-    } catch (error) {
+    } catch (error: unknown) {
       res.status(500).json({ 
         success: false, 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error' 
       });
     }
   });
@@ -218,7 +218,7 @@ function createTestRoutes(): express.Router {
   // Generate test chat messages with werewolf theme
   router.post('/chat/generate/:count', authenticateToken, async (req, res) => {
     try {
-      const count = parseInt(req.params.count) || 10;
+      const count = parseInt(req.params.count || '10') || 10;
       const { WerewolfFactories } = await import('../factories/werewolf-factories');
       
       const messages = Array.from({ length: count }, () => 
@@ -231,10 +231,10 @@ function createTestRoutes(): express.Router {
         count: messages.length,
         werewolf_status: 'pack_communication_established',
       });
-    } catch (error) {
+    } catch (error: unknown) {
       res.status(500).json({ 
         success: false, 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error' 
       });
     }
   });
@@ -261,10 +261,10 @@ function createTestRoutes(): express.Router {
         is_valid: isValid,
         werewolf_status: isValid ? 'rules_validated' : 'rules_violation',
       });
-    } catch (error) {
+    } catch (error: unknown) {
       res.status(500).json({ 
         success: false, 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error' 
       });
     }
   });

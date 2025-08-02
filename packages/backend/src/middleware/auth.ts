@@ -293,6 +293,13 @@ export const validateRequiredFields = (fields: string[]) => {
 };
 
 /**
+ * Legacy authenticateToken function for backward compatibility
+ */
+export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+  return requireAuth(req as AuthenticatedRequest, res, next);
+}
+
+/**
  * Type guards for request types
  */
 export function isAuthenticatedRequest(req: Request): req is AuthenticatedRequest {

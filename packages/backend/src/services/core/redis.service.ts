@@ -17,10 +17,11 @@ export class RedisService implements IRedis {
     @inject(TYPES.AppConfig) private readonly config: IAppConfig
   ) {
     this.client = new Redis(this.config.redisUrl, {
-      retryDelayOnFailover: 100,
       enableReadyCheck: false,
       maxRetriesPerRequest: 3,
-      lazyConnect: true
+      lazyConnect: true,
+      retryDelayOnClusterDown: 100,
+      connectTimeout: 10000
     });
 
     this.setupEventHandlers();

@@ -69,7 +69,7 @@ export class AuthMiddleware {
 
         // Attach user to request
         req.user = validation.payload;
-        next();
+        return next();
       } catch (error) {
         console.error('Authentication middleware error:', error);
         return res.status(500).json({
@@ -100,11 +100,11 @@ export class AuthMiddleware {
           req.user = validation.payload;
         }
 
-        next();
+        return next();
       } catch (error) {
         // Don't fail on optional auth errors
         console.error('Optional auth error:', error);
-        next();
+        return next();
       }
     };
   }
@@ -136,7 +136,7 @@ export class AuthMiddleware {
         });
       }
 
-      next();
+      return next();
     };
   }
 
@@ -174,7 +174,7 @@ export class AuthMiddleware {
         });
       }
 
-      next();
+      return next();
     };
   }
 

@@ -391,11 +391,11 @@ describe('Werewolf Game API Integration Tests', () => {
         .get(`/api/games/${testGame.id}`)
         .set('Authorization', `Bearer ${authToken}`);
 
-      const werewolfPlayer = gameStateResponse.body.players.find(p => 
+      const werewolfPlayer = gameStateResponse.body.players.find((p: any) => 
         p.role === 'werewolf' && p.user_id === testUser.id
       );
 
-      const villagerPlayer = gameStateResponse.body.players.find(p => 
+      const villagerPlayer = gameStateResponse.body.players.find((p: any) => 
         p.werewolf_team === 'villager'
       );
 

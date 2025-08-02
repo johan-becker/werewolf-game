@@ -35,6 +35,11 @@ export interface GameResponse {
   phase: string;
   dayNumber: number;
   timeRemaining: number;
+  hostName: string;
+  startedAt?: string;
+  timeLimit?: number;
+  enableChat?: boolean;
+  allowSpectators?: boolean;
   createdAt: string;
   isPrivate?: boolean;
   players?: PlayerResponse[];
@@ -48,6 +53,7 @@ export interface PlayerResponse {
   isHost: boolean;
   isAlive: boolean;
   hasVoted: boolean;
+  status: string;
   joinedAt: string;
   role?: string;
 }

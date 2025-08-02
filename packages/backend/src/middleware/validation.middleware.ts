@@ -34,7 +34,7 @@ export class ValidationMiddleware {
         req.query = validatedData.query || req.query;
         req.params = validatedData.params || req.params;
 
-        next();
+        return next();
       } catch (error) {
         if (error instanceof ZodError) {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
@@ -70,7 +70,7 @@ export class ValidationMiddleware {
       try {
         const validatedBody = schema.parse(req.body);
         req.body = validatedBody;
-        next();
+        return next();
       } catch (error) {
         if (error instanceof ZodError) {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
@@ -105,7 +105,7 @@ export class ValidationMiddleware {
       try {
         const validatedQuery = schema.parse(req.query);
         req.query = validatedQuery;
-        next();
+        return next();
       } catch (error) {
         if (error instanceof ZodError) {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
@@ -140,7 +140,7 @@ export class ValidationMiddleware {
       try {
         const validatedParams = schema.parse(req.params);
         req.params = validatedParams;
-        next();
+        return next();
       } catch (error) {
         if (error instanceof ZodError) {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
@@ -182,7 +182,7 @@ export class ValidationMiddleware {
         req.query = this.sanitizeObject(req.query);
       }
 
-      next();
+      return next();
     };
   }
 
@@ -269,7 +269,7 @@ export class ValidationMiddleware {
         'X-RateLimit-Reset': new Date(clientData.resetTime).toISOString()
       });
 
-      next();
+      return next();
     };
   }
 }

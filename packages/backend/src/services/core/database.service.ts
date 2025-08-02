@@ -176,7 +176,7 @@ export class DatabaseService implements IDatabase {
       
       this.logger.info(`Rolling back migration: ${lastMigration.name}`);
       
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx: any) => {
         // Execute rollback SQL
         await tx.$executeRawUnsafe(rollbackSql);
         
@@ -404,7 +404,7 @@ export class DatabaseService implements IDatabase {
     this.logger.info(`Executing migration: ${migration.name}`);
     
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx: any) => {
         // Execute migration SQL
         await tx.$executeRawUnsafe(migration.sql);
         
