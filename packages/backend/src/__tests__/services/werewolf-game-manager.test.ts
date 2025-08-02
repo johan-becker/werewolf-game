@@ -2,13 +2,13 @@ import { WerewolfGameManager } from '../../services/werewolf-game-manager.servic
 import { WerewolfFactories } from '../factories/werewolf-factories';
 import { testDb } from '../test-database';
 
-describe('WerewolfGameManagerService', () => {
-  let gameManager: WerewolfGameManagerService;
+describe('WerewolfGameManager', () => {
+  let gameManager: WerewolfGameManager;
   let mockGame: any;
   let mockPlayers: any[];
 
   beforeEach(async () => {
-    gameManager = new WerewolfGameManagerService();
+    gameManager = new WerewolfGameManager();
     
     // Create test game with werewolf theme
     mockGame = WerewolfFactories.Game.createActiveGame({

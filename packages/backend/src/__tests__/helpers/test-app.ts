@@ -115,7 +115,7 @@ function createTestRoutes(): express.Router {
   });
 
   // Create test werewolf scenarios
-  router.post('/scenarios/:scenario', authenticateToken, async (req, res) => {
+  router.post('/scenarios/:scenario', authenticateToken, async (req, res): Promise<void> => {
     try {
       const { scenario } = req.params;
       const { WerewolfFactories } = await import('../factories/werewolf-factories');
@@ -177,7 +177,7 @@ function createTestRoutes(): express.Router {
   });
 
   // Simulate moon phase transitions
-  router.post('/moon-phase/:phase', authenticateToken, async (req, res) => {
+  router.post('/moon-phase/:phase', authenticateToken, async (req, res): Promise<void> => {
     try {
       const { phase } = req.params;
       const validPhases = [
