@@ -29,9 +29,16 @@ export const TYPES = {
   MoonPhaseRepository: Symbol.for('MoonPhaseRepository'),
   RefreshTokenRepository: Symbol.for('RefreshTokenRepository'),
   
+  // Controllers
+  AuthController: Symbol.for('AuthController'),
+  MoonPhaseController: Symbol.for('MoonPhaseController'),
+  PackController: Symbol.for('PackController'),
+  TerritoryController: Symbol.for('TerritoryController'),
+  
   // Middleware
   AuthMiddleware: Symbol.for('AuthMiddleware'),
   ValidationMiddleware: Symbol.for('ValidationMiddleware'),
+  EnhancedErrorMiddleware: Symbol.for('EnhancedErrorMiddleware'),
   
   // Configuration
   AppConfig: Symbol.for('AppConfig')

@@ -13,6 +13,12 @@ import { DatabaseService } from '../services/core/database.service';
 import { RedisService } from '../services/core/redis.service';
 import { AppConfig } from '../config/app.config';
 
+// Controllers
+import { AuthController } from '../controllers/auth.enhanced.controller';
+import { MoonPhaseController } from '../controllers/moon-phase.controller';
+import { PackController } from '../controllers/pack.controller';
+import { TerritoryController } from '../controllers/territory.controller';
+
 // Authentication Services
 // import { AuthService } from '../services/auth/auth.service'; // TODO: Create this service
 import { JwtService } from '../services/auth/jwt.service';
@@ -101,6 +107,13 @@ class DIContainer {
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware).inSingletonScope();
     container.bind<ValidationMiddleware>(TYPES.ValidationMiddleware).to(ValidationMiddleware).inSingletonScope();
+    // container.bind<EnhancedErrorMiddleware>(TYPES.EnhancedErrorMiddleware).to(EnhancedErrorMiddleware).inSingletonScope(); // TODO: Fix EnhancedErrorMiddleware
+
+    // Controllers
+    container.bind<AuthController>(TYPES.AuthController).to(AuthController).inSingletonScope();
+    container.bind<MoonPhaseController>(TYPES.MoonPhaseController).to(MoonPhaseController).inSingletonScope();
+    container.bind<PackController>(TYPES.PackController).to(PackController).inSingletonScope();
+    container.bind<TerritoryController>(TYPES.TerritoryController).to(TerritoryController).inSingletonScope();
 
     return container;
   }
