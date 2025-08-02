@@ -112,6 +112,7 @@ export interface WerewolfPlayer {
   team: Team;
   isAlive: boolean;
   isHost: boolean;
+  loverId?: string;                       // ID des geliebten Partners (top-level for compatibility)
   
   // Spezielle Zustände
   specialStates: {

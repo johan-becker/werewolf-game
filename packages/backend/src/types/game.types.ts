@@ -31,17 +31,23 @@ export interface GameResponse {
   creatorId: string;
   maxPlayers: number;
   currentPlayers: number;
+  playerCount: number;
+  phase: string;
+  dayNumber: number;
+  timeRemaining: number;
   createdAt: string;
   isPrivate?: boolean;
   players?: PlayerResponse[];
 }
 
 export interface PlayerResponse {
+  id: string;
   userId: string;
   username: string;
   avatarUrl?: string;
   isHost: boolean;
   isAlive: boolean;
+  hasVoted: boolean;
   joinedAt: string;
   role?: string;
 }

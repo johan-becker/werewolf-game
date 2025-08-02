@@ -15,11 +15,11 @@ export interface AuthenticationResult {
 }
 
 export interface AuthenticatedUser {
-  readonly id: string;
+  readonly userId: string;
+  readonly username: string;
   readonly email: string;
-  readonly username?: string;
-  readonly role: UserRole;
-  readonly permissions: Permission[];
+  readonly role: string;
+  readonly permissions: string[];
   readonly isVerified: boolean;
   readonly createdAt: Date;
   readonly lastActiveAt: Date;

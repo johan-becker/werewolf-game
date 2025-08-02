@@ -73,6 +73,7 @@ export interface ClientToServerEvents {
 // Server to Client Events
 export interface ServerToClientEvents {
   // Server management
+  'server:stats': (data: { connectedUsers: number; activeGames: number; timestamp: string }) => void;
   'server:shutdown': (data: { message: string; timestamp: string }) => void;
   
   // Lobby updates
@@ -155,4 +156,6 @@ export interface InterServerEvents {
 export interface SocketData {
   userId: string;
   username: string;
+  currentGame?: string;
+  roomId?: string;
 }

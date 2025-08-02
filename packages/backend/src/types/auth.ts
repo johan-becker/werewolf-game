@@ -114,8 +114,11 @@ export interface UpdateProfileRequest {
 // Extended Express Request with authenticated user
 export interface AuthenticatedRequest extends Request {
   user: {
-    id: string;
+    userId: string;
     username: string;
+    email: string;
+    role: string;
+    permissions: string[];
   };
 }
 

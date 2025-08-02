@@ -21,7 +21,7 @@ export class RoleFactory {
   ): void {
     // Validierung der Konfiguration
     const validation = this.validateConfig(config, players.length);
-    if (!validation.valid) {
+    if (!validation.isValid) {
       throw new Error(`Ungültige Konfiguration: ${validation.errors.join(', ')}`);
     }
 

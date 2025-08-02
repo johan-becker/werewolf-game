@@ -200,7 +200,7 @@ export class RoleService {
       isHost,
       abilities: roleDefinition.abilities.map(ability => ({
         ...ability,
-        usesRemaining: ability.usesPerGame
+        usesRemaining: ability.usesRemaining ?? 0
       })),
       specialStates,
       actionHistory: []
@@ -496,8 +496,10 @@ export class RoleService {
     if (aliveLovers.length === 2 && alivePlayers.length === 2) {
       const lover1 = aliveLovers[0];
       const lover2 = aliveLovers[1];
-      if (lover1.specialStates.loverId === lover2.userId) {
-        return WinCondition.LOVERS_WIN;
+      if (lover1 && lover2) {
+        if (lover1.specialStates.loverId === lover2.userId) {
+          return WinCondition.LOVERS_WIN;
+        }
       }
     }
 

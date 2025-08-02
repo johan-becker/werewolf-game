@@ -248,6 +248,9 @@ export class WerewolfGameManager {
       }));
 
       const gameState = this.nightManager.getGameState(gameId);
+      if (!gameState) {
+        throw new Error('Game state not found');
+      }
 
       return {
         success: true,
@@ -324,7 +327,7 @@ export class WerewolfGameManager {
         playerId,
         actionType: actionData.actionType,
         targetId: actionData.targetId || '',
-        secondTargetId: actionData.secondTargetId || undefined,
+        secondTargetId: actionData.secondTargetId ?? '',
         phase: gameState.currentNightPhase!,
         dayNumber: gameState.dayNumber
       };

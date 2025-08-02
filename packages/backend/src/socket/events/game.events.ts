@@ -339,9 +339,10 @@ export function handleGameEvents(
         id: `action_${Date.now()}_${Math.random()}`,
         gameId: gameId,
         playerId: socket.data.userId,
+        actorId: socket.data.userId,
         actionType: data.actionType as ActionType,
         targetId: data.targetId || '',
-        secondTargetId: data.secondTargetId || undefined,
+        secondTargetId: data.secondTargetId ?? '',
         phase: NightPhase.SEER_PHASE, // This should be determined by current game phase
         dayNumber: 1, // This should come from game state
         timestamp: new Date(),
