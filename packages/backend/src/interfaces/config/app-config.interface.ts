@@ -14,9 +14,9 @@ export interface IAppConfig {
   readonly redisUrl: string;
 
   // Supabase Configuration
-  readonly supabaseUrl?: string;
-  readonly supabaseAnonKey?: string;
-  readonly supabaseServiceRoleKey?: string;
+  readonly supabaseUrl: string | undefined;
+  readonly supabaseAnonKey: string | undefined;
+  readonly supabaseServiceRoleKey: string | undefined;
 
   // JWT Configuration
   readonly jwtSecret: string;
@@ -58,10 +58,10 @@ export interface IAppConfig {
   readonly sessionSecret: string;
 
   // Email Configuration
-  readonly mailHost?: string;
-  readonly mailPort?: number;
-  readonly mailUser?: string;
-  readonly mailPassword?: string;
+  readonly mailHost: string | undefined;
+  readonly mailPort: number | undefined;
+  readonly mailUser: string | undefined;
+  readonly mailPassword: string | undefined;
 
   // Werewolf-specific Configuration
   readonly moonCycleDays: number;

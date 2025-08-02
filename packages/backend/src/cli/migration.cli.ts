@@ -117,6 +117,11 @@ program
       
       const lastMigration = status.executed[status.executed.length - 1];
       
+      if (!lastMigration) {
+        console.error('❌ No valid migration found to rollback');
+        process.exit(1);
+      }
+      
       if (!options.force) {
         const readline = require('readline').createInterface({
           input: process.stdin,

@@ -41,7 +41,7 @@ export class AuthService {
 
       // Profile creation is handled by database trigger (handle_new_user)
 
-      logger.info(`User signed up: ${data.username} (${authData.user.userId})`);
+      logger.info(`User signed up: ${data.username} (${authData.user.id})`);
 
       return {
         user: authData.user,
@@ -68,7 +68,7 @@ export class AuthService {
         throw this.mapSupabaseError(authError || new Error('Invalid credentials'));
       }
 
-      logger.info(`User logged in: ${data.email} (${authData.user.userId})`);
+      logger.info(`User logged in: ${data.email} (${authData.user.id})`);
 
       return {
         user: authData.user,
@@ -94,7 +94,7 @@ export class AuthService {
         throw this.mapSupabaseError(error || new Error('Invalid or expired refresh token'));
       }
 
-      logger.debug(`Tokens refreshed for user: ${data.user.userId}`);
+      logger.debug(`Tokens refreshed for user: ${data.user.id})`);
 
       return {
         user: data.user,
@@ -144,7 +144,7 @@ export class AuthService {
         .single();
 
       return {
-        id: user.user.userId,
+        id: user.user.id,
         email: user.user.email,
         username: profile?.username || user.user.user_metadata?.username || user.user.email,
         full_name: profile?.full_name || user.user.user_metadata?.full_name,

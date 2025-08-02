@@ -26,7 +26,8 @@
       "Bash(rm:*)",
       "Bash(true)",
       "Bash(npm run:*)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

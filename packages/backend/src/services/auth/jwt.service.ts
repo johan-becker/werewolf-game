@@ -74,7 +74,7 @@ export class JwtService implements IJwtService {
       accessTokenPayload,
       this.config.jwtSecret,
       {
-        expiresIn: this.config.jwtExpiresIn,
+        expiresIn: this.config.jwtExpiresIn as string,
         issuer: 'werewolf-game',
         audience: 'werewolf-players'
       }
@@ -92,7 +92,7 @@ export class JwtService implements IJwtService {
       refreshTokenPayload,
       this.config.jwtRefreshSecret,
       {
-        expiresIn: this.config.jwtRefreshExpiresIn,
+        expiresIn: this.config.jwtRefreshExpiresIn as string,
         issuer: 'werewolf-game',
         audience: 'werewolf-players'
       }
@@ -209,7 +209,7 @@ export class JwtService implements IJwtService {
         accessTokenPayload,
         this.config.jwtSecret,
         {
-          expiresIn: this.config.jwtExpiresIn,
+          expiresIn: this.config.jwtExpiresIn as string,
           issuer: 'werewolf-game',
           audience: 'werewolf-players'
         }
@@ -227,7 +227,7 @@ export class JwtService implements IJwtService {
         newRefreshTokenPayload,
         this.config.jwtRefreshSecret,
         {
-          expiresIn: this.config.jwtRefreshExpiresIn,
+          expiresIn: this.config.jwtRefreshExpiresIn as string,
           issuer: 'werewolf-game',
           audience: 'werewolf-players'
         }

@@ -20,7 +20,6 @@ export class RedisService implements IRedis {
       enableReadyCheck: false,
       maxRetriesPerRequest: 3,
       lazyConnect: true,
-      retryDelayOnClusterDown: 100,
       connectTimeout: 10000
     });
 

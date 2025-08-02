@@ -477,7 +477,7 @@ export class GameService {
         throw new Error('Spiel kann nicht gestartet werden');
       }
 
-      if (game.players.length < 4) {
+      if (!game.players || game.players.length < 4) {
         throw new Error('Mindestens 4 Spieler erforderlich');
       }
 
@@ -487,6 +487,9 @@ export class GameService {
 
       for (let i = 0; i < game.players.length; i++) {
         const player = game.players[i];
+        if (!player) {
+          throw new Error(`Ungültiger Spieler an Index ${i}`);
+        }
         const role = roles[i];
         
         const playerState = this.roleService.initializePlayerState(

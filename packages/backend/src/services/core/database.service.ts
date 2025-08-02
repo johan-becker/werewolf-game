@@ -164,6 +164,10 @@ export class DatabaseService implements IDatabase {
 
     const lastMigration = executedMigrations[executedMigrations.length - 1];
     
+    if (!lastMigration) {
+      throw new Error('No valid migration found to rollback');
+    }
+    
     // Check if rollback file exists
     const rollbackPath = path.join(
       __dirname, 
