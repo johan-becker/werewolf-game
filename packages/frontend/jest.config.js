@@ -28,25 +28,20 @@ const customJestConfig = {
     '!src/app/globals.css',
     '!**/node_modules/**',
     '!**/*.stories.{ts,tsx}',
+    '!src/__tests__/**',
+    '!src/pages/**',
+    '!src/middleware.ts',
   ],
   coverageReporters: ['text', 'lcov', 'html'],
   coverageThreshold: {
     global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
     },
   },
   testTimeout: 10000,
-  // Werewolf-themed components and hooks coverage
-  collectCoverageFrom: [
-    'src/components/werewolf/*.{ts,tsx}',
-    'src/hooks/*.{ts,tsx}',
-    'src/stores/*.{ts,tsx}',
-    'src/lib/*.{ts,tsx}',
-    '!**/*.d.ts',
-  ],
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

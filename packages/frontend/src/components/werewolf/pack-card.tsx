@@ -161,13 +161,13 @@ export function PackCard({
               )} />
             </div>
             <div className="space-y-0.5">
-              <p className="text-sm font-medium flex items-center space-x-1">
+              <div className="text-sm font-medium flex items-center space-x-1">
                 <span>{alpha.name}</span>
                 <Badge className={cn('text-xs', roleColors.ALPHA)}>
                   {roleIcons.ALPHA}
                   Alpha
                 </Badge>
-              </p>
+              </div>
               <p className="text-xs text-muted-foreground">
                 {alpha.transformationCount} transformations
               </p>
@@ -185,7 +185,7 @@ export function PackCard({
           <div className="flex items-center space-x-2">
             <MapPin className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm">
-              {controlledTerritories} territory{controlledTerritories !== 1 ? 'ies' : ''}
+              {controlledTerritories} territor{controlledTerritories !== 1 ? 'ies' : 'y'}
             </span>
           </div>
           <span className="text-sm text-muted-foreground">
@@ -222,7 +222,7 @@ export function PackCard({
                       )} />
                     </div>
                     <div>
-                      <p className="text-xs font-medium truncate">{member.name}</p>
+                      <div className="text-xs font-medium truncate">{member.name}</div>
                       <Badge className={cn('text-xs', roleColors[member.role])}>
                         {roleIcons[member.role]}
                         {member.role.charAt(0) + member.role.slice(1).toLowerCase()}
