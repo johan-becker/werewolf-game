@@ -68,6 +68,15 @@ export class AuthMiddleware {
         }
 
         // Attach user to request
+        if (!validation.payload) {
+          return res.status(401).json({
+            success: false,
+            error: 'Invalid token payload',
+            code: 'INVALID_TOKEN_PAYLOAD',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
         req.user = validation.payload;
         return next();
       } catch (error) {
