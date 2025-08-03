@@ -126,7 +126,7 @@ export class EnhancedErrorMiddleware {
       error: error.message,
       code: error.code,
       timestamp: new Date().toISOString(),
-      requestId
+      ...(requestId && { requestId })
     };
 
     if (error.details) {
@@ -148,7 +148,7 @@ export class EnhancedErrorMiddleware {
     const validationErrors = error.errors.map(err => ({
       field: err.path.join('.'),
       message: err.message,
-      value: err.input
+      code: err.code
     }));
 
     const response: ErrorResponse = {
@@ -359,5 +359,4 @@ export class EnhancedErrorMiddleware {
   }
 }
 
-// Export the AppError class for use in other modules
-export { AppError };
+// AppError class already exported above
