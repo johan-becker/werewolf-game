@@ -166,7 +166,7 @@ export class AuthSecurityService {
       [UserRole.SYSTEM]: 3
     };
 
-    return roleHierarchy[user.role] >= roleHierarchy[minimumRole];
+    return (roleHierarchy[user.role] ?? 0) >= (roleHierarchy[minimumRole] ?? 0);
   }
 
   /**
@@ -186,6 +186,7 @@ export class AuthSecurityService {
 
     return {
       id: supabaseUser.id,
+      userId: supabaseUser.id,
       email: supabaseUser.email!,
       username: profile?.username,
       role,

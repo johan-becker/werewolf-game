@@ -309,7 +309,7 @@ export class ChatService {
 
     while ((match = mentionRegex.exec(content)) !== null) {
       const username = match[1];
-      if (!mentions.includes(username)) {
+      if (username && !mentions.includes(username)) {
         mentions.push(username);
       }
     }
