@@ -413,7 +413,7 @@ export class EnhancedGameController {
       }
 
       // Join the game
-      const joinResult = await this.gameService.joinGame(gameId, userId);
+      await this.gameService.joinGame(gameId, userId);
       const updatedGame = await this.gameService.getGameDetails(gameId);
 
       const successData: GameJoinSuccess = {
@@ -481,7 +481,6 @@ export class EnhancedGameController {
   async joinByCode(req: AuthenticatedRequest, res: Response): Promise<GameJoinResult> {
     try {
       const code = req.params.code.toUpperCase();
-      const userId = req.user.userId;
 
       // Code validation handled by middleware
 
@@ -517,7 +516,7 @@ export class EnhancedGameController {
   /**
    * DELETE /api/games/:id/leave - Leave game with host transfer logic
    */
-  async leaveGame(req: AuthenticatedRequest, res: Response): Promise<GameLeaveResult> {
+  async leaveGame(req: AuthenticatedRequest, _res: Response): Promise<GameLeaveResult> {
     try {
       const gameId = req.params.id;
       const userId = req.user.userId;
@@ -564,7 +563,7 @@ export class EnhancedGameController {
       const remainingPlayerCount = (game.players?.length || 1) - 1;
 
       // Leave the game
-      const leaveResult = await this.gameService.leaveGame(gameId, userId);
+      await this.gameService.leaveGame(gameId, userId);
 
       let gameStatus: 'active' | 'disbanded' | 'host_transferred' = 'active';
       let newHostId: string | undefined;
@@ -607,7 +606,7 @@ export class EnhancedGameController {
   /**
    * POST /api/games/:id/start - Start game with comprehensive validation
    */
-  async startGame(req: AuthenticatedRequest, res: Response): Promise<GameStartResult> {
+  async startGame(req: AuthenticatedRequest, _res: Response): Promise<GameStartResult> {
     try {
       const gameId = req.params.id;
       const userId = req.user.userId;

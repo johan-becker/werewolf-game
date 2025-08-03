@@ -57,20 +57,25 @@ program
       console.log(`Pending: ${status.pending.length}`);
       
       if (status.executed.length > 0) {
+        // eslint-disable-next-line no-console
         console.log('\n✅ Executed Migrations:');
         status.executed.forEach(migration => {
+          // eslint-disable-next-line no-console
           console.log(`  ${migration.id} - ${migration.name} (${migration.executed_at.toISOString()})`);
         });
       }
       
       if (status.pending.length > 0) {
+        // eslint-disable-next-line no-console
         console.log('\n⏳ Pending Migrations:');
         status.pending.forEach(migration => {
+          // eslint-disable-next-line no-console
           console.log(`  ${migration.id} - ${migration.name}`);
         });
       }
       
       if (status.pending.length === 0 && status.executed.length > 0) {
+        // eslint-disable-next-line no-console
         console.log('\n🎉 Database is up to date!');
       }
       
@@ -91,7 +96,9 @@ program
     try {
       await database.connect();
       const migrationId = await database.createMigration(name);
+      // eslint-disable-next-line no-console
       console.log(`✅ Created migration: ${migrationId}`);
+      // eslint-disable-next-line no-console
       console.log('📝 Edit the migration files and run "migration run" to apply');
       process.exit(0);
     } catch (error) {
@@ -113,6 +120,7 @@ program
       const status = await database.getMigrationStatus();
       
       if (status.executed.length === 0) {
+        // eslint-disable-next-line no-console
         console.log('ℹ️  No migrations to rollback');
         process.exit(0);
       }
@@ -141,6 +149,7 @@ program
         readline.close();
         
         if (answer !== 'y' && answer !== 'Y') {
+          // eslint-disable-next-line no-console
           console.log('Rollback cancelled');
           process.exit(0);
         }

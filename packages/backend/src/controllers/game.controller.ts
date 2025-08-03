@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { GameService } from '../services/game.service';
 import { AuthenticatedRequest } from '../types/auth.types';
 
