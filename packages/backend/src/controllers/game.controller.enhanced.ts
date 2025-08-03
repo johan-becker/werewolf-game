@@ -298,11 +298,11 @@ export class EnhancedGameController {
           id: player.id,
           username: player.username || 'Unknown',
           status: player.status || 'active',
-          joinedAt: player.joinedAt?.toISOString() || new Date().toISOString(),
+          joinedAt: player.joinedAt ? (typeof player.joinedAt === 'string' ? player.joinedAt : new Date(player.joinedAt).toISOString()) : new Date().toISOString(),
           isHost: player.id === game.creatorId
         })),
         settings: {
-          timeLimit: game.timeLimit,
+          timeLimit: game.timeLimit ?? 300,
           enableChat: game.enableChat !== false,
           allowSpectators: game.allowSpectators !== false
         }
@@ -317,7 +317,7 @@ export class EnhancedGameController {
       if (error.message?.includes('not found')) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(req.params.id, 'id')
+          error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id')
         };
       }
 
@@ -338,6 +338,13 @@ export class EnhancedGameController {
     try {
       const gameId = req.params.id;
       const userId = req.user.userId;
+      
+      if (!gameId) {
+        return {
+          success: false,
+          error: GameErrorFactory.createGameNotFoundError('undefined', 'id')
+        };
+      }
       
       // Check if game exists first
       const game = await this.gameService.getGameDetails(gameId);
@@ -451,7 +458,7 @@ export class EnhancedGameController {
       if (error.message?.includes('not found')) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(req.params.id, 'id')
+          error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id')
         };
       }
 
