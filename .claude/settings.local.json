@@ -45,7 +45,9 @@
       "Bash(npm test:*)",
       "Bash(npx playwright test:*)",
       "Bash(git stash:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(mv:*)",
+      "Bash(docker buildx build:*)"
     ],
     "deny": []
   }
