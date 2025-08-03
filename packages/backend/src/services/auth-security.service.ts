@@ -13,6 +13,8 @@ import {
   UserRole,
   Permission,
   SecurityEvent,
+  SecurityEventType,
+  SecuritySeverity,
   AuthMetadata,
   AuthConfig,
   AuthPerformanceMetrics
