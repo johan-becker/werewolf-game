@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { faker } from '@faker-js/faker';
 import { WerewolfRole } from '../types/werewolf-roles.types';
 
 // Test database configuration for werewolf game
 export class TestDatabaseManager {
   private prisma: PrismaClient;
-  private supabase: any;
+  private supabase: SupabaseClient;
 
   constructor() {
     this.prisma = new PrismaClient({
@@ -31,8 +31,10 @@ export class TestDatabaseManager {
       // Seed werewolf-themed test data
       await this.seedTestData();
       
+      // eslint-disable-next-line no-console
       console.log('🌕 Test database setup completed with werewolf-themed data');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('❌ Test database setup failed:', error);
       throw error;
     }
@@ -47,8 +49,10 @@ export class TestDatabaseManager {
       await this.prisma.game.deleteMany();
       await this.prisma.profile.deleteMany();
       
+      // eslint-disable-next-line no-console
       console.log('🌑 Test database cleaned up');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('❌ Test database cleanup failed:', error);
       throw error;
     }
@@ -122,7 +126,7 @@ export class TestDatabaseManager {
         data: {
           code: this.generateWerewolfGameCode(),
           name: scenario.name,
-          status: scenario.status as any,
+          status: scenario.status as 'WAITING' | 'IN_PROGRESS' | 'FINISHED',
           max_players: scenario.max_players,
           current_phase: scenario.status === 'in_progress' ? 
             faker.helpers.arrayElement(['day', 'night', 'voting']) : 'waiting',
@@ -172,7 +176,7 @@ export class TestDatabaseManager {
           data: {
             game_id: game.id,
             user_id: user.id,
-            role: role as any,
+            role: role as string,
             is_alive: faker.datatype.boolean(0.8), // 80% chance of being alive
             is_host: i === 0,
             position: i,
@@ -272,7 +276,7 @@ export interface TestGame {
   current_phase: string;
   phase_end_time: Date | null;
   creator_id: string;
-  settings: any;
+  settings: Record<string, unknown>;
   created_at: Date;
 }
 

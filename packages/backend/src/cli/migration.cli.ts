@@ -9,12 +9,10 @@ import { Command } from 'commander';
 import { container } from '../container/container';
 import { TYPES } from '../container/types';
 import { IDatabase } from '../interfaces/core/database.interface';
-import { ILogger } from '../interfaces/core/logger.interface';
 import 'reflect-metadata';
 
 const program = new Command();
 const database = container.get<IDatabase>(TYPES.Database);
-const logger = container.get<ILogger>(TYPES.Logger);
 
 program
   .name('migration')
@@ -31,6 +29,7 @@ program
     try {
       await database.connect();
       await database.runMigrations();
+      // eslint-disable-next-line no-console
       console.log('✅ All migrations completed successfully');
       process.exit(0);
     } catch (error) {
@@ -50,8 +49,11 @@ program
       await database.connect();
       const status = await database.getMigrationStatus();
       
+      // eslint-disable-next-line no-console
       console.log('\n📊 Migration Status:');
+      // eslint-disable-next-line no-console
       console.log(`Executed: ${status.executed.length}`);
+      // eslint-disable-next-line no-console
       console.log(`Pending: ${status.pending.length}`);
       
       if (status.executed.length > 0) {
@@ -123,6 +125,7 @@ program
       }
       
       if (!options.force) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const readline = require('readline').createInterface({
           input: process.stdin,
           output: process.stdout

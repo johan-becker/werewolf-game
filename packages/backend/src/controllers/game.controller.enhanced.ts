@@ -7,7 +7,6 @@ import { Response } from 'express';
 import { GameService } from '../services/game.service';
 import { AuthenticatedRequest } from '../types/auth.types';
 import {
-  Result,
   GameCreationResult,
   GameJoinResult,
   GameLeaveResult,
@@ -20,7 +19,6 @@ import {
   GameStartSuccess,
   GameListSuccess,
   GameDetailsSuccess,
-  GameControllerError,
   GameErrorFactory,
   GameErrorCode
 } from '../types/controller.types';
@@ -35,7 +33,7 @@ export class EnhancedGameController {
   /**
    * POST /api/games - Create new game with comprehensive error handling
    */
-  async createGame(req: AuthenticatedRequest, res: Response): Promise<GameCreationResult> {
+  async createGame(req: AuthenticatedRequest, _res: Response): Promise<GameCreationResult> {
     try {
       // Input validation
       const { maxPlayers, isPrivate, name } = req.body;
@@ -196,7 +194,7 @@ export class EnhancedGameController {
   /**
    * GET /api/games - List games with comprehensive filtering and error handling
    */
-  async listGames(req: AuthenticatedRequest, res: Response): Promise<GameListResult> {
+  async listGames(req: AuthenticatedRequest, _res: Response): Promise<GameListResult> {
     try {
       const limit = Math.min(Number(req.query.limit) || 20, 100);
       const offset = Math.max(Number(req.query.offset) || 0, 0);
@@ -245,7 +243,7 @@ export class EnhancedGameController {
   /**
    * GET /api/games/:id - Get game details with comprehensive validation
    */
-  async getGame(req: AuthenticatedRequest, res: Response): Promise<GameDetailsResult> {
+  async getGame(req: AuthenticatedRequest, _res: Response): Promise<GameDetailsResult> {
     try {
       const gameId = req.params.id;
       
@@ -334,7 +332,7 @@ export class EnhancedGameController {
   /**
    * POST /api/games/:id/join - Join game by ID with comprehensive validation
    */
-  async joinGame(req: AuthenticatedRequest, res: Response): Promise<GameJoinResult> {
+  async joinGame(req: AuthenticatedRequest, _res: Response): Promise<GameJoinResult> {
     try {
       const gameId = req.params.id;
       const userId = req.user.userId;

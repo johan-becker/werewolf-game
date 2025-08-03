@@ -10,6 +10,7 @@ beforeAll(async () => {
   process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.TEST_SUPABASE_SERVICE_ROLE_KEY || 'test-key';
   
   // Initialize test database if needed
+  // eslint-disable-next-line no-console
   console.log('🌕 Setting up werewolf test environment...');
 });
 
@@ -20,6 +21,7 @@ beforeEach(() => {
 
 afterAll(async () => {
   // Cleanup after all tests
+  // eslint-disable-next-line no-console
   console.log('🌑 Cleaning up werewolf test environment...');
 });
 

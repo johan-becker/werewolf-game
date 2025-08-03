@@ -8,7 +8,6 @@ import { Container } from 'inversify';
 import { TYPES } from './types';
 
 // Core Services
-import { logger as Logger } from '../utils/logger';
 import { DatabaseService } from '../services/core/database.service';
 import { RedisService } from '../services/core/redis.service';
 import { AppConfig } from '../config/app.config';
@@ -44,7 +43,6 @@ import { AuthMiddleware } from '../middleware/auth.middleware';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
 
 // Interfaces
-import { ILogger } from '../interfaces/core/logger.interface';
 import { IDatabase } from '../interfaces/core/database.interface';
 import { IRedis } from '../interfaces/core/redis.interface';
 // import { IAuthService } from '../interfaces/auth/auth-service.interface'; // TODO: Create this interface
