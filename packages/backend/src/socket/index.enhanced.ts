@@ -7,14 +7,12 @@ import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { 
   initializeSocketAuth,
-  socketAuthStateMachine,
-  requireSocketAuth 
+  socketAuthStateMachine
 } from '../middleware/socket-auth-state.middleware';
 import { AuthenticatedSocketEventHandler } from './authenticated-events';
 import {
   AuthenticatedSocket,
-  AuthenticatedSocketEvents,
-  SocketSecurityConfig
+  AuthenticatedSocketEvents
 } from '../types/socket-auth.types';
 
 export function initializeEnhancedSocketServer(httpServer: HttpServer) {
@@ -49,7 +47,7 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
 
   // Global rate limiting middleware
   io.use((socket, next) => {
-    const clientIP = socket.handshake.address;
+    // const clientIP = socket.handshake.address;
     
     // Additional IP-based rate limiting could be implemented here
     // For now, rely on the state machine's connection limits
@@ -243,7 +241,7 @@ function setupConnectionHealthChecks(socket: AuthenticatedSocket): void {
 function setupDisconnectHandling(socket: AuthenticatedSocket, stats: any): void {
   socket.on('disconnect', async (reason) => {
     const authState = socket.data?.authState || 'UNKNOWN';
-    const user = socket.data?.user;
+    // const user = socket.data?.user;
     const gameId = socket.data?.currentGame;
 
     console.log(`Socket ${socket.id} disconnected (state: ${authState}, reason: ${reason})`);

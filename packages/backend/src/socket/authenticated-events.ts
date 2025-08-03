@@ -7,7 +7,6 @@ import { Server } from 'socket.io';
 import { socketAuthStateMachine } from '../middleware/socket-auth-state.middleware';
 import {
   AuthenticatedSocket,
-  AuthenticatedSocketEvents,
   GameCreateData,
   GameJoinData,
   GameLeaveData,
@@ -21,8 +20,7 @@ import {
   GameStateResponse,
   ActionResponse,
   VoteResponse,
-  ChatResponse,
-  SocketAuthResult
+  ChatResponse
 } from '../types/socket-auth.types';
 import { GameService } from '../services/game.service';
 

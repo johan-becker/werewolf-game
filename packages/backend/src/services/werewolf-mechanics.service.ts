@@ -17,7 +17,7 @@ export class WerewolfMechanicsService {
   async handleLoverDeath(
     deadPlayer: WerewolfPlayer,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<{
     additionalDeaths: string[];
     messages: string[];
@@ -112,7 +112,7 @@ export class WerewolfMechanicsService {
    */
   calculateSpyRisk(
     littleGirl: WerewolfPlayer,
-    spyAttempts: number
+    _spyAttempts: number
   ): {
     currentRisk: number;
     newRisk: number;
@@ -447,7 +447,7 @@ export class WerewolfMechanicsService {
       balance: string;
     };
   } {
-    const alivePlayers = players.filter(p => p.isAlive);
+    // const alivePlayers = players.filter(p => p.isAlive);
     const balance = this.calculateGameBalance(players);
 
     const playerStats = players.map(p => ({
