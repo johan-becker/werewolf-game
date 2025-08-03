@@ -410,7 +410,7 @@ export class JwtService implements IJwtService {
    */
   private parseExpirationTime(expiresIn: string): number {
     const match = expiresIn.match(/^(\d+)([smhd])$/);
-    if (!match) throw new Error(`Invalid expiration format: ${expiresIn}`);
+    if (!match || !match[1] || !match[2]) throw new Error(`Invalid expiration format: ${expiresIn}`);
 
     const value = parseInt(match[1]);
     const unit = match[2];
