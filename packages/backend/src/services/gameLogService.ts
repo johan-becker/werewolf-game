@@ -8,8 +8,7 @@ import {
   GamePhase,
   PaginationOptions,
   PaginatedResponse,
-  DatabaseError,
-  NotFoundError
+  DatabaseError
 } from '@/types/database';
 import { $Enums } from '../generated/prisma';
 

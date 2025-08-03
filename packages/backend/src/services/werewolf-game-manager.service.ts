@@ -3,13 +3,11 @@ import { WerewolfRoleService } from './werewolf-role.service';
 import { WerewolfNightManager } from './werewolf-night-manager.service';
 import {
   WerewolfRole,
-  Team,
   WinCondition,
   GameRoleConfig,
   ConfigValidationResult,
   WerewolfPlayer,
   WerewolfGameState,
-  GameResult,
   ActionType,
   NightAction
 } from '../types/werewolf-roles.types';
@@ -238,7 +236,7 @@ export class WerewolfGameManager {
         .eq('id', gameId);
 
       // Starte erste Nacht
-      const nightResult = await this.nightManager.startNightPhase(gameId, 1, werewolfPlayers);
+      await this.nightManager.startNightPhase(gameId, 1, werewolfPlayers);
 
       // Erstelle Antwort mit Rolle-Informationen
       const roleAssignmentsWithInfo = roleAssignments.map(assignment => ({
@@ -641,7 +639,7 @@ export class WerewolfGameManager {
   /**
    * Prüft ob zur nächsten Phase gewechselt werden kann
    */
-  private canProceedToNextPhase(gameId: string): boolean {
+  private canProceedToNextPhase(_gameId: string): boolean {
     // Hier würde geprüft werden ob alle erforderlichen Aktionen eingereicht wurden
     // Das ist komplex und hängt von der aktuellen Phase ab
     return false; // Erstmal manuell durch Host gesteuert
@@ -733,7 +731,7 @@ export class WerewolfGameManager {
   /**
    * Advance game phase (stub implementation for tests)
    */
-  async advancePhase(gameId: string): Promise<any> {
+  async advancePhase(_gameId: string): Promise<any> {
     // TODO: Implement proper phase advancement
     return {
       success: true,

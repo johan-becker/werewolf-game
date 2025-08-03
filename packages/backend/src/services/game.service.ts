@@ -49,7 +49,7 @@ export class GameService {
   /**
    * Internal method for creating games
    */
-  private async createGameInternal(userId: string, data: CreateGameDTO, isPrivate: boolean = false): Promise<GameResponse> {
+  private async createGameInternal(userId: string, data: CreateGameDTO, _isPrivate: boolean = false): Promise<GameResponse> {
     // Validate input
     if (!data.name || data.name.trim().length < 3) {
       throw new Error('Game name must be at least 3 characters long');

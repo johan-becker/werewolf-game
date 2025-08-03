@@ -110,7 +110,7 @@ export class AuthService {
   }
 
   // Logout user with Supabase
-  static async logout(accessToken?: string) {
+  static async logout(_accessToken?: string) {
     try {
       const { error } = await supabase.auth.signOut();
 
@@ -137,7 +137,7 @@ export class AuthService {
       }
 
       // Get profile from profiles table
-      const { data: profile, error: profileError } = await supabaseAdmin
+      const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('*')
         .eq('id', userId)

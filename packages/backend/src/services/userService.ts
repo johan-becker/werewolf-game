@@ -10,8 +10,7 @@ import {
   PaginationOptions,
   PaginatedResponse,
   DatabaseError,
-  ConflictError,
-  NotFoundError
+  ConflictError
 } from '@/types/database';
 
 export class UserService {
