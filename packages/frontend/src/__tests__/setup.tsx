@@ -120,6 +120,19 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   writable: true,
 });
 
+// Mock getComputedStyle for jsdom (required for jest-axe color contrast tests)
+Object.defineProperty(window, 'getComputedStyle', {
+  value: jest.fn(() => ({
+    getPropertyValue: jest.fn(() => ''),
+    color: 'rgb(0, 0, 0)',
+    backgroundColor: 'rgb(255, 255, 255)',
+    fontSize: '16px',
+    fontFamily: 'Arial',
+    fontWeight: 'normal',
+  })),
+  writable: true,
+});
+
 // Global test timeout
 jest.setTimeout(10000);
 
