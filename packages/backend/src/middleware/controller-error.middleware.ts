@@ -89,8 +89,7 @@ export class ControllerResponseHandler {
     return {
       requestId: req.requestId,
       executionTime,
-      cacheStatus: 'bypass', // Can be overridden by specific controllers
-      timestamp: new Date().toISOString()
+      cacheStatus: 'bypass' // Can be overridden by specific controllers
     };
   }
 }
