@@ -147,7 +147,7 @@ export class EnhancedGameController {
           status: game.status,
           maxPlayers: game.maxPlayers,
           isPrivate: game.isPrivate ?? false,
-          createdAt: typeof game.createdAt === 'string' ? game.createdAt : game.createdAt.toISOString(),
+          createdAt: typeof game.createdAt === 'string' ? game.createdAt : new Date(game.createdAt).toISOString(),
           hostId: game.creatorId
         },
         playerCount: 1
@@ -215,7 +215,7 @@ export class EnhancedGameController {
           playerCount: game.playerCount || 0,
           maxPlayers: game.maxPlayers,
           isPrivate: game.isPrivate ?? false,
-          createdAt: typeof game.createdAt === 'string' ? game.createdAt : game.createdAt.toISOString(),
+          createdAt: typeof game.createdAt === 'string' ? game.createdAt : new Date(game.createdAt).toISOString(),
           hostName: game.hostName || 'Unknown'
         })),
         pagination: {
@@ -249,7 +249,12 @@ export class EnhancedGameController {
     try {
       const gameId = req.params.id;
       
-      // Game ID validation handled by middleware
+      if (!gameId) {
+        return {
+          success: false,
+          error: GameErrorFactory.createGameNotFoundError('undefined', 'id')
+        };
+      }
       
       const game = await this.gameService.getGameDetails(gameId);
       
@@ -282,9 +287,9 @@ export class EnhancedGameController {
         phase: game.phase,
         playerCount: game.players?.length || 0,
         maxPlayers: game.maxPlayers,
-        isPrivate: game.isPrivate,
-        createdAt: game.createdAt.toISOString(),
-        startedAt: game.startedAt?.toISOString(),
+        isPrivate: game.isPrivate ?? false,
+        createdAt: typeof game.createdAt === 'string' ? game.createdAt : new Date(game.createdAt).toISOString(),
+        startedAt: game.startedAt ? (typeof game.startedAt === 'string' ? game.startedAt : new Date(game.startedAt).toISOString()) : undefined,
         host: {
           id: game.creatorId,
           username: game.hostName || 'Unknown'
