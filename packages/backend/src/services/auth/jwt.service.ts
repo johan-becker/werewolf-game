@@ -72,7 +72,7 @@ export class JwtService implements IJwtService {
 
     const accessToken = jwt.sign(
       accessTokenPayload,
-      this.config.jwtSecret,
+      this.config.jwtSecret as string,
       {
         expiresIn: this.config.jwtExpiresIn as string,
         issuer: 'werewolf-game',
@@ -90,7 +90,7 @@ export class JwtService implements IJwtService {
 
     const refreshToken = jwt.sign(
       refreshTokenPayload,
-      this.config.jwtRefreshSecret,
+      this.config.jwtRefreshSecret as string,
       {
         expiresIn: this.config.jwtRefreshExpiresIn as string,
         issuer: 'werewolf-game',
@@ -207,7 +207,7 @@ export class JwtService implements IJwtService {
 
       const accessToken = jwt.sign(
         accessTokenPayload,
-        this.config.jwtSecret,
+        this.config.jwtSecret as string,
         {
           expiresIn: this.config.jwtExpiresIn as string,
           issuer: 'werewolf-game',
@@ -225,7 +225,7 @@ export class JwtService implements IJwtService {
 
       const newRefreshToken = jwt.sign(
         newRefreshTokenPayload,
-        this.config.jwtRefreshSecret,
+        this.config.jwtRefreshSecret as string,
         {
           expiresIn: this.config.jwtRefreshExpiresIn as string,
           issuer: 'werewolf-game',
