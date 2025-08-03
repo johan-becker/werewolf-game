@@ -11,8 +11,7 @@ import {
   OptionalAuthRequest,
   AuthErrorCode,
   Permission,
-  UserRole,
-  AuthMetadata
+  UserRole
 } from '../types/auth.types';
 
 // Legacy export for backward compatibility - matches actual middleware output
