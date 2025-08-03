@@ -40,7 +40,7 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: err.input
+            code: err.code
           }));
 
           return res.status(400).json({
@@ -76,7 +76,7 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: err.input
+            code: err.code
           }));
 
           return res.status(400).json({
@@ -111,7 +111,7 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: err.input
+            code: err.code
           }));
 
           return res.status(400).json({
@@ -146,7 +146,7 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: err.input
+            code: err.code
           }));
 
           return res.status(400).json({
