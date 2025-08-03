@@ -432,6 +432,11 @@ export class GameService {
       creatorId: game.creator_id,
       maxPlayers: game.max_players,
       currentPlayers: game.current_players || 0,
+      playerCount: game.current_players || 0,
+      phase: game.phase || 'waiting',
+      dayNumber: game.day_number || 0,
+      timeRemaining: 0,
+      hostName: game.host_name || 'Unknown',
       createdAt: game.created_at
     };
   }
@@ -491,6 +496,9 @@ export class GameService {
           throw new Error(`Ungültiger Spieler an Index ${i}`);
         }
         const role = roles[i];
+        if (!role) {
+          throw new Error(`No role assigned for player at index ${i}`);
+        }
         
         const playerState = this.roleService.initializePlayerState(
           player.userId,
