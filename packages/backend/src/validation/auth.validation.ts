@@ -19,7 +19,7 @@ const passwordSchema = z
     // Check for at least one number
     if (!/\d/.test(password)) return false;
     // Check for at least one special character
-    if (!/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) return false;
+    if (!/[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/.test(password)) return false;
     return true;
   }, 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character');
 

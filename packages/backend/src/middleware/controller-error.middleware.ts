@@ -136,7 +136,7 @@ export function controllerErrorInterceptor(
 }
 
 // Transform domain exceptions to standardized game errors
-function transformDomainException(error: Error, req: TrackedRequest): GameControllerError {
+function transformDomainException(error: Error, _req: TrackedRequest): GameControllerError {
   const errorMessage = error.message.toLowerCase();
   
   // Database/Supabase errors

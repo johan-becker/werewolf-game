@@ -227,13 +227,14 @@ export class NightActionService {
       
       // Hexe und andere Rollen sind optional - können wählen ob sie handeln
       
-      case 'CUPID':
+      case 'CUPID': {
         // Nur in der ersten Nacht erforderlich
         const hasUsedCupid = player.actionHistory.some(a => a.actionType === ActionType.CUPID_LINK);
         if (!hasUsedCupid) {
           required.push(ActionType.CUPID_LINK);
         }
         break;
+      }
     }
 
     return required;

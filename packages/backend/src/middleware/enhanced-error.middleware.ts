@@ -52,7 +52,7 @@ export class EnhancedErrorMiddleware {
    * Global error handler
    */
   handleError() {
-    return (error: Error, req: Request, res: Response, next: NextFunction) => {
+    return (error: Error, req: Request, res: Response, _next: NextFunction) => {
       const requestId = req.headers['x-request-id'] as string || this.generateRequestId();
       
       // Log the error
@@ -111,7 +111,7 @@ export class EnhancedErrorMiddleware {
   /**
    * Async error wrapper
    */
-  asyncHandler(fn: Function) {
+  asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
     return (req: Request, res: Response, next: NextFunction) => {
       Promise.resolve(fn(req, res, next)).catch(next);
     };

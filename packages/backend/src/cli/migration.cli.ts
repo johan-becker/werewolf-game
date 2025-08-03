@@ -125,7 +125,7 @@ program
       }
       
       if (!options.force) {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
         const readline = require('readline').createInterface({
           input: process.stdin,
           output: process.stdout

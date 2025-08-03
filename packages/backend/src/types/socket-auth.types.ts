@@ -5,7 +5,7 @@
 
 import { Socket } from 'socket.io';
 import { AuthenticatedUser } from './auth.types';
-import { ActionType, NightAction } from './werewolf-roles.types';
+import { ActionType } from './werewolf-roles.types';
 
 // Socket Authentication State Machine
 export enum SocketAuthenticationState {
