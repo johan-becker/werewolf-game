@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { faker } from '@faker-js/faker';
 import { WerewolfRole } from '../types/werewolf-roles.types';

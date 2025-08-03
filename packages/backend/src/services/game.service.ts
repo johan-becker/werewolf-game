@@ -432,7 +432,12 @@ export class GameService {
       creatorId: game.creator_id,
       maxPlayers: game.max_players,
       currentPlayers: game.current_players || 0,
-      createdAt: game.created_at
+      createdAt: game.created_at,
+      playerCount: game.current_players || 0,
+      phase: game.phase || 'waiting',
+      dayNumber: game.day_number || 1,
+      timeRemaining: game.time_remaining,
+      hostName: game.host_name || 'Unknown'
     };
   }
 
@@ -491,6 +496,9 @@ export class GameService {
           throw new Error(`Ungültiger Spieler an Index ${i}`);
         }
         const role = roles[i];
+        if (!role) {
+          throw new Error(`No role assigned for player at index ${i}`);
+        }
         
         const playerState = this.roleService.initializePlayerState(
           player.userId,
@@ -670,7 +678,7 @@ export class GameService {
       message: 'Nacht-Phase aufgelöst',
       deaths: resolution.deaths,
       gameEnded,
-      winner
+      ...(winner && { winner })
     };
   }
 
@@ -865,7 +873,7 @@ export class GameService {
       message: `${eliminatedPlayer} wurde eliminiert`,
       eliminatedPlayer,
       gameEnded,
-      winner
+      ...(winner && { winner })
     };
   }
 }

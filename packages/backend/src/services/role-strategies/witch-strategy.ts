@@ -58,10 +58,10 @@ export class WitchStrategy extends BaseRoleStrategy {
   ): Promise<ActionResult> {
     switch (action.actionType) {
       case ActionType.WITCH_HEAL:
-        return this.executeHeal(player, action, allPlayers, gameState);
+        return this.executeHeal(player, action, allPlayers, _gameState);
       
       case ActionType.WITCH_POISON:
-        return this.executePoison(player, action, allPlayers, gameState);
+        return this.executePoison(player, action, allPlayers, _gameState);
       
       case ActionType.NO_ACTION:
         return {

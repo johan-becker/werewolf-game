@@ -65,7 +65,7 @@ const transformationLogSchema = z.object({
 router.get(
   '/current',
   authMiddleware.authenticate(),
-  asyncHandler(moonPhaseController.getCurrentMoonPhase.bind(moonPhaseController))
+  asyncHandler(moonPhaseController.getCurrentPhase.bind(moonPhaseController))
 );
 
 /**
@@ -76,7 +76,7 @@ router.get(
 router.get(
   '/calendar',
   authMiddleware.authenticate(),
-  asyncHandler(moonPhaseController.getLunarCalendar.bind(moonPhaseController))
+  asyncHandler(moonPhaseController.getPhaseCalendar.bind(moonPhaseController))
 );
 
 /**
