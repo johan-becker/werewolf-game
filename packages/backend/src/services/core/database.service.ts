@@ -359,7 +359,7 @@ export class DatabaseService implements IDatabase {
           
           // Extract ID and name from filename
           const match = file.match(/^(\d+_\w+)\.sql$/);
-          if (match) {
+          if (match && match[1]) {
             const id = match[1];
             const name = id.split('_').slice(1).join('_');
             
