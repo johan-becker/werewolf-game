@@ -55,7 +55,7 @@ export const FeaturesSection = lazy(() => import('@/components/landing/features-
 // Helper function for creating lazy components with error boundaries  
 export const withLazyLoading = (
   importFn: () => Promise<{ default: React.ComponentType<any> }>,
-  fallback?: React.ComponentType
+  _fallback?: React.ComponentType
 ) => {
   const LazyComponent = lazy(importFn)
   

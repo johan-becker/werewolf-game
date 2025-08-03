@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Moon, MoonIcon } from 'lucide-react'
+// import { Moon, MoonIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type MoonPhase = 'new' | 'waxing-crescent' | 'first-quarter' | 'waxing-gibbous' | 'full' | 'waning-gibbous' | 'last-quarter' | 'waning-crescent'

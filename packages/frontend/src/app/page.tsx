@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { MoonPhaseIndicator } from '@/components/werewolf/moon-phase-indicator'
 import { StatsCounter } from '@/components/werewolf/stats-counter'
 import { HeroSection } from '@/components/landing/hero-section'

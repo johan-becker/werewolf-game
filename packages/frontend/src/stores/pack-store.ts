@@ -700,12 +700,12 @@ export const usePackStore = create<PackState>()(
         }
       },
 
-      defendTerritory: async (territoryId: string) => {
+      defendTerritory: async (_territoryId: string) => {
         // This would be implemented based on game mechanics
         throw new Error('Not implemented')
       },
 
-      attackTerritory: async (territoryId: string) => {
+      attackTerritory: async (_territoryId: string) => {
         // This would be implemented based on game mechanics
         throw new Error('Not implemented')
       },
@@ -817,7 +817,7 @@ export const usePackStore = create<PackState>()(
       },
 
       // Real-time updates (WebSocket integration would be implemented here)
-      subscribeToPackUpdates: (packId: string) => {
+      subscribeToPackUpdates: (_packId: string) => {
         // This would set up WebSocket subscription for real-time pack updates
         // Return unsubscribe function
         return () => {}
@@ -825,7 +825,7 @@ export const usePackStore = create<PackState>()(
 
       handlePackUpdate: (update: PackUpdate) => {
         // Handle real-time pack updates from WebSocket
-        set((state) => {
+        set((_state) => {
           switch (update.type) {
             case 'MEMBER_JOINED':
               // Handle member joining
