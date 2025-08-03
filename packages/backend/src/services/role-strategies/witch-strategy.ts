@@ -54,7 +54,7 @@ export class WitchStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     switch (action.actionType) {
       case ActionType.WITCH_HEAL:
@@ -84,7 +84,7 @@ export class WitchStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     if (!player.specialStates.hasHealPotion) {
       return {
@@ -140,7 +140,7 @@ export class WitchStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     if (!player.specialStates.hasPoisonPotion) {
       return {
@@ -188,7 +188,7 @@ export class WitchStrategy extends BaseRoleStrategy {
   /**
    * Initialisiert Hexe mit beiden Tränken
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.WITCH,
       team: Team.VILLAGE,

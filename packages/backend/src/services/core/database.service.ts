@@ -434,6 +434,7 @@ export class DatabaseService implements IDatabase {
    * Private: Calculate checksum for migration content
    */
   private calculateChecksum(content: string): string {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const crypto = require('crypto');
     return crypto.createHash('md5').update(content).digest('hex');
   }

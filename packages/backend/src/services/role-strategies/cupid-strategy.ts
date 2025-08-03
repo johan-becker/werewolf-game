@@ -107,7 +107,7 @@ export class CupidStrategy extends BaseRoleStrategy {
   /**
    * Initialisiert Amor
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.CUPID,
       team: Team.VILLAGE,

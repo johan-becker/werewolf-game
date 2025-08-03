@@ -43,7 +43,7 @@ export class SeerStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     if (action.actionType !== ActionType.SEER_INVESTIGATE) {
       return {
@@ -96,7 +96,7 @@ export class SeerStrategy extends BaseRoleStrategy {
   /**
    * Initialisiert Seherin
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.SEER,
       team: Team.VILLAGE,

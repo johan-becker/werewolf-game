@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { User } from './database';
+// import { User } from './database';
 
 // Supabase Auth types
 export interface SupabaseUser {

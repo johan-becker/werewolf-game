@@ -6,7 +6,7 @@
 import { Socket } from 'socket.io';
 import { createClient } from '@supabase/supabase-js';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { AuthSecurityService } from '../services/auth-security.service';
+// import { AuthSecurityService } from '../services/auth-security.service';
 import { AuthErrorCode } from '../types/auth.types';
 
 const supabase = createClient(
@@ -14,7 +14,7 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY!
 );
 
-const authService = AuthSecurityService.getInstance();
+// const authService = AuthSecurityService.getInstance();
 
 // Connection tracking for reconnection handling
 const activeConnections = new Map<string, {

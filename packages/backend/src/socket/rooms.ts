@@ -17,7 +17,7 @@ export class RoomManager {
     const userId = socket.data.userId;
     
     // Leave current room if any
-    const previousGame = await this.leaveCurrentRoom(socket);
+    // const previousGame = await this.leaveCurrentRoom(socket);
     
     // Clear any pending disconnect grace period
     this.disconnectedUsers.delete(userId);

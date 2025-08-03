@@ -86,7 +86,7 @@ async function testSupabase() {
 
     // 4. Test Join Game
     console.log('\n4️⃣ Testing Players - Joining game...');
-    const { data: player, error: playerError } = await supabase
+    const { error: playerError } = await supabase
       .from('players')
       .insert({
         game_id: game.id,

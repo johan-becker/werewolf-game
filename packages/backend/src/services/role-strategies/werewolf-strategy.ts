@@ -50,7 +50,7 @@ export class WerewolfStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     if (action.actionType !== ActionType.WEREWOLF_KILL) {
       return {
@@ -111,7 +111,7 @@ export class WerewolfStrategy extends BaseRoleStrategy {
   /**
    * Prüft Werwolf-Siegbedingungen
    */
-  getWinCondition(gameState: WerewolfGameState): any | null {
+  getWinCondition(_gameState: WerewolfGameState): any | null {
     // Werwölfe gewinnen, wenn sie die Mehrheit haben
     // Diese Logik sollte vom WerewolfGameManager gehandhabt werden
     return null;
@@ -124,15 +124,15 @@ export class WerewolfStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
-    return this.executeNightAction(player, action, allPlayers, gameState);
+    return this.executeNightAction(player, action, allPlayers, _gameState);
   }
 
   /**
    * Initialisiert Werwolf
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.WEREWOLF,
       team: Team.WEREWOLF,

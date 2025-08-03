@@ -2,7 +2,7 @@ import { Socket, Server } from 'socket.io';
 import { GameService } from '../../services/game.service';
 import { RoomManager } from '../rooms';
 import { RoleFactory } from '../../services/role-factory';
-import { GameRoleConfig, ConfigValidationResult } from '../../types/werewolf-roles.types';
+import { GameRoleConfig } from '../../types/werewolf-roles.types';
 
 const gameService = new GameService();
 

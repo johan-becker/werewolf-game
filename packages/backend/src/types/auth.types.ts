@@ -4,7 +4,7 @@
  */
 
 import { Request } from 'express';
-import { User } from '@supabase/supabase-js';
+// import { User } from '@supabase/supabase-js';
 
 // Strict authentication result types
 export interface AuthenticationResult {

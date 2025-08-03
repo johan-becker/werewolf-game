@@ -55,8 +55,8 @@ export class HunterStrategy extends BaseRoleStrategy {
    */
   async onDeath(
     player: WerewolfPlayer,
-    allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _allPlayers: WerewolfPlayer[],
+    _gameState: WerewolfGameState
   ): Promise<ActionResult | null> {
     if (!player.specialStates.canShoot) {
       return null; // Bereits geschossen oder durch Gift gestorben
@@ -78,7 +78,7 @@ export class HunterStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     if (!player.specialStates.canShoot) {
       return {
@@ -133,7 +133,7 @@ export class HunterStrategy extends BaseRoleStrategy {
   /**
    * Initialisiert Jäger mit Schuss-Fähigkeit
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.HUNTER,
       team: Team.VILLAGE,

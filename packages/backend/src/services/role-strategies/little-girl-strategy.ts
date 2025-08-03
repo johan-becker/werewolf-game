@@ -75,7 +75,7 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     // Risiko berechnen
     const spyCount = player.specialStates.hasSpied ? 1 : 0;
@@ -103,7 +103,7 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
 
     // Erfolgreiche Spionage - Werwolf-Identitäten erfahren
     const werewolves = this.getWerewolves(allPlayers);
-    const werewolfNames = werewolves.map(w => w.username).join(', ');
+    // const werewolfNames = werewolves.map(w => w.username).join(', ');
 
     return {
       success: true,
@@ -121,7 +121,7 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
   /**
    * Initialisiert Mädchen
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.LITTLE_GIRL,
       team: Team.VILLAGE,

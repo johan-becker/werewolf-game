@@ -315,7 +315,7 @@ export class AuthenticatedSocketEventHandler {
       }
 
       try {
-        const user = socketAuthStateMachine.getAuthenticatedUser(socket);
+        // const user = socketAuthStateMachine.getAuthenticatedUser(socket);
         const gameId = socket.data.currentGame;
 
         if (!gameId) {

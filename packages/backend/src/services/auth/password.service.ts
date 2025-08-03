@@ -119,7 +119,7 @@ export class PasswordService implements IPasswordService {
     }
 
     // Check for special characters
-    if (/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) {
+    if (/[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/.test(password)) {
       score += 1;
     } else {
       feedback.push('Password should contain special characters');

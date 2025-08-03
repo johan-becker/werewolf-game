@@ -56,9 +56,9 @@ export abstract class BaseRoleStrategy implements RoleStrategy {
    * Behandelt Tod des Spielers
    */
   onDeath(
-    player: WerewolfPlayer,
-    allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _player: WerewolfPlayer,
+    _allPlayers: WerewolfPlayer[],
+    _gameState: WerewolfGameState
   ): Promise<ActionResult | null> {
     // Standard: Keine spezielle Aktion beim Tod
     return Promise.resolve(null);
