@@ -477,7 +477,9 @@ export class RoleService {
       [ActionType.WITCH_POISON]: 'Gifttrank',
       [ActionType.HUNTER_REVENGE]: 'Letzter Schuss',
       [ActionType.CUPID_LINK]: 'Liebespfeil',
-      [ActionType.VILLAGE_VOTE]: '' // Voting ist keine Rollen-Fähigkeit
+      [ActionType.VILLAGE_VOTE]: '', // Voting ist keine Rollen-Fähigkeit
+      [ActionType.LITTLE_GIRL_SPY]: 'Spionage',
+      [ActionType.NO_ACTION]: 'Keine Aktion'
     };
 
     const abilityName = abilityMap[actionType];

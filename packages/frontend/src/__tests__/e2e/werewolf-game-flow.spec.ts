@@ -41,7 +41,7 @@ test.describe('Werewolf Game Complete Flow', () => {
       
       // Extract and verify game code
       const gameCodeElement = hostPage.locator('[data-testid="game-code"]');
-      gameCode = await gameCodeElement.textContent();
+      gameCode = (await gameCodeElement.textContent()) || '';
       
       expect(gameCode).toMatch(/^[A-Z0-9]{6,8}$/);
       expect(gameCode).toContain('WOLF'); // Should contain werewolf prefix
