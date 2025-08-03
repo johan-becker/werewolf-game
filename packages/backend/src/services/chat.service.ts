@@ -1,10 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
-
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_KEY!
@@ -186,7 +181,7 @@ export class ChatService {
 
       case 'DAY':
       case 'NIGHT':
-      case 'DEAD':
+      case 'DEAD': {
         if (!gameId) {
           return { canRead: false, canWrite: false, reason: 'Game ID required for game channels' };
         }
@@ -215,6 +210,7 @@ export class ChatService {
         }
 
         return this.getGameChannelPermissions(channel, player, game);
+      }
 
       default:
         return { canRead: false, canWrite: false, reason: 'Unknown channel' };
@@ -354,7 +350,7 @@ export class ChatService {
   /**
    * Delete message (moderation)
    */
-  async deleteMessage(messageId: string, moderatorId: string): Promise<void> {
+  async deleteMessage(messageId: string, _moderatorId: string): Promise<void> {
     // Hier könntest du zusätzliche Moderator-Checks implementieren
     const { error } = await supabaseAdmin
       .from('chat_messages')

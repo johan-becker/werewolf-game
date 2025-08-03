@@ -1,7 +1,7 @@
 // src/services/authService.ts
 import { supabaseAdmin, supabase, createAuthenticatedClient } from '../lib/supabase';
 import { logger } from '../utils/logger';
-import { SignUpData, SignInData, UpdateProfileData, SupabaseError, Profile } from '../types/auth';
+import { SignUpData, SignInData, UpdateProfileData, Profile } from '../types/auth';
 
 export interface RegisterData {
   username: string;

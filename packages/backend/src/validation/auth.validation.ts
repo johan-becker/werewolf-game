@@ -4,7 +4,6 @@
  */
 
 import { z } from 'zod';
-import { WerewolfRole } from '../types/werewolf-user.types';
 
 // Password validation with strength requirements
 const passwordSchema = z

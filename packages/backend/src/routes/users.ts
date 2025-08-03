@@ -1,6 +1,5 @@
 // src/routes/users.ts
 import { Router } from 'express';
-import { AuthController } from '../controllers/authController';
 import { UserController } from '../controllers/userController';
 import { requireAuth, generalRateLimit } from '../middleware/auth';
 import { asyncHandler } from '../middleware/errorHandler';

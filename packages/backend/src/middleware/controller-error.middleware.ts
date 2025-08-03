@@ -5,7 +5,6 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { 
-  GameControllerResponse, 
   GameControllerError, 
   GameErrorCode, 
   ERROR_STATUS_CODES,
@@ -115,7 +114,7 @@ export function controllerErrorInterceptor(
   error: Error,
   req: TrackedRequest,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void {
   console.error('Controller Error:', {
     requestId: req.requestId,

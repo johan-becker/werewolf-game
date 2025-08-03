@@ -363,7 +363,7 @@ export class SocketAuthenticationStateMachine {
     socket: AuthenticatedSocket,
     event: string,
     args: any[],
-    originalListener: (...args: any[]) => void
+    _originalListener: (...args: any[]) => void
   ): void {
     if (socket.data.messageQueue.length >= this.messageQueueConfig.maxQueueSize) {
       socket.emit('error', {
@@ -453,7 +453,7 @@ export class SocketAuthenticationStateMachine {
   }
 
   private challengeAuthentication(socket: AuthenticatedSocket): void {
-    socket.emit('auth:challenge', (response) => {
+    socket.emit('auth:challenge', (_response) => {
       // Client should respond with authentication token
     });
   }
