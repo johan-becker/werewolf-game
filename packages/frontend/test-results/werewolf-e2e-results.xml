@@ -1,0 +1,492 @@
+<testsuites id="" name="" tests="119" failures="0" skipped="119" errors="0" time="1.2779669999999996">
+<testsuite name="werewolf-game-flow.spec.ts" timestamp="2025-08-03T14:22:42.003Z" hostname="chromium" tests="17" failures="0" skipped="17" time="0" errors="0">
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should create werewolf game and display game code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should display werewolf game lobby with theme elements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should allow player to join werewolf game by code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should add more players for minimum game requirements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should start werewolf game and assign roles" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should display role information and werewolf abilities" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should display day phase interface with werewolf theme" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should allow chat communication during day phase" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should handle voting phase transition" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should transition to night phase with werewolf atmosphere" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should display werewolf night action interface" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should handle special role night actions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should handle day/night cycle transitions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should display updated player count and pack status" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should detect and display win conditions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should be accessible with screen readers" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should work on mobile devices" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="werewolf-game-flow.spec.ts" timestamp="2025-08-03T14:22:42.003Z" hostname="firefox" tests="17" failures="0" skipped="17" time="0" errors="0">
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should create werewolf game and display game code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should display werewolf game lobby with theme elements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should allow player to join werewolf game by code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should add more players for minimum game requirements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should start werewolf game and assign roles" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should display role information and werewolf abilities" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should display day phase interface with werewolf theme" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should allow chat communication during day phase" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should handle voting phase transition" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should transition to night phase with werewolf atmosphere" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should display werewolf night action interface" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should handle special role night actions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should handle day/night cycle transitions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should display updated player count and pack status" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should detect and display win conditions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should be accessible with screen readers" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should work on mobile devices" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="werewolf-game-flow.spec.ts" timestamp="2025-08-03T14:22:42.003Z" hostname="webkit" tests="17" failures="0" skipped="17" time="0" errors="0">
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should create werewolf game and display game code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should display werewolf game lobby with theme elements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should allow player to join werewolf game by code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should add more players for minimum game requirements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should start werewolf game and assign roles" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should display role information and werewolf abilities" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should display day phase interface with werewolf theme" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should allow chat communication during day phase" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should handle voting phase transition" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should transition to night phase with werewolf atmosphere" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should display werewolf night action interface" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should handle special role night actions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should handle day/night cycle transitions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should display updated player count and pack status" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should detect and display win conditions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should be accessible with screen readers" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should work on mobile devices" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="werewolf-game-flow.spec.ts" timestamp="2025-08-03T14:22:42.003Z" hostname="Mobile Chrome" tests="17" failures="0" skipped="17" time="0" errors="0">
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should create werewolf game and display game code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should display werewolf game lobby with theme elements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should allow player to join werewolf game by code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should add more players for minimum game requirements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should start werewolf game and assign roles" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should display role information and werewolf abilities" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should display day phase interface with werewolf theme" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should allow chat communication during day phase" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should handle voting phase transition" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should transition to night phase with werewolf atmosphere" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should display werewolf night action interface" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should handle special role night actions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should handle day/night cycle transitions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should display updated player count and pack status" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should detect and display win conditions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should be accessible with screen readers" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should work on mobile devices" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="werewolf-game-flow.spec.ts" timestamp="2025-08-03T14:22:42.003Z" hostname="Mobile Safari" tests="17" failures="0" skipped="17" time="0" errors="0">
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should create werewolf game and display game code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should display werewolf game lobby with theme elements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should allow player to join werewolf game by code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should add more players for minimum game requirements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should start werewolf game and assign roles" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should display role information and werewolf abilities" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should display day phase interface with werewolf theme" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should allow chat communication during day phase" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should handle voting phase transition" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should transition to night phase with werewolf atmosphere" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should display werewolf night action interface" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should handle special role night actions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should handle day/night cycle transitions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should display updated player count and pack status" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should detect and display win conditions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should be accessible with screen readers" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should work on mobile devices" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="werewolf-game-flow.spec.ts" timestamp="2025-08-03T14:22:42.003Z" hostname="Microsoft Edge" tests="17" failures="0" skipped="17" time="0" errors="0">
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should create werewolf game and display game code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should display werewolf game lobby with theme elements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should allow player to join werewolf game by code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should add more players for minimum game requirements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should start werewolf game and assign roles" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should display role information and werewolf abilities" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should display day phase interface with werewolf theme" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should allow chat communication during day phase" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should handle voting phase transition" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should transition to night phase with werewolf atmosphere" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should display werewolf night action interface" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should handle special role night actions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should handle day/night cycle transitions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should display updated player count and pack status" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should detect and display win conditions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should be accessible with screen readers" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should work on mobile devices" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="werewolf-game-flow.spec.ts" timestamp="2025-08-03T14:22:42.003Z" hostname="Google Chrome" tests="17" failures="0" skipped="17" time="0" errors="0">
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should create werewolf game and display game code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should display werewolf game lobby with theme elements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should allow player to join werewolf game by code" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Creation and Lobby › should add more players for minimum game requirements" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should start werewolf game and assign roles" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Start and Role Assignment › should display role information and werewolf abilities" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should display day phase interface with werewolf theme" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should allow chat communication during day phase" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Day Phase Gameplay › should handle voting phase transition" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should transition to night phase with werewolf atmosphere" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should display werewolf night action interface" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Night Phase and Werewolf Actions › should handle special role night actions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should handle day/night cycle transitions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should display updated player count and pack status" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Game Progression and Win Conditions › should detect and display win conditions" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should be accessible with screen readers" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Werewolf Game Complete Flow › Accessibility and Mobile Responsiveness › should work on mobile devices" classname="werewolf-game-flow.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>

@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
 import { WerewolfRole } from '../../types/werewolf-roles.types';
-import { ChatMessageType } from '../../types/chat.types';
 
 /**
  * Factory functions for generating werewolf-themed test data

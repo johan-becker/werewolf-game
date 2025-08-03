@@ -1,6 +1,5 @@
 import { WerewolfStrategy } from '../../../services/role-strategies/werewolf-strategy';
 import { WerewolfFactories } from '../../factories/werewolf-factories';
-import { testDb } from '../../test-database';
 
 describe('WerewolfStrategy', () => {
   let werewolfStrategy: WerewolfStrategy;

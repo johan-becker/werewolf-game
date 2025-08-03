@@ -40,7 +40,12 @@
       "Bash(env)",
       "Bash(unset TS_NODE_PROJECT)",
       "Bash(mkdir:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(npm test:*)",
+      "Bash(npm test:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(git stash:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": []
   }

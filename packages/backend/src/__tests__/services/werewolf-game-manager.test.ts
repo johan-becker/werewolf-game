@@ -1,6 +1,5 @@
 import { WerewolfGameManager } from '../../services/werewolf-game-manager.service';
 import { WerewolfFactories } from '../factories/werewolf-factories';
-import { testDb } from '../test-database';
 
 describe('WerewolfGameManager', () => {
   let gameManager: WerewolfGameManager;

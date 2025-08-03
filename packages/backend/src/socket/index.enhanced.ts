@@ -241,7 +241,7 @@ function setupConnectionHealthChecks(socket: AuthenticatedSocket): void {
 function setupDisconnectHandling(socket: AuthenticatedSocket, stats: any): void {
   socket.on('disconnect', async (reason) => {
     const authState = socket.data?.authState || 'UNKNOWN';
-    // const user = socket.data?.user;
+    const user = socket.data?.user;
     const gameId = socket.data?.currentGame;
 
     console.log(`Socket ${socket.id} disconnected (state: ${authState}, reason: ${reason})`);
@@ -287,7 +287,7 @@ function setupSecurityMonitoring(socket: AuthenticatedSocket): void {
     suspiciousEvents = 0;
   }, eventWindow);
 
-  socket.onAny((eventName, ...args) => {
+  socket.onAny((_eventName, ..._args) => {
     eventCount++;
     
     // Check for suspicious patterns

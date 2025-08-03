@@ -305,6 +305,7 @@ export function createAuthHeaders(token: string): Record<string, string> {
  * Mock Socket.IO server for testing
  */
 export function createTestSocketServer(httpServer: any): any {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Server } = require('socket.io');
   
   const io = new Server(httpServer, {
