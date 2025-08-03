@@ -13,17 +13,21 @@ RUN npm install -g turbo
 COPY package*.json ./
 COPY turbo.json ./
 COPY tsconfig.base.json ./
+
+# Create packages directories and copy package.json files
+RUN mkdir -p packages/backend packages/shared packages/frontend
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/shared/package.json ./packages/shared/
+COPY packages/frontend/package.json ./packages/frontend/
 
-# Install dependencies with workspace support
-RUN npm ci --workspaces --include-workspace-root --omit=dev && npm cache clean --force
+# Install dependencies with better error handling
+RUN npm ci --workspaces --include-workspace-root --omit=dev --verbose && npm cache clean --force
 
 # Builder stage
 FROM base AS builder
 
 # Install all dependencies (including dev) for building
-RUN npm ci --workspaces --include-workspace-root
+RUN npm ci --workspaces --include-workspace-root --verbose
 
 # Copy source code
 COPY packages/backend ./packages/backend
@@ -50,11 +54,15 @@ WORKDIR /app
 # Copy package files and install production dependencies
 COPY package*.json ./
 COPY turbo.json ./
+
+# Create packages directories and copy package.json files
+RUN mkdir -p packages/backend packages/shared packages/frontend
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/shared/package.json ./packages/shared/
+COPY packages/frontend/package.json ./packages/frontend/
 
 # Install production dependencies only
-RUN npm ci --workspaces --include-workspace-root --omit=dev && npm cache clean --force
+RUN npm ci --workspaces --include-workspace-root --omit=dev --verbose && npm cache clean --force
 
 # Copy built application
 COPY --from=builder --chown=nodejs:nodejs /app/packages/backend/dist ./packages/backend/dist
