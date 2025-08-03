@@ -771,7 +771,7 @@ export class WerewolfGameManager {
   /**
    * Check win conditions (stub implementation for tests)
    */
-  async checkWinConditions(gameId: string, players: any[], options?: any): Promise<any> {
+  async checkWinConditions(gameId: string, players: any[], _options?: any): Promise<any> {
     const werewolves = players.filter(p => p.role === 'WEREWOLF' && p.is_alive);
     const villagers = players.filter(p => p.role !== 'WEREWOLF' && p.is_alive);
 
@@ -806,7 +806,7 @@ export class WerewolfGameManager {
   /**
    * Process transformation (stub implementation for tests)
    */
-  async processTransformation(gameId: string, playerId: string): Promise<any> {
+  async processTransformation(_gameId: string, _playerId: string): Promise<any> {
     // TODO: Implement werewolf transformation logic
     return {
       success: true,
@@ -817,7 +817,7 @@ export class WerewolfGameManager {
   /**
    * Enable pack communication (stub implementation for tests)
    */
-  async enablePackCommunication(gameId: string): Promise<any> {
+  async enablePackCommunication(_gameId: string): Promise<any> {
     // TODO: Implement pack communication logic
     return {
       success: true,
@@ -828,7 +828,7 @@ export class WerewolfGameManager {
   /**
    * Calculate moon phase effects (stub implementation for tests)
    */
-  async calculateMoonPhaseEffects(game: any): Promise<any> {
+  async calculateMoonPhaseEffects(_game: any): Promise<any> {
     // TODO: Implement moon phase effects calculation
     return {
       effects: [],
@@ -856,7 +856,7 @@ export class WerewolfGameManager {
   /**
    * Handle player disconnection (stub implementation for tests)
    */
-  async handlePlayerDisconnection(gameId: string, playerId: string): Promise<any> {
+  async handlePlayerDisconnection(_gameId: string, _playerId: string): Promise<any> {
     // TODO: Implement disconnection handling
     return {
       success: true,
