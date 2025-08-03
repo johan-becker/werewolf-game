@@ -166,6 +166,8 @@ export class TestDatabaseManager {
 
       for (let i = 0; i < gameUsers.length; i++) {
         const user = gameUsers[i];
+        if (!user) continue;
+        
         const role = i === 0 ? WerewolfRole.WEREWOLF : faker.helpers.arrayElement(werewolfRoles);
         
         const player = await this.prisma.player.create({
