@@ -325,6 +325,7 @@ export class WerewolfGameManager {
       const action: Omit<NightAction, 'id' | 'timestamp' | 'resolved'> = {
         gameId,
         playerId,
+        actorId: playerId, // Actor is the same as player for this action
         actionType: actionData.actionType,
         targetId: actionData.targetId || '',
         secondTargetId: actionData.secondTargetId ?? '',
