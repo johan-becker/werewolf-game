@@ -10,7 +10,6 @@ import { AuthMiddleware } from '../middleware/auth.middleware';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
 import { EnhancedErrorMiddleware } from '../middleware/enhanced-error.middleware';
 import { TerritoryController } from '../controllers/territory.controller';
-import { WerewolfRole } from '../types/werewolf-user.types';
 import { z } from 'zod';
 
 const router = Router();
