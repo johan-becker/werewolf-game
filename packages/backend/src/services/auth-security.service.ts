@@ -263,7 +263,7 @@ export class AuthSecurityService {
     return { success: true, user };
   }
 
-  private async determineUserRole(userId: string): Promise<UserRole> {
+  private async determineUserRole(_userId: string): Promise<UserRole> {
     // In production, fetch from database
     // For now, return default role
     return UserRole.PLAYER;
@@ -308,7 +308,7 @@ export class AuthSecurityService {
     return AuthErrorCode.INVALID_TOKEN;
   }
 
-  private isRateLimited(ip: string): boolean {
+  private isRateLimited(_ip: string): boolean {
     // Implement rate limiting logic
     return false;
   }
@@ -356,12 +356,12 @@ export class AuthSecurityService {
     console.log('Security Event:', event);
   }
 
-  private async isUserSuspended(userId: string): Promise<boolean> {
+  private async isUserSuspended(_userId: string): Promise<boolean> {
     // Check user suspension status
     return false;
   }
 
-  private updatePerformanceMetrics(latencyMs: number, cacheHit: boolean): void {
+  private updatePerformanceMetrics(latencyMs: number, _cacheHit: boolean): void {
     this.performanceMetrics.authenticationLatencyMs = latencyMs;
     // Update other metrics...
   }

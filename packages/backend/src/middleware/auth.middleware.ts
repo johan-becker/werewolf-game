@@ -7,7 +7,6 @@ import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
 import { IJwtService } from '../interfaces/auth/jwt-service.interface';
 import { TYPES } from '../container/types';
-import { WerewolfRole } from '../types/werewolf-user.types';
 
 // Extend Express Request to include user
 declare global {

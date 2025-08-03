@@ -8,9 +8,7 @@ import { ExtendedError } from 'socket.io/dist/namespace';
 import { AuthSecurityService } from '../services/auth-security.service';
 import { 
   SocketAuthContext, 
-  AuthErrorCode,
-  SecurityEventType,
-  SecuritySeverity 
+  AuthErrorCode
 } from '../types/auth.types';
 
 const authService = AuthSecurityService.getInstance();
