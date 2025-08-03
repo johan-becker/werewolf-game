@@ -23,7 +23,7 @@ export class UserService {
   static async createUser(userData: UserRegistrationData): Promise<User> {
     try {
       // Check if username or email already exists
-      const existingUser = await prisma.user.findFirst({
+      const existingUser = await prisma.profile.findFirst({
         where: {
           OR: [
             { username: userData.username },
@@ -43,7 +43,7 @@ export class UserService {
       const passwordHash = await bcrypt.hash(userData.password, this.SALT_ROUNDS);
 
       // Create user
-      const user = await prisma.user.create({
+      const user = await prisma.profile.create({
         data: {
           username: userData.username,
           email: userData.email,
@@ -66,7 +66,7 @@ export class UserService {
   // Authenticate user
   static async authenticateUser(loginData: UserLoginData): Promise<User | null> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.profile.findUnique({
         where: { username: loginData.username }
       });
 
@@ -80,7 +80,7 @@ export class UserService {
       }
 
       // Update last login
-      await prisma.user.update({
+      await prisma.profile.update({
         where: { id: user.id },
         data: { lastLogin: new Date() }
       });
@@ -97,7 +97,7 @@ export class UserService {
   // Get user by ID
   static async getUserById(id: string): Promise<User | null> {
     try {
-      return await prisma.user.findUnique({
+      return await prisma.profile.findUnique({
         where: { id }
       });
     } catch (error) {
@@ -109,7 +109,7 @@ export class UserService {
   // Get user by username
   static async getUserByUsername(username: string): Promise<User | null> {
     try {
-      return await prisma.user.findUnique({
+      return await prisma.profile.findUnique({
         where: { username }
       });
     } catch (error) {
@@ -121,7 +121,7 @@ export class UserService {
   // Get user profile with calculated win rate
   static async getUserProfile(id: string): Promise<UserProfile | null> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.profile.findUnique({
         where: { id }
       });
 
@@ -151,7 +151,7 @@ export class UserService {
   // Update user stats after game
   static async updateUserStats(userId: string, won: boolean): Promise<void> {
     try {
-      await prisma.user.update({
+      await prisma.profile.update({
         where: { id: userId },
         data: {
           gamesPlayed: { increment: 1 },
@@ -185,13 +185,13 @@ export class UserService {
       }
 
       const [users, total] = await Promise.all([
-        prisma.user.findMany({
+        prisma.profile.findMany({
           where,
           orderBy: { [sortBy]: sortOrder },
           skip: (page - 1) * limit,
           take: limit
         }),
-        prisma.user.count({ where })
+        prisma.profile.count({ where })
       ]);
 
       return {
@@ -213,7 +213,7 @@ export class UserService {
   // Update user
   static async updateUser(id: string, updateData: Partial<User>): Promise<User> {
     try {
-      const user = await prisma.user.update({
+      const user = await prisma.profile.update({
         where: { id },
         data: updateData
       });
@@ -230,7 +230,7 @@ export class UserService {
   // Deactivate user (soft delete)
   static async deactivateUser(id: string): Promise<void> {
     try {
-      await prisma.user.update({
+      await prisma.profile.update({
         where: { id },
         data: { isActive: false }
       });
@@ -250,24 +250,24 @@ export class UserService {
 
       const [players, total] = await Promise.all([
         prisma.player.findMany({
-          where: { userId },
+          where: { user_id: userId },
           include: {
             game: {
               select: {
                 id: true,
                 name: true,
                 status: true,
-                createdAt: true,
-                startedAt: true,
-                finishedAt: true
+                created_at: true,
+                started_at: true,
+                finished_at: true
               }
             }
           },
-          orderBy: { joinedAt: 'desc' },
+          orderBy: { joined_at: 'desc' },
           skip: (page - 1) * limit,
           take: limit
         }),
-        prisma.player.count({ where: { userId } })
+        prisma.player.count({ where: { user_id: userId } })
       ]);
 
       return {

@@ -48,7 +48,7 @@ export class GameLogService {
 
       const [logs, total] = await Promise.all([
         prisma.gameLog.findMany({
-          where: { gameId },
+          where: { game_id: gameId },
           include: {
             game: {
               select: {
@@ -68,7 +68,7 @@ export class GameLogService {
           skip: (page - 1) * limit,
           take: limit
         }),
-        prisma.gameLog.count({ where: { gameId } })
+        prisma.gameLog.count({ where: { game_id: gameId } })
       ]);
 
       return {
@@ -336,7 +336,7 @@ export class GameLogService {
   static async getGameStatistics(gameId: string) {
     try {
       const logs = await prisma.gameLog.findMany({
-        where: { gameId },
+        where: { game_id: gameId },
         select: {
           actionType: true,
           roundNumber: true,
@@ -375,7 +375,7 @@ export class GameLogService {
   static async deleteGameLogs(gameId: string): Promise<void> {
     try {
       const result = await prisma.gameLog.deleteMany({
-        where: { gameId }
+        where: { game_id: gameId }
       });
 
       logger.info(`Deleted ${result.count} logs for game ${gameId}`);
