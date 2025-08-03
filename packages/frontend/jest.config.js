@@ -9,12 +9,16 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.tsx'],
   testEnvironment: 'jsdom',
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: [
     '**/__tests__/**/*.+(ts|tsx|js)',
     '**/*.(test|spec).+(ts|tsx|js)'
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/src/__tests__/e2e/',
+    '<rootDir>/src/__tests__/setup.tsx'
   ],
   coverageDirectory: 'coverage',
   collectCoverageFrom: [
