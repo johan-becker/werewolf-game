@@ -3,7 +3,6 @@ import { prisma } from '@/database';
 import { logger } from '@utils/logger';
 import {
   User,
-  UserCreateData,
   UserRegistrationData,
   UserLoginData,
   UserProfile,
@@ -11,7 +10,6 @@ import {
   PaginationOptions,
   PaginatedResponse,
   DatabaseError,
-  ValidationError,
   ConflictError,
   NotFoundError
 } from '@/types/database';

@@ -39,7 +39,7 @@ export class RoleFactory {
         player.team = this.roleService.getRoleTeam(assignment.role);
         
         // Rolle-spezifische Initialisierung
-        const roleInfo = this.roleService.getRoleInfo(assignment.role);
+        // const roleInfo = this.roleService.getRoleInfo(assignment.role);
         this.initializePlayerForRole(player, assignment.role);
       }
     });
@@ -122,7 +122,7 @@ export class RoleFactory {
     // Werwolf-Anzahl (25% der Spieler, minimum 1)
     const werewolves = Math.max(1, Math.floor(playerCount * 0.25));
     
-    let config: GameRoleConfig = {
+    const config: GameRoleConfig = {
       werewolves,
       villagers: playerCount - werewolves,
       seer: false,
