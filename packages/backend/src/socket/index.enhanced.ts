@@ -11,12 +11,17 @@ import {
 } from '../middleware/socket-auth-state.middleware';
 import { AuthenticatedSocketEventHandler } from './authenticated-events';
 import {
-  AuthenticatedSocket,
-  AuthenticatedSocketEvents
+  AuthenticatedSocket
 } from '../types/socket-auth.types';
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData
+} from '../types/socket.types';
 
 export function initializeEnhancedSocketServer(httpServer: HttpServer) {
-  const io = new Server<AuthenticatedSocketEvents>(httpServer, {
+  const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
     cors: {
       origin: process.env.CLIENT_URL || 'http://localhost:3000',
       credentials: true
@@ -56,32 +61,33 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
   });
 
   // Connection event handler with authentication state machine
-  io.on('connection', async (socket: AuthenticatedSocket) => {
+  io.on('connection', async (socket) => {
+    const authSocket = socket as unknown as AuthenticatedSocket;
     connectionStats.totalConnections++;
     
-    const clientIP = socket.handshake.address;
-    const userAgent = socket.handshake.headers['user-agent'] || 'unknown';
+    const clientIP = authSocket.handshake.address;
+    const userAgent = authSocket.handshake.headers['user-agent'] || 'unknown';
     
-    console.log(`New socket connection ${socket.id} from ${clientIP} (UA: ${userAgent})`);
+    console.log(`New socket connection ${authSocket.id} from ${clientIP} (UA: ${userAgent})`);
     console.log(`Connection stats: ${connectionStats.totalConnections} total, ${connectionStats.authenticatedConnections} authenticated`);
 
     // Set up authenticated event handlers
-    eventHandler.setupEventHandlers(socket);
+    eventHandler.setupEventHandlers(authSocket);
 
     // Set up authentication state monitoring
-    setupAuthenticationMonitoring(socket, connectionStats);
+    setupAuthenticationMonitoring(authSocket, connectionStats);
 
     // Set up periodic connection health checks
-    setupConnectionHealthChecks(socket);
+    setupConnectionHealthChecks(authSocket);
 
     // Set up graceful disconnect handling
-    setupDisconnectHandling(socket, connectionStats);
+    setupDisconnectHandling(authSocket, connectionStats);
 
     // Set up security monitoring
-    setupSecurityMonitoring(socket);
+    setupSecurityMonitoring(authSocket);
 
     // Set up message validation middleware
-    setupMessageValidation(socket);
+    setupMessageValidation(authSocket);
   });
 
   // Global error handling
@@ -99,7 +105,7 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
   // Periodic health monitoring
   setInterval(() => {
     const authenticatedSockets = Array.from(io.sockets.sockets.values())
-      .filter(s => (s as AuthenticatedSocket).data?.authState === 'AUTHENTICATED');
+      .filter(s => (s as unknown as AuthenticatedSocket).data?.authState === 'AUTHENTICATED');
 
     console.log(`Socket Health Check: ${authenticatedSockets.length} authenticated sockets of ${io.sockets.sockets.size} total`);
 
@@ -108,10 +114,9 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
 
     // Emit server statistics to monitoring system
     io.emit('server:stats', {
-      timestamp: new Date(),
-      connections: connectionStats,
-      authenticatedSockets: authenticatedSockets.length,
-      totalSockets: io.sockets.sockets.size
+      connectedUsers: authenticatedSockets.length,
+      activeGames: 0, // TODO: implement game counting
+      timestamp: new Date().toISOString()
     });
   }, 30000); // Every 30 seconds
 
@@ -121,7 +126,7 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
     let cleanedUp = 0;
 
     for (const socket of allSockets) {
-      const authSocket = socket as AuthenticatedSocket;
+      const authSocket = socket as unknown as AuthenticatedSocket;
       
       if (authSocket.data?.authState === 'PENDING') {
         const timeSinceConnection = Date.now() - authSocket.data.connectedAt.getTime();
@@ -146,22 +151,21 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
     
     // Notify all authenticated clients
     const authenticatedSockets = Array.from(io.sockets.sockets.values())
-      .filter(s => (s as AuthenticatedSocket).data?.authState === 'AUTHENTICATED');
+      .filter(s => (s as unknown as AuthenticatedSocket).data?.authState === 'AUTHENTICATED');
 
     console.log(`Notifying ${authenticatedSockets.length} authenticated clients of shutdown`);
 
     for (const socket of authenticatedSockets) {
       socket.emit('server:shutdown', {
         message: 'Server is shutting down for maintenance',
-        timestamp: new Date(),
-        reconnectAfter: 30000 // Suggest reconnection after 30 seconds
+        timestamp: new Date().toISOString()
       });
     }
 
     // Clean up authentication state machine
     const allSockets = Array.from(io.sockets.sockets.values());
     for (const socket of allSockets) {
-      await socketAuthStateMachine.cleanupSocket(socket as AuthenticatedSocket);
+      await socketAuthStateMachine.cleanupSocket(socket as unknown as AuthenticatedSocket);
     }
 
     // Give clients time to save state and prepare for reconnection

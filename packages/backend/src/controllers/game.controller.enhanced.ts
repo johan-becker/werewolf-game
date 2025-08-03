@@ -31,6 +31,22 @@ export class EnhancedGameController {
   }
 
   /**
+   * Helper function to safely convert dates to ISO strings
+   */
+  private formatDateSafely(date: any): string {
+    if (typeof date === 'string') {
+      return date;
+    }
+    if (date instanceof Date) {
+      return date.toISOString();
+    }
+    if (date && typeof date === 'object' && typeof date.toISOString === 'function') {
+      return date.toISOString();
+    }
+    return new Date().toISOString();
+  }
+
+  /**
    * POST /api/games - Create new game with comprehensive error handling
    */
   async createGame(req: AuthenticatedRequest, _res: Response): Promise<GameCreationResult> {
@@ -145,7 +161,7 @@ export class EnhancedGameController {
           status: game.status,
           maxPlayers: game.maxPlayers,
           isPrivate: game.isPrivate ?? false,
-          createdAt: typeof game.createdAt === 'string' ? game.createdAt : game.createdAt?.toISOString() || new Date().toISOString(),
+          createdAt: this.formatDateSafely(game.createdAt),
           hostId: game.creatorId
         },
         playerCount: 1
@@ -213,7 +229,7 @@ export class EnhancedGameController {
           playerCount: game.playerCount || 0,
           maxPlayers: game.maxPlayers,
           isPrivate: game.isPrivate ?? false,
-          createdAt: typeof game.createdAt === 'string' ? game.createdAt : game.createdAt?.toISOString() || new Date().toISOString(),
+          createdAt: this.formatDateSafely(game.createdAt),
           hostName: game.hostName || 'Unknown'
         })),
         pagination: {
@@ -286,8 +302,8 @@ export class EnhancedGameController {
         playerCount: game.players?.length || 0,
         maxPlayers: game.maxPlayers,
         isPrivate: game.isPrivate ?? false,
-        createdAt: typeof game.createdAt === 'string' ? game.createdAt : game.createdAt?.toISOString() || new Date().toISOString(),
-        ...(game.startedAt && { startedAt: typeof game.startedAt === 'string' ? game.startedAt : game.startedAt?.toISOString() || new Date().toISOString() }),
+        createdAt: this.formatDateSafely(game.createdAt),
+        ...(game.startedAt && { startedAt: this.formatDateSafely(game.startedAt) }),
         host: {
           id: game.creatorId,
           username: game.hostName || 'Unknown'
@@ -296,7 +312,7 @@ export class EnhancedGameController {
           id: player.id,
           username: player.username || 'Unknown',
           status: player.status || 'active',
-          joinedAt: typeof player.joinedAt === 'string' ? player.joinedAt : player.joinedAt?.toISOString() || new Date().toISOString(),
+          joinedAt: this.formatDateSafely(player.joinedAt),
           isHost: player.id === game.creatorId
         })),
         settings: {
@@ -315,7 +331,7 @@ export class EnhancedGameController {
       if (error.message?.includes('not found')) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(req.params.id || '', 'id')
+          error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id')
         };
       }
 
@@ -337,8 +353,15 @@ export class EnhancedGameController {
       const gameId = req.params.id;
       const userId = req.user.userId;
       
+      if (!gameId) {
+        return {
+          success: false,
+          error: GameErrorFactory.createValidationError('id', gameId, 'Game ID is required')
+        };
+      }
+      
       // Check if game exists first
-      const game = await this.gameService.getGameDetails(gameId || '');
+      const game = await this.gameService.getGameDetails(gameId);
       if (!game) {
         return {
           success: false,
@@ -414,21 +437,28 @@ export class EnhancedGameController {
       // }
 
       // Join the game
-      await this.gameService.joinGame(gameId || '', userId || '');
-      const updatedGame = await this.gameService.getGameDetails(gameId || '');
+      await this.gameService.joinGame(gameId, userId);
+      const updatedGame = await this.gameService.getGameDetails(gameId);
+
+      if (!updatedGame) {
+        return {
+          success: false,
+          error: GameErrorFactory.createServerError('Failed to retrieve updated game details')
+        };
+      }
 
       const successData: GameJoinSuccess = {
         game: {
           id: updatedGame.id,
           code: updatedGame.code,
-          name: updatedGame.name,
+          name: updatedGame.name || 'Unknown Game',
           status: updatedGame.status,
           playerCount: updatedGame.players?.length || 0,
           maxPlayers: updatedGame.maxPlayers
         },
         player: {
           id: userId,
-          username: req.user.username || req.user.email.split('@')[0],
+          username: req.user.username || req.user.email?.split('@')[0] || 'Unknown',
           joinedAt: new Date().toISOString(),
           isHost: updatedGame.creatorId === userId
         },
@@ -450,7 +480,7 @@ export class EnhancedGameController {
       if (error.message?.includes('not found')) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(req.params.id || '', 'id')
+          error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id')
         };
       }
 
@@ -500,7 +530,7 @@ export class EnhancedGameController {
       // Reuse the join logic by calling joinGame with the found game ID
       // This ensures consistent validation and error handling
       return await this.joinGame(
-        { ...req, params: { ...req.params, id: game.id } } as AuthenticatedRequest,
+        { ...req, params: { ...req.params, id: game.id } } as unknown as AuthenticatedRequest,
         res
       );
 
@@ -523,8 +553,15 @@ export class EnhancedGameController {
       const gameId = req.params.id;
       const userId = req.user.userId;
 
+      if (!gameId) {
+        return {
+          success: false,
+          error: GameErrorFactory.createValidationError('id', gameId, 'Game ID is required')
+        };
+      }
+
       // Check if game exists
-      const game = await this.gameService.getGameDetails(gameId || '');
+      const game = await this.gameService.getGameDetails(gameId);
       if (!game) {
         return {
           success: false,
@@ -586,7 +623,7 @@ export class EnhancedGameController {
             ? 'Left game and transferred host privileges'
             : 'Successfully left the game',
         gameStatus,
-        newHostId
+        ...(newHostId && { newHostId })
       };
 
       return {
@@ -613,8 +650,15 @@ export class EnhancedGameController {
       const gameId = req.params.id;
       const userId = req.user.userId;
 
+      if (!gameId) {
+        return {
+          success: false,
+          error: GameErrorFactory.createValidationError('id', gameId, 'Game ID is required')
+        };
+      }
+
       // Check if game exists
-      const game = await this.gameService.getGameDetails(gameId || '');
+      const game = await this.gameService.getGameDetails(gameId);
       if (!game) {
         return {
           success: false,

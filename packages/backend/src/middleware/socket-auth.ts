@@ -122,7 +122,10 @@ function getSocketIP(socket: Socket): string {
   const socketIP = socket.handshake.address;
 
   if (forwarded && typeof forwarded === 'string') {
-    return forwarded.split(',')[0].trim();
+    const firstIP = forwarded.split(',')[0];
+    if (firstIP) {
+      return firstIP.trim();
+    }
   }
   
   if (realIP && typeof realIP === 'string') {

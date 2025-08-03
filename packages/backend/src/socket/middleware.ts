@@ -20,7 +20,7 @@ const supabase = createClient(
 const activeConnections = new Map<string, {
   socket: Socket;
   lastSeen: number;
-  gameId?: string;
+  gameId?: string | undefined;
 }>();
 
 export async function authenticateSocket(
@@ -139,7 +139,11 @@ export function getActiveConnection(userId: string) {
 export function updateConnectionGame(userId: string, gameId?: string) {
   const connection = activeConnections.get(userId);
   if (connection) {
-    connection.gameId = gameId;
+    if (gameId !== undefined) {
+      connection.gameId = gameId;
+    } else {
+      connection.gameId = undefined;
+    }
     connection.lastSeen = Date.now();
   }
 }

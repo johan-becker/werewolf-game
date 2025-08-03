@@ -134,7 +134,7 @@ export class EnhancedErrorMiddleware {
     }
 
     // Include stack trace in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' && error.stack) {
       response.stack = error.stack;
     }
 
@@ -148,7 +148,7 @@ export class EnhancedErrorMiddleware {
     const validationErrors = error.errors.map(err => ({
       field: err.path.join('.'),
       message: err.message,
-      value: err.input
+      value: (err as any).received || 'invalid'
     }));
 
     const response: ErrorResponse = {
@@ -359,5 +359,4 @@ export class EnhancedErrorMiddleware {
   }
 }
 
-// Export the AppError class for use in other modules
-export { AppError };
+// AppError class is already exported above

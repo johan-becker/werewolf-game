@@ -85,12 +85,19 @@ export class ControllerResponseHandler {
   static createMetadata(req: TrackedRequest): ResponseMetadata {
     const executionTime = req.startTime ? Date.now() - req.startTime : undefined;
     
-    return {
-      requestId: req.requestId,
-      executionTime,
-      cacheStatus: 'bypass', // Can be overridden by specific controllers
-      timestamp: new Date().toISOString()
+    const metadata: ResponseMetadata = {
+      cacheStatus: 'bypass' // Can be overridden by specific controllers
     };
+    
+    if (req.requestId !== undefined) {
+      metadata.requestId = req.requestId;
+    }
+    
+    if (executionTime !== undefined) {
+      metadata.executionTime = executionTime;
+    }
+    
+    return metadata;
   }
 }
 
