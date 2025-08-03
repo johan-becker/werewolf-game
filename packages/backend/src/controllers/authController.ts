@@ -137,7 +137,7 @@ export class AuthController {
   }
 
   // Logout user with Supabase
-  static async logout(req: AuthRequest, res: Response): Promise<void> {
+  static async logout(req: Request, res: Response): Promise<void> {
     try {
       await AuthService.logout();
 
@@ -166,7 +166,7 @@ export class AuthController {
         return;
       }
 
-      const profile = await AuthService.getUserProfile(req.user.id);
+      const profile = await AuthService.getUserProfile(req.user.userId);
 
       res.status(200).json({
         success: true,

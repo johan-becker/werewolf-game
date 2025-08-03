@@ -15,10 +15,15 @@ import {
   AuthMetadata
 } from '../types/auth.types';
 
-// Legacy export for backward compatibility
+// Legacy export for backward compatibility - matches actual middleware output
 export interface AuthRequest extends Request {
-  user?: AuthenticatedRequest['user'];
-  authMetadata?: AuthMetadata;
+  user?: {
+    userId: string;
+    username: string;
+    email: string;
+    role: string;
+    permissions: string[];
+  };
 }
 
 const authService = AuthSecurityService.getInstance();
