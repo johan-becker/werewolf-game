@@ -74,7 +74,8 @@ describe('WerewolfStrategy', () => {
     });
 
     it('should not allow dead werewolf to use ability', () => {
-      mockWerewolfPlayer.isAlive = false;
+      mockWerewolfPlayer.is_alive = false;
+      mockWerewolfPlayer.isAlive = false; // Also set the camelCase version
 
       const result = werewolfStrategy.canUseNightAbility(
         mockWerewolfPlayer,

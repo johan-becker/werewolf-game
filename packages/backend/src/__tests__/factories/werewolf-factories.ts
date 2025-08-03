@@ -160,8 +160,10 @@ export class WerewolfPlayerFactory {
       id: faker.string.uuid(),
       game_id: faker.string.uuid(),
       user_id: faker.string.uuid(),
+      username: faker.person.firstName(),
       role: faker.helpers.arrayElement(werewolfRoles),
       is_alive: faker.datatype.boolean(0.8),
+      isAlive: faker.datatype.boolean(0.8), // camelCase version for compatibility
       is_host: faker.datatype.boolean(0.1),
       position: faker.number.int({ min: 0, max: 19 }),
       night_action_target: null,
@@ -182,10 +184,12 @@ export class WerewolfPlayerFactory {
   }
 
   static createWerewolf(overrides: Partial<any> = {}): any {
-    return this.create({
+    const player = this.create({
       role: WerewolfRole.WEREWOLF,
       werewolf_team: 'werewolf',
       pack_rank: faker.helpers.arrayElement(['alpha', 'beta', 'omega']),
+      is_alive: true,
+      isAlive: true,
       werewolf_abilities: {
         enhanced_senses: true,
         pack_communication: true,
@@ -194,13 +198,19 @@ export class WerewolfPlayerFactory {
       },
       ...overrides,
     });
+    
+    // Ensure both property formats exist
+    player.isAlive = player.is_alive ?? true;
+    return player;
   }
 
   static createVillager(overrides: Partial<any> = {}): any {
-    return this.create({
+    const player = this.create({
       role: WerewolfRole.VILLAGER,
       werewolf_team: 'villager',
       pack_rank: null,
+      is_alive: true,
+      isAlive: true,
       werewolf_abilities: {
         enhanced_senses: faker.datatype.boolean(0.1),
         pack_communication: false,
@@ -209,6 +219,10 @@ export class WerewolfPlayerFactory {
       },
       ...overrides,
     });
+    
+    // Ensure both property formats exist
+    player.isAlive = player.is_alive ?? true;
+    return player;
   }
 
   static createAlphaWerewolf(overrides: Partial<any> = {}): any {
