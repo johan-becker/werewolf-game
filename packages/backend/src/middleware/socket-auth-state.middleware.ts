@@ -453,7 +453,7 @@ export class SocketAuthenticationStateMachine {
   }
 
   private challengeAuthentication(socket: AuthenticatedSocket): void {
-    socket.emit('auth:challenge', (response) => {
+    socket.emit('auth:challenge', (response: any) => {
       // Client should respond with authentication token
     });
   }
@@ -529,7 +529,8 @@ export class SocketAuthenticationStateMachine {
     const socketIP = socket.handshake.address;
 
     if (forwarded && typeof forwarded === 'string') {
-      return forwarded.split(',')[0].trim();
+      const firstIP = forwarded.split(',')[0];
+      return firstIP?.trim() || '';
     }
     
     if (realIP && typeof realIP === 'string') {
