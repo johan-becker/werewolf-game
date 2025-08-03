@@ -147,7 +147,7 @@ export class EnhancedGameController {
           status: game.status,
           maxPlayers: game.maxPlayers,
           isPrivate: game.isPrivate ?? false,
-          createdAt: typeof game.createdAt === 'string' ? game.createdAt : game.createdAt.toISOString(),
+          createdAt: game.createdAt instanceof Date ? game.createdAt.toISOString() : game.createdAt,
           hostId: game.creatorId
         },
         playerCount: 1
@@ -215,7 +215,7 @@ export class EnhancedGameController {
           playerCount: game.playerCount || 0,
           maxPlayers: game.maxPlayers,
           isPrivate: game.isPrivate ?? false,
-          createdAt: typeof game.createdAt === 'string' ? game.createdAt : game.createdAt.toISOString(),
+          createdAt: game.createdAt instanceof Date ? game.createdAt.toISOString() : game.createdAt,
           hostName: game.hostName || 'Unknown'
         })),
         pagination: {
@@ -249,7 +249,12 @@ export class EnhancedGameController {
     try {
       const gameId = req.params.id;
       
-      // Game ID validation handled by middleware
+      if (!gameId) {
+        return {
+          success: false,
+          error: GameErrorFactory.createGameNotFoundError('undefined', 'id')
+        };
+      }
       
       const game = await this.gameService.getGameDetails(gameId);
       
@@ -282,9 +287,9 @@ export class EnhancedGameController {
         phase: game.phase,
         playerCount: game.players?.length || 0,
         maxPlayers: game.maxPlayers,
-        isPrivate: game.isPrivate,
+        isPrivate: game.isPrivate ?? false,
         createdAt: game.createdAt.toISOString(),
-        startedAt: game.startedAt?.toISOString(),
+        ...(game.startedAt && { startedAt: game.startedAt.toISOString() }),
         host: {
           id: game.creatorId,
           username: game.hostName || 'Unknown'
