@@ -436,7 +436,7 @@ export class EnhancedGameController {
         },
         player: {
           id: userId,
-          username: req.user.username || (req.user.email ? req.user.email.split('@')[0] : 'Unknown'),
+          username: req.user.username,
           joinedAt: new Date().toISOString(),
           isHost: updatedGame.creatorId === userId
         },
@@ -514,10 +514,11 @@ export class EnhancedGameController {
 
       // Reuse the join logic by calling joinGame with the found game ID
       // This ensures consistent validation and error handling
-      return await this.joinGame(
-        { ...req, params: { ...req.params, id: game.id } } as AuthenticatedRequest,
-        res
-      );
+      const modifiedReq = Object.assign(Object.create(Object.getPrototypeOf(req)), req, {
+        params: { ...req.params, id: game.id }
+      }) as AuthenticatedRequest;
+      
+      return await this.joinGame(modifiedReq, res);
 
     } catch (error: any) {
       return {
@@ -537,6 +538,13 @@ export class EnhancedGameController {
     try {
       const gameId = req.params.id;
       const userId = req.user.userId;
+
+      if (!gameId) {
+        return {
+          success: false,
+          error: GameErrorFactory.createValidationError('Game ID is required')
+        };
+      }
 
       // Check if game exists
       const game = await this.gameService.getGameDetails(gameId);
@@ -601,7 +609,7 @@ export class EnhancedGameController {
             ? 'Left game and transferred host privileges'
             : 'Successfully left the game',
         gameStatus,
-        newHostId
+        ...(newHostId && { newHostId })
       };
 
       return {
@@ -627,6 +635,13 @@ export class EnhancedGameController {
     try {
       const gameId = req.params.id;
       const userId = req.user.userId;
+
+      if (!gameId) {
+        return {
+          success: false,
+          error: GameErrorFactory.createValidationError('Game ID is required')
+        };
+      }
 
       // Check if game exists
       const game = await this.gameService.getGameDetails(gameId);
