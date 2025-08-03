@@ -1,5 +1,5 @@
-// Werewolf Game Database Schema
-// PostgreSQL database with Prisma ORM
+// Werewolf Game Database Schema - Supabase Compatible
+// PostgreSQL database with Prisma ORM aligned to Supabase auth
 
 generator client {
   provider = "prisma-client-js"
@@ -14,7 +14,7 @@ datasource db {
 // Enums
 enum GameStatus {
   WAITING
-  RUNNING
+  IN_PROGRESS
   FINISHED
 }
 
@@ -23,118 +23,250 @@ enum GamePhase {
   NIGHT
 }
 
-// User entity - represents registered players
-model User {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  username     String    @unique @db.VarChar(50)
-  email        String    @unique @db.VarChar(255)
-  passwordHash String    @map("password_hash") @db.VarChar(255)
-  isActive     Boolean   @default(true) @map("is_active")
-  gamesPlayed  Int       @default(0) @map("games_played")
-  gamesWon     Int       @default(0) @map("games_won")
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  lastLogin    DateTime? @map("last_login") @db.Timestamptz
+// Klassische Werwolf-Rollen
+enum WerewolfRole {
+  VILLAGER // Dorfbewohner
+  SEER // Seherin
+  WITCH // Hexe
+  HUNTER // Jäger
+  CUPID // Amor
+  LITTLE_GIRL // Mädchen
+  WEREWOLF // Werwolf
+}
 
-  // Relations
-  createdGames  Game[]         @relation("GameCreator")
-  players       Player[]
-  gameLogs      GameLog[]
-  refreshTokens RefreshToken[]
+enum Team {
+  VILLAGE // Dorfbewohner-Team
+  WEREWOLF // Werwolf-Team
+  LOVERS // Verliebte (Sonderteam)
+}
 
-  @@index([username])
-  @@index([email])
-  @@index([createdAt])
-  @@map("users")
+enum NightPhase {
+  CUPID_PHASE // Amor bestimmt Verliebte (nur Nacht 1)
+  SEER_PHASE // Seherin untersucht
+  WEREWOLF_PHASE // Werwölfe töten (Mädchen kann spionieren)
+  WITCH_PHASE // Hexe heilt/vergiftet
+}
+
+enum ActionType {
+  SEER_INVESTIGATE
+  WEREWOLF_KILL
+  WITCH_HEAL
+  WITCH_POISON
+  CUPID_LINK
+  LITTLE_GIRL_SPY
+  VILLAGE_VOTE
+  HUNTER_SHOOT
+  NO_ACTION
+}
+
+enum ChatChannel {
+  LOBBY
+  DAY
+  NIGHT
+  DEAD
+  SYSTEM
+}
+
+enum MessageType {
+  TEXT
+  SYSTEM
+  JOIN
+  LEAVE
+  DEATH
+  ROLE_REVEAL
 }
 
 // Game entity - represents game rooms
 model Game {
-  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String     @db.VarChar(100)
-  code           String     @unique @db.VarChar(6)
-  status         GameStatus @default(WAITING)
-  maxPlayers     Int        @default(12) @map("max_players")
-  currentPlayers Int        @default(0) @map("current_players")
-  gameSettings   Json       @map("game_settings") @db.JsonB
-  creatorId      String     @map("creator_id") @db.Uuid
-  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz
-  startedAt      DateTime?  @map("started_at") @db.Timestamptz
-  finishedAt     DateTime?  @map("finished_at") @db.Timestamptz
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String      @db.VarChar(100)
+  code            String      @unique @db.VarChar(6)
+  status          GameStatus  @default(WAITING)
+  phase           GamePhase?
+  night_phase     NightPhase?
+  day_number      Int         @default(1)
+  max_players     Int         @default(12)
+  current_players Int         @default(0)
+  game_settings   Json        @db.JsonB
+  winner          String?     @db.VarChar(20) // VILLAGE_WINS, WEREWOLVES_WIN, LOVERS_WIN
+  creator_id      String      @db.Uuid
+  created_at      DateTime    @default(now()) @db.Timestamptz
+  started_at      DateTime?   @db.Timestamptz
+  finished_at     DateTime?   @db.Timestamptz
+  updated_at      DateTime    @updatedAt @db.Timestamptz
 
   // Relations
-  creator  User      @relation("GameCreator", fields: [creatorId], references: [id], onDelete: Cascade)
-  players  Player[]
-  gameLogs GameLog[]
+  creator       Profile         @relation("GameCreator", fields: [creator_id], references: [id], onDelete: Cascade)
+  players       Player[]
+  game_logs     GameLog[]
+  chat_messages ChatMessage[]
+  role_config   GameRoleConfig?
+  night_actions NightAction[]
 
   @@index([code])
   @@index([status])
-  @@index([creatorId])
-  @@index([createdAt])
+  @@index([creator_id])
+  @@index([created_at])
   @@map("games")
 }
 
 // Player entity - represents a user's participation in a specific game
 model Player {
-  userId       String    @map("user_id") @db.Uuid
-  gameId       String    @map("game_id") @db.Uuid
-  role         String?   @db.VarChar(50)
-  isAlive      Boolean   @default(true) @map("is_alive")
-  isHost       Boolean   @default(false) @map("is_host")
-  joinedAt     DateTime  @default(now()) @map("joined_at") @db.Timestamptz
-  eliminatedAt DateTime? @map("eliminated_at") @db.Timestamptz
+  user_id       String        @db.Uuid
+  game_id       String        @db.Uuid
+  role          WerewolfRole?
+  team          Team?
+  is_alive      Boolean       @default(true)
+  is_host       Boolean       @default(false)
+  joined_at     DateTime      @default(now()) @db.Timestamptz
+  eliminated_at DateTime?     @db.Timestamptz
+  votes_cast    Int           @default(0)
+
+  // Werwolf-spezifische Zuständer
+  lover_id          String? @db.Uuid // Verliebter Partner
+  has_heal_potion   Boolean @default(false) // Hexe Heiltrank
+  has_poison_potion Boolean @default(false) // Hexe Gifttrank
+  can_shoot         Boolean @default(false) // Jäger Schuss
+  has_spied         Boolean @default(false) // Mädchen Spionage
+  spy_risk          Int     @default(10) // Mädchen Entdeckungsrisiko
+  is_protected      Boolean @default(false) // Schutz vor Tod
 
   // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user          Profile       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  game          Game          @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  game_logs     GameLog[]
+  night_actions NightAction[] @relation("ActionPerformer")
 
-  @@id([userId, gameId])
-  @@index([gameId])
-  @@index([userId])
-  @@index([role])
+  @@id([user_id, game_id])
+  @@index([game_id])
+  @@index([user_id])
   @@map("players")
 }
 
-// GameLog entity - tracks all game events and actions
+// Game log for audit trail and game history
 model GameLog {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  gameId      String    @map("game_id") @db.Uuid
-  roundNumber Int       @map("round_number")
-  phase       GamePhase
-  actionType  String    @map("action_type") @db.VarChar(50)
-  actorId     String?   @map("actor_id") @db.Uuid
-  targetId    String?   @map("target_id") @db.Uuid
-  details     Json?     @db.JsonB
-  timestamp   DateTime  @default(now()) @db.Timestamptz
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_id    String     @db.Uuid
+  user_id    String?    @db.Uuid
+  player_id  String?    @db.Uuid // Composite key reference
+  action     String     @db.VarChar(100)
+  details    Json?      @db.JsonB
+  phase      GamePhase?
+  day_number Int?
+  created_at DateTime   @default(now()) @db.Timestamptz
 
   // Relations
-  game  Game  @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  game   Game     @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  user   Profile? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  player Player?  @relation(fields: [player_id, game_id], references: [user_id, game_id], onDelete: SetNull)
 
-  @@index([gameId])
-  @@index([roundNumber])
-  @@index([phase])
-  @@index([actionType])
-  @@index([timestamp])
+  @@index([game_id])
+  @@index([user_id])
+  @@index([created_at])
   @@map("game_logs")
 }
 
-// RefreshToken entity - manages JWT refresh tokens
-model RefreshToken {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  token        String   @unique @db.VarChar(500)
-  userId       String   @map("user_id") @db.Uuid
-  tokenVersion Int      @default(0) @map("token_version")
-  expiresAt    DateTime @map("expires_at") @db.Timestamptz
-  isRevoked    Boolean  @default(false) @map("is_revoked")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+// Chat message for persistent chat history
+model ChatMessage {
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_id    String?     @db.Uuid // null for lobby messages
+  user_id    String      @db.Uuid
+  channel    ChatChannel
+  type       MessageType @default(TEXT)
+  content    String      @db.Text
+  mentions   String[]    @default([]) // Array of mentioned usernames
+  edited     Boolean     @default(false)
+  edited_at  DateTime?   @db.Timestamptz
+  created_at DateTime    @default(now()) @db.Timestamptz
 
   // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game?   @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  user Profile @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@index([token])
-  @@index([expiresAt])
-  @@index([isRevoked])
-  @@map("refresh_tokens")
+  @@index([game_id])
+  @@index([user_id])
+  @@index([channel])
+  @@index([created_at])
+  @@index([type])
+  @@map("chat_messages")
+}
+
+// Spielleiter-Rollen-Konfiguration
+model GameRoleConfig {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_id     String   @unique @db.Uuid
+  villagers   Int      @default(0)
+  werewolves  Int      @default(1)
+  seer        Boolean  @default(false)
+  witch       Boolean  @default(false)
+  hunter      Boolean  @default(false)
+  cupid       Boolean  @default(false)
+  little_girl Boolean  @default(false)
+  created_by  String   @db.Uuid
+  created_at  DateTime @default(now()) @db.Timestamptz
+
+  // Relations
+  game    Game    @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  creator Profile @relation(fields: [created_by], references: [id], onDelete: Cascade)
+
+  @@index([game_id])
+  @@index([created_by])
+  @@map("game_role_configs")
+}
+
+// Nacht-Aktionen für Audit-Trail
+model NightAction {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_id          String     @db.Uuid
+  player_id        String     @db.Uuid
+  action_type      ActionType
+  target_id        String?    @db.Uuid
+  second_target_id String?    @db.Uuid // Für Amor (zwei Ziele)
+  phase            NightPhase
+  day_number       Int
+  resolved         Boolean    @default(false)
+  success          Boolean?
+  result_message   String?    @db.Text
+  revealed_info    Json?      @db.JsonB // Für Seher-Ergebnisse
+  effects          Json?      @db.JsonB // Deaths, protections, etc.
+  created_at       DateTime   @default(now()) @db.Timestamptz
+  resolved_at      DateTime?  @db.Timestamptz
+
+  // Relations
+  game      Game   @relation(fields: [game_id], references: [id], onDelete: Cascade)
+  performer Player @relation("ActionPerformer", fields: [player_id, game_id], references: [user_id, game_id], onDelete: Cascade)
+
+  @@index([game_id])
+  @@index([player_id])
+  @@index([phase])
+  @@index([day_number])
+  @@index([action_type])
+  @@index([resolved])
+  @@index([created_at])
+  @@map("night_actions")
+}
+
+// Erweiterte Profile-Relations
+model Profile {
+  id         String    @id @db.Uuid // References auth.users(id)
+  username   String?   @unique @db.VarChar(50)
+  full_name  String?   @db.VarChar(100)
+  avatar_url String?   @db.VarChar(500)
+  updated_at DateTime? @updatedAt @db.Timestamptz
+  created_at DateTime  @default(now()) @db.Timestamptz
+
+  // Game statistics
+  games_played Int @default(0)
+  games_won    Int @default(0)
+
+  // Relations
+  created_games Game[]           @relation("GameCreator")
+  players       Player[]
+  game_logs     GameLog[]
+  chat_messages ChatMessage[]
+  role_configs  GameRoleConfig[]
+
+  @@index([username])
+  @@index([created_at])
+  @@map("profiles")
 }

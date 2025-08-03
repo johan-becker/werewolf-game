@@ -27,7 +27,20 @@
       "Bash(true)",
       "Bash(npm run:*)",
       "Bash(psql:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx tsc:*)",
+      "Bash(find:*)",
+      "Bash(git pull:*)",
+      "Bash(find:*)",
+      "Bash(npx next build:*)",
+      "Bash(ls:*)",
+      "Bash(npx typescript:*)",
+      "Bash(ls:*)",
+      "Bash(env)",
+      "Bash(unset TS_NODE_PROJECT)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   }

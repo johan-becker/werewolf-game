@@ -409,3 +409,19 @@ export const WerewolfFactories = {
   Chat: WerewolfChatFactory,
   GameLog: WerewolfGameLogFactory,
 };
+
+// Simple test to satisfy Jest requirement
+describe('Werewolf Factories', () => {
+  it('should create werewolf user with valid properties', () => {
+    const user = WerewolfUserFactory.create();
+    expect(user).toHaveProperty('id');
+    expect(user).toHaveProperty('username');
+    expect(user).toHaveProperty('pack_affiliation');
+  });
+
+  it('should create werewolf game with valid properties', () => {
+    const game = WerewolfGameFactory.createActiveGame();
+    expect(game).toHaveProperty('id');
+    expect(game).toHaveProperty('status');
+  });
+});

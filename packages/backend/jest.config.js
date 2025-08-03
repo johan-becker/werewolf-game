@@ -42,6 +42,8 @@ module.exports = {
     },
   },
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  // Load test environment variables
+  setupFiles: ['<rootDir>/src/__tests__/env-setup.ts'],
   // Fixed module name mapping with proper Jest configuration key
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

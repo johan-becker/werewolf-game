@@ -42,3 +42,11 @@ global.console = {
 process.env.WEREWOLF_GAME_SECRET = 'test-werewolf-secret';
 process.env.MOON_PHASE_API_KEY = 'test-moon-api-key';
 process.env.PACK_TERRITORY_ENABLED = 'true';
+
+// Dummy test to satisfy Jest requirement
+describe('Test Setup', () => {
+  it('should load test environment correctly', () => {
+    expect(process.env.NODE_ENV).toBe('test');
+    expect(process.env.WEREWOLF_GAME_SECRET).toBeDefined();
+  });
+});

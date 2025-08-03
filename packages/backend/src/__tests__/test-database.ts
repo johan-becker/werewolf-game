@@ -170,6 +170,10 @@ export class TestDatabaseManager {
 
       for (let i = 0; i < gameUsers.length; i++) {
         const user = gameUsers[i];
+        if (!user?.id) {
+          throw new Error(`User at index ${i} is missing or has no id`);
+        }
+        
         const role = i === 0 ? WerewolfRole.WEREWOLF : faker.helpers.arrayElement(werewolfRoles);
         
         const player = await this.prisma.player.create({
