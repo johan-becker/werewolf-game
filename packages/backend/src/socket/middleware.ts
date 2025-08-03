@@ -139,7 +139,7 @@ export function getActiveConnection(userId: string) {
 export function updateConnectionGame(userId: string, gameId?: string) {
   const connection = activeConnections.get(userId);
   if (connection) {
-    connection.gameId = gameId || undefined;
+    connection.gameId = gameId;
     connection.lastSeen = Date.now();
   }
 }
