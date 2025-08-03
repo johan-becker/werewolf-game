@@ -166,7 +166,7 @@ function getClientIP(req: Request): string {
   const socketIp = req.socket?.remoteAddress;
   
   const ip = forwarded || realIp || connectionIp || socketIp || 'unknown';
-  return typeof ip === 'string' ? ip.split(',')[0].trim() : 'unknown';
+  return typeof ip === 'string' ? ip.split(',')[0]?.trim() || 'unknown' : 'unknown';
 }
 
 /**
