@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Werewolf Game - Online multiplayer werewolf/mafia game
+Sitemap: /sitemap.xml

@@ -50,6 +50,9 @@ RUN npm ci --workspaces --loglevel=verbose || \
 COPY packages/frontend ./packages/frontend
 COPY packages/shared ./packages/shared
 
+# Ensure public directory exists for Next.js
+RUN mkdir -p /app/packages/frontend/public
+
 # Build shared package first
 WORKDIR /app/packages/shared
 RUN npm run build || echo "Shared build skipped"
@@ -69,6 +72,7 @@ WORKDIR /app
 # Only copy necessary files
 COPY --from=builder --chown=nodejs:nodejs /app/packages/frontend/.next/standalone ./
 COPY --from=builder --chown=nodejs:nodejs /app/packages/frontend/.next/static ./packages/frontend/.next/static
+# Copy public directory
 COPY --from=builder --chown=nodejs:nodejs /app/packages/frontend/public ./packages/frontend/public
 
 USER nodejs
