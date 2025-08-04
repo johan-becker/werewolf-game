@@ -4,6 +4,17 @@ import { AuthService } from '../services/authService';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 
+// Helper function to safely extract error message
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'An unknown error occurred';
+};
+
 export class UserController {
   // Get public user profile by ID
   static async getPublicProfile(req: Request, res: Response): Promise<void> {
@@ -23,10 +34,11 @@ export class UserController {
         success: true,
         user: profile,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get public profile controller error:', error);
 
-      if (error.message.includes('not found')) {
+      const errorMessage = getErrorMessage(error);
+      if (errorMessage.includes('not found')) {
         res.status(404).json({
           error: 'User not found',
         });
@@ -34,7 +46,7 @@ export class UserController {
       }
 
       res.status(500).json({
-        error: error.message || 'Failed to get user profile',
+        error: errorMessage || 'Failed to get user profile',
       });
     }
   }
@@ -89,10 +101,11 @@ export class UserController {
         message: 'Profile updated successfully',
         user: updatedProfile,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update profile controller error:', error);
+      const errorMessage = getErrorMessage(error);
 
-      if (error.message.includes('duplicate') || error.message.includes('unique')) {
+      if (errorMessage.includes('duplicate') || errorMessage.includes('unique')) {
         res.status(409).json({
           error: 'Username already taken',
         });
@@ -100,7 +113,7 @@ export class UserController {
       }
 
       res.status(500).json({
-        error: error.message || 'Failed to update profile',
+        error: errorMessage || 'Failed to update profile',
       });
     }
   }
@@ -121,10 +134,11 @@ export class UserController {
         success: true,
         user: profile,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get my profile controller error:', error);
+      const errorMessage = getErrorMessage(error);
       res.status(500).json({
-        error: error.message || 'Failed to get user profile',
+        error: errorMessage || 'Failed to get user profile',
       });
     }
   }

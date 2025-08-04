@@ -55,9 +55,9 @@ export class EnhancedGameController {
       date &&
       typeof date === 'object' &&
       'toISOString' in date &&
-      typeof (date as any).toISOString === 'function'
+      typeof (date as { toISOString?: () => string }).toISOString === 'function'
     ) {
-      return (date as any).toISOString();
+      return (date as { toISOString: () => string }).toISOString();
     }
     return new Date().toISOString();
   }
