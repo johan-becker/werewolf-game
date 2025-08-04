@@ -1,13 +1,9 @@
-import { Card } from '@/components/ui/card'
-import { MoonPhaseIndicator } from '@/components/werewolf/moon-phase-indicator'
-import { Moon } from 'lucide-react'
-import Link from 'next/link'
+import { Card } from '@/components/ui/card';
+import { MoonPhaseIndicator } from '@/components/werewolf/moon-phase-indicator';
+import { Moon } from 'lucide-react';
+import Link from 'next/link';
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding and Moon Phase */}
@@ -18,18 +14,17 @@ export default function AuthLayout({
             <span className="font-display font-bold text-2xl">Werewolf Game</span>
           </Link>
         </div>
-        
+
         <div className="space-y-8">
           <div className="flex justify-center">
             <MoonPhaseIndicator size="large" />
           </div>
-          
+
           <div className="text-center space-y-4">
-            <h2 className="font-display text-3xl font-bold text-white">
-              Join the Pack
-            </h2>
+            <h2 className="font-display text-3xl font-bold text-white">Join the Pack</h2>
             <p className="text-moonlight-200 text-lg max-w-md mx-auto">
-              Embrace your inner wolf. Form alliances, claim territories, and survive the lunar cycles.
+              Embrace your inner wolf. Form alliances, claim territories, and survive the lunar
+              cycles.
             </p>
           </div>
         </div>
@@ -55,9 +50,7 @@ export default function AuthLayout({
             </div>
           </div>
 
-          <Card className="card-werewolf p-8">
-            {children}
-          </Card>
+          <Card className="card-werewolf p-8">{children}</Card>
 
           {/* Footer links */}
           <div className="text-center space-y-4">
@@ -79,5 +72,5 @@ export default function AuthLayout({
         </div>
       </div>
     </div>
-  )
+  );
 }

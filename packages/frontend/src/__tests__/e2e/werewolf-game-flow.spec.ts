@@ -10,7 +10,7 @@ test.describe('Werewolf Game Complete Flow', () => {
     // Create browser contexts for host and player
     const hostContext = await browser.newContext();
     const playerContext = await browser.newContext();
-    
+
     hostPage = await hostContext.newPage();
     playerPage = await playerContext.newPage();
   });
@@ -24,12 +24,12 @@ test.describe('Werewolf Game Complete Flow', () => {
       // Fill werewolf game details
       await hostPage.fill('[data-testid="game-name-input"]', 'Moonlit Village Terror');
       await hostPage.selectOption('[data-testid="max-players-select"]', '8');
-      
+
       // Configure werewolf settings
       await hostPage.check('[data-testid="pack-hunting-enabled"]');
       await hostPage.check('[data-testid="moon-phase-effects"]');
       await hostPage.check('[data-testid="territory-bonuses"]');
-      
+
       // Set werewolf ratio
       await hostPage.fill('[data-testid="werewolf-ratio-input"]', '0.25');
 
@@ -38,11 +38,11 @@ test.describe('Werewolf Game Complete Flow', () => {
 
       // Verify game creation success
       await expect(hostPage.locator('[data-testid="game-created-modal"]')).toBeVisible();
-      
+
       // Extract and verify game code
       const gameCodeElement = hostPage.locator('[data-testid="game-code"]');
       gameCode = (await gameCodeElement.textContent()) || '';
-      
+
       expect(gameCode).toMatch(/^[A-Z0-9]{6,8}$/);
       expect(gameCode).toContain('WOLF'); // Should contain werewolf prefix
 
@@ -56,7 +56,7 @@ test.describe('Werewolf Game Complete Flow', () => {
       await expect(hostPage.locator('[data-testid="game-lobby"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="player-list"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="game-settings-panel"]')).toBeVisible();
-      
+
       // Check werewolf-specific UI elements
       await expect(hostPage.locator('[data-testid="moon-phase-display"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="pack-formation-preview"]')).toBeVisible();
@@ -71,7 +71,7 @@ test.describe('Werewolf Game Complete Flow', () => {
       // Player navigation and join process
       await playerPage.goto('/');
       await playerPage.click('[data-testid="join-game-button"]');
-      
+
       // Enter game code
       await playerPage.fill('[data-testid="game-code-input"]', gameCode);
       await playerPage.click('[data-testid="join-game-submit"]');
@@ -94,22 +94,26 @@ test.describe('Werewolf Game Complete Flow', () => {
       for (let i = 0; i < 3; i++) {
         const context = await hostPage.context().browser()?.newContext();
         const newPlayerPage = await context!.newPage();
-        
+
         await newPlayerPage.goto('/');
         await newPlayerPage.click('[data-testid="join-game-button"]');
         await newPlayerPage.fill('[data-testid="game-code-input"]', gameCode);
         await newPlayerPage.click('[data-testid="join-game-submit"]');
-        
+
         await expect(newPlayerPage.locator('[data-testid="game-lobby"]')).toBeVisible();
       }
 
       // Verify minimum players reached
       await expect(hostPage.locator('[data-testid="player-count"]')).toHaveText('5/8');
       await expect(hostPage.locator('[data-testid="start-game-button"]')).toBeEnabled();
-      
+
       // Check pack formation preview
-      await expect(hostPage.locator('[data-testid="pack-formation-preview"]')).toContainText('1 Werewolf');
-      await expect(hostPage.locator('[data-testid="pack-formation-preview"]')).toContainText('4 Villagers');
+      await expect(hostPage.locator('[data-testid="pack-formation-preview"]')).toContainText(
+        '1 Werewolf'
+      );
+      await expect(hostPage.locator('[data-testid="pack-formation-preview"]')).toContainText(
+        '4 Villagers'
+      );
     });
   });
 
@@ -123,12 +127,14 @@ test.describe('Werewolf Game Complete Flow', () => {
       await expect(hostPage.locator('[data-testid="role-assignment-animation"]')).toBeVisible();
 
       // Wait for role assignment completion
-      await hostPage.waitForSelector('[data-testid="role-assigned-notification"]', { timeout: 10000 });
+      await hostPage.waitForSelector('[data-testid="role-assigned-notification"]', {
+        timeout: 10000,
+      });
 
       // Verify transition to game phase
       await expect(hostPage.locator('[data-testid="game-board"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="day-phase-indicator"]')).toBeVisible();
-      
+
       // Check werewolf-specific game elements
       await expect(hostPage.locator('[data-testid="moon-phase-tracker"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="transformation-timer"]')).toBeVisible();
@@ -138,7 +144,7 @@ test.describe('Werewolf Game Complete Flow', () => {
     test('should display role information and werewolf abilities', async () => {
       // Check role card display
       await expect(hostPage.locator('[data-testid="role-card"]')).toBeVisible();
-      
+
       // Verify role-specific UI elements
       const roleCard = hostPage.locator('[data-testid="role-card"]');
       await expect(roleCard.locator('[data-testid="role-name"]')).toBeVisible();
@@ -211,7 +217,7 @@ test.describe('Werewolf Game Complete Flow', () => {
       // Verify night phase UI
       await expect(hostPage.locator('[data-testid="night-phase-indicator"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="night-atmosphere"]')).toBeVisible();
-      
+
       // Check werewolf-specific night elements
       await expect(hostPage.locator('[data-testid="moon-glow-effect"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="howling-wind-audio"]')).toBeAttached();
@@ -222,13 +228,13 @@ test.describe('Werewolf Game Complete Flow', () => {
       // Check if current player is werewolf
       const roleCard = hostPage.locator('[data-testid="role-card"]');
       const roleText = await roleCard.locator('[data-testid="role-name"]').textContent();
-      
+
       if (roleText?.toLowerCase().includes('werewolf')) {
         // Verify werewolf night interface
         await expect(hostPage.locator('[data-testid="werewolf-night-actions"]')).toBeVisible();
         await expect(hostPage.locator('[data-testid="kill-target-selector"]')).toBeVisible();
         await expect(hostPage.locator('[data-testid="pack-coordination-panel"]')).toBeVisible();
-        
+
         // Check werewolf abilities
         await expect(hostPage.locator('[data-testid="night-vision-toggle"]')).toBeVisible();
         await expect(hostPage.locator('[data-testid="pack-communication"]')).toBeVisible();
@@ -237,7 +243,7 @@ test.describe('Werewolf Game Complete Flow', () => {
         // Test target selection
         await hostPage.click('[data-testid="kill-target-selector"] .player-option:first-child');
         await expect(hostPage.locator('[data-testid="confirm-kill-button"]')).toBeEnabled();
-        
+
         // Confirm werewolf action
         await hostPage.click('[data-testid="confirm-kill-button"]');
         await expect(hostPage.locator('[data-testid="action-confirmed"]')).toBeVisible();
@@ -252,17 +258,19 @@ test.describe('Werewolf Game Complete Flow', () => {
       // Check for seer, witch, hunter abilities
       const roleCard = hostPage.locator('[data-testid="role-card"]');
       const roleText = await roleCard.locator('[data-testid="role-name"]').textContent();
-      
+
       if (roleText?.toLowerCase().includes('seer')) {
         await expect(hostPage.locator('[data-testid="seer-vision-interface"]')).toBeVisible();
         await expect(hostPage.locator('[data-testid="investigate-target-selector"]')).toBeVisible();
-        
+
         // Test seer vision
-        await hostPage.click('[data-testid="investigate-target-selector"] .player-option:first-child');
+        await hostPage.click(
+          '[data-testid="investigate-target-selector"] .player-option:first-child'
+        );
         await hostPage.click('[data-testid="use-seer-ability"]');
         await expect(hostPage.locator('[data-testid="vision-result"]')).toBeVisible();
       }
-      
+
       if (roleText?.toLowerCase().includes('witch')) {
         await expect(hostPage.locator('[data-testid="witch-potions"]')).toBeVisible();
         await expect(hostPage.locator('[data-testid="heal-potion"]')).toBeVisible();
@@ -275,11 +283,11 @@ test.describe('Werewolf Game Complete Flow', () => {
     test('should handle day/night cycle transitions', async () => {
       // Wait for dawn transition
       await hostPage.waitForSelector('[data-testid="dawn-transition"]', { timeout: 45000 });
-      
+
       // Verify night results display
       await expect(hostPage.locator('[data-testid="night-results-modal"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="casualties-list"]')).toBeVisible();
-      
+
       // Check werewolf-themed death announcements
       await expect(hostPage.locator('[data-testid="werewolf-attack-description"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="victim-found-animation"]')).toBeVisible();
@@ -298,7 +306,7 @@ test.describe('Werewolf Game Complete Flow', () => {
       // Check werewolf pack status
       await expect(hostPage.locator('[data-testid="pack-status-indicator"]')).toBeVisible();
       await expect(hostPage.locator('[data-testid="werewolf-victory-progress"]')).toBeVisible();
-      
+
       // Verify territory control updates
       await expect(hostPage.locator('[data-testid="territory-control-map"]')).toBeVisible();
     });
@@ -307,25 +315,29 @@ test.describe('Werewolf Game Complete Flow', () => {
       // Continue game until win condition is met
       // This would involve multiple day/night cycles
       // For the test, we'll simulate reaching a win condition
-      
+
       // Check for game end scenarios
       const gameEndModal = hostPage.locator('[data-testid="game-end-modal"]');
-      
+
       if (await gameEndModal.isVisible()) {
         // Verify win condition display
         await expect(hostPage.locator('[data-testid="winning-team"]')).toBeVisible();
         await expect(hostPage.locator('[data-testid="victory-description"]')).toBeVisible();
-        
+
         // Check werewolf-specific victory elements
         const winningTeam = await hostPage.locator('[data-testid="winning-team"]').textContent();
-        
+
         if (winningTeam?.toLowerCase().includes('werewolf')) {
           await expect(hostPage.locator('[data-testid="werewolf-victory-howl"]')).toBeVisible();
           await expect(hostPage.locator('[data-testid="pack-dominance-animation"]')).toBeVisible();
           await expect(hostPage.locator('[data-testid="moon-victory-background"]')).toBeVisible();
         } else {
-          await expect(hostPage.locator('[data-testid="village-victory-celebration"]')).toBeVisible();
-          await expect(hostPage.locator('[data-testid="werewolf-elimination-message"]')).toBeVisible();
+          await expect(
+            hostPage.locator('[data-testid="village-victory-celebration"]')
+          ).toBeVisible();
+          await expect(
+            hostPage.locator('[data-testid="werewolf-elimination-message"]')
+          ).toBeVisible();
         }
 
         // Verify game statistics
@@ -341,11 +353,18 @@ test.describe('Werewolf Game Complete Flow', () => {
       // Check ARIA labels and roles
       await expect(hostPage.locator('[data-testid="game-board"]')).toHaveAttribute('role', 'main');
       await expect(hostPage.locator('[data-testid="player-list"]')).toHaveAttribute('role', 'list');
-      await expect(hostPage.locator('[data-testid="chat-messages"]')).toHaveAttribute('role', 'log');
+      await expect(hostPage.locator('[data-testid="chat-messages"]')).toHaveAttribute(
+        'role',
+        'log'
+      );
 
       // Verify descriptive text for werewolf elements
-      await expect(hostPage.locator('[data-testid="moon-phase-indicator"]')).toHaveAttribute('aria-label');
-      await expect(hostPage.locator('[data-testid="pack-status"]')).toHaveAttribute('aria-describedby');
+      await expect(hostPage.locator('[data-testid="moon-phase-indicator"]')).toHaveAttribute(
+        'aria-label'
+      );
+      await expect(hostPage.locator('[data-testid="pack-status"]')).toHaveAttribute(
+        'aria-describedby'
+      );
 
       // Check keyboard navigation
       await hostPage.keyboard.press('Tab');
@@ -367,7 +386,9 @@ test.describe('Werewolf Game Complete Flow', () => {
 
       // Verify responsive werewolf theme elements
       await expect(hostPage.locator('[data-testid="mobile-moon-phase"]')).toBeVisible();
-      await expect(hostPage.locator('[data-testid="mobile-transformation-indicator"]')).toBeVisible();
+      await expect(
+        hostPage.locator('[data-testid="mobile-transformation-indicator"]')
+      ).toBeVisible();
     });
   });
 

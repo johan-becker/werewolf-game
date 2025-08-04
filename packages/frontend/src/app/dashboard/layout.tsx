@@ -1,13 +1,9 @@
-import { Suspense } from 'react'
-import { DashboardNav } from '@/components/dashboard/dashboard-nav'
-import { DashboardHeader } from '@/components/dashboard/dashboard-header'
-import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar'
+import { Suspense } from 'react';
+import { DashboardNav } from '@/components/dashboard/dashboard-nav';
+import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar';
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
@@ -28,9 +24,7 @@ export default function DashboardLayout({
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-background">
-          <div className="container-werewolf py-6">
-            {children}
-          </div>
+          <div className="container-werewolf py-6">{children}</div>
         </main>
       </div>
 
@@ -41,5 +35,5 @@ export default function DashboardLayout({
         </Suspense>
       </div>
     </div>
-  )
+  );
 }

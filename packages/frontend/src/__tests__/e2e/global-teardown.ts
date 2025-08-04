@@ -15,11 +15,10 @@ async function globalTeardown(config: FullConfig) {
     // - Cleaning up test games
     // - Resetting database state
     // - Clearing any temporary files
-    
+
     // For now, just log completion
     // eslint-disable-next-line no-console
     console.log('✅ Werewolf Game E2E environment cleaned up');
-    
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('❌ Error during E2E teardown:', error);
