@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { Player, Game } from '../types/database';
 
 const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 
