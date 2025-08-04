@@ -319,7 +319,7 @@ export interface TestGame {
   day_number: number;
   max_players: number;
   current_players: number;
-  game_settings: Record<string, unknown>; // JsonValue from Prisma
+  game_settings: string | number | boolean | null | Record<string, unknown> | unknown[]; // JsonValue from Prisma
   winner: string | null;
   creator_id: string;
   created_at: Date;
