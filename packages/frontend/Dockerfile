@@ -18,6 +18,9 @@ COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/shared/package.json ./packages/shared/
 COPY tsconfig.base.json ./
 
+# Copy root package-lock.json (essential for npm ci in monorepo)
+COPY package-lock.json ./
+
 # Create a temporary package.json for just frontend and shared
 RUN echo '{"name": "werewolf-frontend-build", "private": true, "workspaces": ["packages/frontend", "packages/shared"]}' > package.json
 

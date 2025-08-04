@@ -11,7 +11,7 @@
   "scripts": {
     "preinstall": "node scripts/check-platform.js",
     "postinstall": "node scripts/verify-lockfile.js",
-    "prepare": "node -e \"if (process.env.NODE_ENV !== 'production') { require('husky').install() }\" || true",
+    "prepare": "node -e \"if (process.env.NODE_ENV !== 'production') { import('husky').then(h => h.install()).catch(() => {}) }\" || true",
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",

@@ -9,7 +9,7 @@ WORKDIR /app
 # Install turbo globally
 RUN npm install -g turbo
 
-# Copy package files for workspace setup
+# Copy root package files (package-lock.json is essential for monorepo npm ci)
 COPY package*.json ./
 COPY turbo.json ./
 COPY tsconfig.base.json ./
@@ -48,7 +48,7 @@ RUN adduser -S nodejs -u 1001
 
 WORKDIR /app
 
-# Copy package files
+# Copy root package files (package-lock.json is essential for monorepo npm ci)
 COPY package*.json ./
 COPY turbo.json ./
 COPY packages/backend/package.json ./packages/backend/
