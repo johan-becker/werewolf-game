@@ -15,6 +15,7 @@ COPY turbo.json ./
 COPY tsconfig.base.json ./
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/shared/package.json ./packages/shared/
+COPY scripts/ ./scripts/
 
 # Install ALL dependencies first (including dev) for workspace setup
 RUN npm ci --workspaces --include-workspace-root && npm cache clean --force
@@ -52,6 +53,7 @@ COPY package*.json ./
 COPY turbo.json ./
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/shared/package.json ./packages/shared/
+COPY scripts/ ./scripts/
 
 # Copy built shared package FIRST (needed for workspace resolution)
 COPY --from=builder --chown=nodejs:nodejs /app/packages/shared/dist ./packages/shared/dist
