@@ -816,15 +816,20 @@ export class WerewolfGameManager {
   /**
    * Calculate moon phase effects (stub implementation for tests)
    */
-  async calculateMoonPhaseEffects(_game: any): Promise<any> {
+  async calculateMoonPhaseEffects(game: any): Promise<any> {
     // TODO: Implement moon phase effects calculation
     return {
-      effects: [],
-      bonus_active: false,
+      phase: game.moon_phase,
+      werewolf_bonuses: {
+        strength: 1.2,
+        stealth: 1.1,
+      },
       transformation_modifiers: {
         strength_bonus: 1.5,
         speed_bonus: 1.2,
       },
+      effects: [],
+      bonus_active: false,
     };
   }
 
