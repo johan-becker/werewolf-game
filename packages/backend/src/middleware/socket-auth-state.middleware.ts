@@ -383,11 +383,12 @@ export class SocketAuthenticationStateMachine {
       event,
       data: args,
       timestamp: new Date(),
-      callback:
-        args[args.length - 1] && typeof args[args.length - 1] === 'function'
-          ? args[args.length - 1]
-          : undefined,
     };
+
+    // Add callback if the last argument is a function
+    if (args[args.length - 1] && typeof args[args.length - 1] === 'function') {
+      queuedMessage.callback = args[args.length - 1] as (response: any) => void;
+    }
 
     socket.data.messageQueue.push(queuedMessage);
 
@@ -458,7 +459,7 @@ export class SocketAuthenticationStateMachine {
   }
 
   private challengeAuthentication(socket: AuthenticatedSocket): void {
-    socket.emit('auth:challenge', (_response: unknown) => {
+    socket.emit('auth:challenge', (_response: any) => {
       // Client should respond with authentication token
     });
   }

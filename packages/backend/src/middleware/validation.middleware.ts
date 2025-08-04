@@ -179,7 +179,7 @@ export class ValidationMiddleware {
 
       // Sanitize query
       if (req.query && typeof req.query === 'object') {
-        req.query = this.sanitizeObject(req.query);
+        req.query = this.sanitizeObject(req.query) as typeof req.query;
       }
 
       return next();
