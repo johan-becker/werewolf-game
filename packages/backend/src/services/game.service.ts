@@ -482,7 +482,7 @@ export class GameService {
   }): GameResponse {
     const response = this.formatGameResponse(game);
 
-    response.players = game.players.map((p) => {
+    response.players = game.players.map(p => {
       const player: PlayerResponse = {
         id: p.id || p.user_id,
         userId: p.user_id,
