@@ -88,7 +88,9 @@ jobs:
           NODE_ENV: test
           DATABASE_URL: postgresql://werewolf_user:werewolf_password@localhost:5432/werewolf_game_test
           REDIS_URL: redis://localhost:6379
-          JWT_SECRET: test-jwt-secret
+          JWT_SECRET: test-jwt-secret-that-is-at-least-32-characters-long-for-testing
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-that-is-at-least-32-characters-long-for-testing
+          SESSION_SECRET: test-session-secret-that-is-at-least-32-characters-long-for-testing
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
