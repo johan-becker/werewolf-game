@@ -46,10 +46,14 @@ jobs:
       run: |
         cd packages/${{ matrix.package }}
         ERROR_COUNT=$(npx tsc --noEmit 2>&1 | grep -c "error TS" || echo "0")
+        # Clean the error count to ensure it's a valid integer
+        ERROR_COUNT=$(echo "$ERROR_COUNT" | tr -d '\n\r' | grep -o '[0-9]*' | head -1)
+        # Default to 0 if empty
+        ERROR_COUNT=${ERROR_COUNT:-0}
         echo "TYPESCRIPT_ERRORS=$ERROR_COUNT" >> $GITHUB_ENV
         echo "### 📊 TypeScript Results for ${{ matrix.package }}" >> $GITHUB_STEP_SUMMARY
         echo "**Error Count**: $ERROR_COUNT" >> $GITHUB_STEP_SUMMARY
-        if [ "$ERROR_COUNT" -gt 0 ]; then
+        if [ "$ERROR_COUNT" -gt 0 ] 2>/dev/null; then
           echo "**Status**: ❌ Errors found" >> $GITHUB_STEP_SUMMARY
         else
           echo "**Status**: ✅ No errors" >> $GITHUB_STEP_SUMMARY
@@ -77,6 +81,10 @@ jobs:
       run: |
         cd packages/${{ matrix.package }}
         ERROR_COUNT=${{ env.TYPESCRIPT_ERRORS }}
+        # Ensure ERROR_COUNT is a valid integer
+        ERROR_COUNT=$(echo "$ERROR_COUNT" | tr -d '\n\r' | grep -o '[0-9]*' | head -1)
+        ERROR_COUNT=${ERROR_COUNT:-0}
+        
         if [ "${{ matrix.package }}" = "backend" ]; then
           TARGET=150  # Target for backend (down from 348)
         else
@@ -87,7 +95,7 @@ jobs:
         echo "**Current**: $ERROR_COUNT errors" >> $GITHUB_STEP_SUMMARY
         echo "**Target**: $TARGET errors" >> $GITHUB_STEP_SUMMARY
         
-        if [ "$ERROR_COUNT" -le "$TARGET" ]; then
+        if [ "$ERROR_COUNT" -le "$TARGET" ] 2>/dev/null; then
           echo "**Result**: ✅ Target achieved!" >> $GITHUB_STEP_SUMMARY
           exit 0
         else
