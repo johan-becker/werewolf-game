@@ -5,17 +5,17 @@ export { ActionType } from './werewolf-roles.types';
 
 export enum PlayerRole {
   VILLAGER = 'VILLAGER',
-  WEREWOLF = 'WEREWOLF', 
+  WEREWOLF = 'WEREWOLF',
   SEER = 'SEER',
   WITCH = 'WITCH',
   HUNTER = 'HUNTER',
-  CUPID = 'CUPID'
+  CUPID = 'CUPID',
 }
 
 export enum WinCondition {
-  VILLAGERS_WIN = 'VILLAGERS_WIN',    // Alle Werwölfe eliminiert
-  WEREWOLVES_WIN = 'WEREWOLVES_WIN',  // Werwölfe kontrollieren das Dorf
-  LOVERS_WIN = 'LOVERS_WIN'           // Liebespaar überlebt als einziges
+  VILLAGERS_WIN = 'VILLAGERS_WIN', // Alle Werwölfe eliminiert
+  WEREWOLVES_WIN = 'WEREWOLVES_WIN', // Werwölfe kontrollieren das Dorf
+  LOVERS_WIN = 'LOVERS_WIN', // Liebespaar überlebt als einziges
 }
 
 export interface NightAction {
@@ -56,13 +56,13 @@ export interface PlayerState {
     // Hexe
     hasHealPotion?: boolean;
     hasPoisonPotion?: boolean;
-    
-    // Jäger  
+
+    // Jäger
     canRevenge?: boolean;
-    
+
     // Liebespaar
     loverId?: string;
-    
+
     // Allgemein
     isProtected?: boolean; // Schutz vor Tod in dieser Nacht
     votesReceived?: number;

@@ -12,16 +12,16 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 });
 
 // ✅ CLIENT - Respects RLS (use this for user operations)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
-    persistSession: true
-  }
+    persistSession: true,
+  },
 });
 
 // Helper function to create authenticated client
@@ -29,12 +29,12 @@ export const createAuthenticatedClient = (accessToken: string) => {
   return createClient(supabaseUrl, supabaseAnonKey, {
     global: {
       headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     },
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
+      persistSession: false,
+    },
   });
 };

@@ -28,47 +28,65 @@ const claimTerritorySchema = z.object({
   body: z.object({
     name: z.string().min(3).max(100),
     description: z.string().max(500).optional(),
-    boundaries: z.array(z.object({
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180)
-    })).min(3),
+    boundaries: z
+      .array(
+        z.object({
+          latitude: z.number().min(-90).max(90),
+          longitude: z.number().min(-180).max(180),
+        })
+      )
+      .min(3),
     markerType: z.enum(['scent', 'physical', 'spiritual']).default('scent'),
-    isPublic: z.boolean().default(false)
-  })
+    isPublic: z.boolean().default(false),
+  }),
 });
 
 const updateTerritorySchema = z.object({
   body: z.object({
     name: z.string().min(3).max(100).optional(),
     description: z.string().max(500).optional(),
-    boundaries: z.array(z.object({
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180)
-    })).min(3).optional(),
+    boundaries: z
+      .array(
+        z.object({
+          latitude: z.number().min(-90).max(90),
+          longitude: z.number().min(-180).max(180),
+        })
+      )
+      .min(3)
+      .optional(),
     markerType: z.enum(['scent', 'physical', 'spiritual']).optional(),
-    isPublic: z.boolean().optional()
-  })
+    isPublic: z.boolean().optional(),
+  }),
 });
 
 const disputeTerritorySchema = z.object({
   body: z.object({
     reason: z.string().min(10).max(1000),
-    evidenceType: z.enum(['historical_claim', 'boundary_violation', 'resource_rights', 'pack_expansion']),
-    proposedResolution: z.string().max(500).optional()
-  })
+    evidenceType: z.enum([
+      'historical_claim',
+      'boundary_violation',
+      'resource_rights',
+      'pack_expansion',
+    ]),
+    proposedResolution: z.string().max(500).optional(),
+  }),
 });
 
 const patrolSchema = z.object({
   body: z.object({
-    route: z.array(z.object({
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180),
-      timestamp: z.string().datetime()
-    })).min(2),
+    route: z
+      .array(
+        z.object({
+          latitude: z.number().min(-90).max(90),
+          longitude: z.number().min(-180).max(180),
+          timestamp: z.string().datetime(),
+        })
+      )
+      .min(2),
     observations: z.string().max(1000).optional(),
     threats: z.array(z.string()).optional(),
-    scent_markers_refreshed: z.boolean().default(false)
-  })
+    scent_markers_refreshed: z.boolean().default(false),
+  }),
 });
 
 /**
@@ -214,7 +232,7 @@ router.post(
 /**
  * @route   GET /api/territories/:territoryId/resources
  * @desc    Get territory resources
- * @access  Private (Pack members only)  
+ * @access  Private (Pack members only)
  */
 router.get(
   '/:territoryId/resources',

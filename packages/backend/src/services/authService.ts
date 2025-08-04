@@ -25,9 +25,9 @@ export class AuthService {
         options: {
           data: {
             username: data.username,
-            full_name: data.full_name || data.username
-          }
-        }
+            full_name: data.full_name || data.username,
+          },
+        },
       });
 
       if (authError) {
@@ -46,9 +46,8 @@ export class AuthService {
       return {
         user: authData.user,
         session: authData.session,
-        message: 'Registration successful'
+        message: 'Registration successful',
       };
-
     } catch (error: any) {
       logger.error('Signup error:', error);
       throw error;
@@ -60,7 +59,7 @@ export class AuthService {
     try {
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: data.email,
-        password: data.password
+        password: data.password,
       });
 
       if (authError || !authData.user || !authData.session) {
@@ -74,9 +73,8 @@ export class AuthService {
         user: authData.user,
         session: authData.session,
         accessToken: authData.session.access_token,
-        refreshToken: authData.session.refresh_token
+        refreshToken: authData.session.refresh_token,
       };
-
     } catch (error: any) {
       logger.error('Signin error:', error);
       throw error;
@@ -87,7 +85,7 @@ export class AuthService {
   static async refreshTokens(refreshToken: string) {
     try {
       const { data, error } = await supabase.auth.refreshSession({
-        refresh_token: refreshToken
+        refresh_token: refreshToken,
       });
 
       if (error || !data.session || !data.user) {
@@ -100,9 +98,8 @@ export class AuthService {
         user: data.user,
         session: data.session,
         accessToken: data.session.access_token,
-        refreshToken: data.session.refresh_token
+        refreshToken: data.session.refresh_token,
       };
-
     } catch (error: any) {
       logger.error('Token refresh error:', error);
       throw error;
@@ -120,7 +117,6 @@ export class AuthService {
       }
 
       logger.info('User logged out successfully');
-
     } catch (error: any) {
       logger.error('Logout error:', error);
       throw error;
@@ -151,9 +147,8 @@ export class AuthService {
         avatar_url: profile?.avatar_url || user.user.user_metadata?.avatar_url,
         bio: profile?.bio,
         createdAt: user.user.created_at,
-        lastSignIn: user.user.last_sign_in_at
+        lastSignIn: user.user.last_sign_in_at,
       };
-
     } catch (error: any) {
       logger.error('Get profile error:', error);
       throw error;
@@ -185,12 +180,12 @@ export class AuthService {
   static async updateProfile(userId: string, updates: UpdateProfileData, accessToken: string) {
     try {
       const authenticatedClient = createAuthenticatedClient(accessToken);
-      
+
       const { data, error } = await authenticatedClient
         .from('profiles')
         .update({
           ...updates,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', userId)
         .select()
@@ -235,8 +230,8 @@ export class AuthService {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${process.env.FRONTEND_URL}/auth/callback`
-        }
+          redirectTo: `${process.env.FRONTEND_URL}/auth/callback`,
+        },
       });
 
       if (error) {
@@ -254,7 +249,7 @@ export class AuthService {
   // Map Supabase errors to meaningful messages
   static mapSupabaseError(error: any): Error {
     const message = error?.message || 'Unknown error';
-    
+
     switch (error?.message) {
       case 'Invalid login credentials':
         return new Error('Invalid email or password');

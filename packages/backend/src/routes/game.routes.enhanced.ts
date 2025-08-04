@@ -14,7 +14,7 @@ import {
   validatePagination,
   asyncController,
   asyncControllerWithStatus,
-  responseTimeMiddleware
+  responseTimeMiddleware,
 } from '../middleware/controller-error.middleware';
 
 const router = Router();
@@ -34,11 +34,9 @@ router.use(requireAuth);
  * Returns 201 on success with game details
  * Comprehensive validation for maxPlayers, name, isPrivate
  */
-router.post('/', 
-  asyncControllerWithStatus(
-    gameController.createGame.bind(gameController), 
-    201
-  ) as any
+router.post(
+  '/',
+  asyncControllerWithStatus(gameController.createGame.bind(gameController), 201) as any
 );
 
 /**
@@ -46,7 +44,8 @@ router.post('/',
  * Validates pagination parameters (limit: 1-100, offset: ≥0)
  * Returns filtered game list with metadata
  */
-router.get('/', 
+router.get(
+  '/',
   validatePagination,
   asyncController(gameController.listGames.bind(gameController)) as any
 );
@@ -56,7 +55,8 @@ router.get('/',
  * Validates game ID format and existence
  * Checks permissions for private games
  */
-router.get('/:id', 
+router.get(
+  '/:id',
   validateGameId('id'),
   asyncController(gameController.getGame.bind(gameController)) as any
 );
@@ -66,7 +66,8 @@ router.get('/:id',
  * Validates game state, capacity, and user eligibility
  * Handles host transfer logic if needed
  */
-router.post('/:id/join', 
+router.post(
+  '/:id/join',
   validateGameId('id'),
   asyncController(gameController.joinGame.bind(gameController)) as any
 );
@@ -76,7 +77,8 @@ router.post('/:id/join',
  * Validates 6-character alphanumeric game code format
  * Redirects to ID-based join for consistency
  */
-router.post('/join/:code', 
+router.post(
+  '/join/:code',
   validateGameCode('code'),
   asyncController(gameController.joinByCode.bind(gameController)) as any
 );
@@ -86,7 +88,8 @@ router.post('/join/:code',
  * Handles host transfer and game dissolution logic
  * Validates game phase restrictions
  */
-router.delete('/:id/leave', 
+router.delete(
+  '/:id/leave',
   validateGameId('id'),
   asyncController(gameController.leaveGame.bind(gameController)) as any
 );
@@ -96,7 +99,8 @@ router.delete('/:id/leave',
  * Validates host permissions and minimum player count
  * Initializes game state and role assignments
  */
-router.post('/:id/start', 
+router.post(
+  '/:id/start',
   validateGameId('id'),
   asyncController(gameController.startGame.bind(gameController)) as any
 );

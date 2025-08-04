@@ -6,7 +6,7 @@
 import { Response } from 'express';
 
 // Result pattern for explicit success/error state discrimination
-export type Result<TSuccess, TError> = 
+export type Result<TSuccess, TError> =
   | { success: true; data: TSuccess; error?: never }
   | { success: false; data?: never; error: TError };
 
@@ -109,7 +109,7 @@ export enum GameErrorCode {
 
   // Configuration
   INVALID_GAME_CONFIG = 'INVALID_GAME_CONFIG',
-  UNSUPPORTED_FEATURE = 'UNSUPPORTED_FEATURE'
+  UNSUPPORTED_FEATURE = 'UNSUPPORTED_FEATURE',
 }
 
 // HTTP status code mappings for each error type
@@ -172,7 +172,7 @@ export const ERROR_STATUS_CODES: Record<GameErrorCode, number> = {
   [GameErrorCode.UNSUPPORTED_FEATURE]: 501,
 
   // 503 Service Unavailable
-  [GameErrorCode.MAINTENANCE_MODE]: 503
+  [GameErrorCode.MAINTENANCE_MODE]: 503,
 };
 
 // Domain-specific error context for enhanced debugging
@@ -317,13 +317,13 @@ export class GameErrorFactory {
       code: GameErrorCode.AUTHENTICATION_REQUIRED,
       message,
       suggestion: 'Please log in and try again',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
-    
+
     if (details) {
       error.details = details;
     }
-    
+
     return error;
   }
 
@@ -339,7 +339,7 @@ export class GameErrorFactory {
       field,
       details: { value, constraint },
       suggestion: `Please provide a valid ${field}`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -352,7 +352,7 @@ export class GameErrorFactory {
       message: `Game not found with ${searchType}: ${gameId}`,
       details: { searchType, searchValue: gameId },
       suggestion: 'Please verify the game ID or code and try again',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -366,34 +366,28 @@ export class GameErrorFactory {
       message: `Cannot ${action} - game is in '${actualState}' state, expected '${expectedState}'`,
       details: { expectedState, actualState, action },
       suggestion: `Wait for the game to reach '${expectedState}' state`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
-  static createPermissionError(
-    requiredPermission: string,
-    context?: string
-  ): GameControllerError {
+  static createPermissionError(requiredPermission: string, context?: string): GameControllerError {
     return {
       code: GameErrorCode.INSUFFICIENT_PERMISSIONS,
       message: `Insufficient permissions: ${requiredPermission}${context ? ` for ${context}` : ''}`,
       details: { requiredPermission, context },
       suggestion: 'Contact the game host or administrator for access',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
-  static createRateLimitError(
-    retryAfter: number,
-    action: string
-  ): GameControllerError {
+  static createRateLimitError(retryAfter: number, action: string): GameControllerError {
     return {
       code: GameErrorCode.RATE_LIMIT_EXCEEDED,
       message: `Too many ${action} requests. Please try again later.`,
       retryAfter,
       details: { action, retryAfter },
       suggestion: `Wait ${retryAfter} seconds before trying again`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -406,7 +400,7 @@ export class GameErrorFactory {
       message: publicMessage,
       details: { internalError: internalMessage },
       suggestion: 'Please try again later or contact support if the problem persists',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 }

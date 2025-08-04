@@ -27,9 +27,7 @@ declare global {
 
 @injectable()
 export class AuthMiddleware {
-  constructor(
-    @inject(TYPES.JwtService) private readonly jwtService: IJwtService
-  ) {}
+  constructor(@inject(TYPES.JwtService) private readonly jwtService: IJwtService) {}
 
   /**
    * Verify JWT token and attach user to request
@@ -38,25 +36,25 @@ export class AuthMiddleware {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
         const token = this.extractToken(req);
-        
+
         if (!token) {
           return res.status(401).json({
             success: false,
             error: 'Authentication required',
             code: 'NO_TOKEN',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
 
         const validation = await this.jwtService.validateAccessToken(token);
-        
+
         if (!validation.isValid) {
           if (validation.expired) {
             return res.status(401).json({
               success: false,
               error: 'Token expired',
               code: 'TOKEN_EXPIRED',
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
             });
           }
 
@@ -64,7 +62,7 @@ export class AuthMiddleware {
             success: false,
             error: 'Invalid token',
             code: 'INVALID_TOKEN',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
 
@@ -74,7 +72,7 @@ export class AuthMiddleware {
             success: false,
             error: 'Invalid token payload',
             code: 'INVALID_PAYLOAD',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
         req.user = validation.payload;
@@ -85,7 +83,7 @@ export class AuthMiddleware {
           success: false,
           error: 'Authentication service error',
           code: 'AUTH_SERVICE_ERROR',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     };
@@ -98,13 +96,13 @@ export class AuthMiddleware {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
         const token = this.extractToken(req);
-        
+
         if (!token) {
           return next();
         }
 
         const validation = await this.jwtService.validateAccessToken(token);
-        
+
         if (validation.isValid && validation.payload) {
           req.user = validation.payload;
         }
@@ -128,12 +126,12 @@ export class AuthMiddleware {
           success: false,
           error: 'Authentication required',
           code: 'NO_AUTH',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
       const userRole = req.user.role as WerewolfRole;
-      
+
       if (!roles.includes(userRole)) {
         return res.status(403).json({
           success: false,
@@ -141,7 +139,7 @@ export class AuthMiddleware {
           code: 'INSUFFICIENT_ROLE',
           required: roles,
           current: userRole,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
@@ -159,18 +157,18 @@ export class AuthMiddleware {
           success: false,
           error: 'Authentication required',
           code: 'NO_AUTH',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
       const userPermissions = req.user.permissions || [];
-      const hasAllPermissions = permissions.every(permission => 
+      const hasAllPermissions = permissions.every(permission =>
         userPermissions.includes(permission)
       );
 
       if (!hasAllPermissions) {
-        const missingPermissions = permissions.filter(permission => 
-          !userPermissions.includes(permission)
+        const missingPermissions = permissions.filter(
+          permission => !userPermissions.includes(permission)
         );
 
         return res.status(403).json({
@@ -179,7 +177,7 @@ export class AuthMiddleware {
           code: 'INSUFFICIENT_PERMISSIONS',
           required: permissions,
           missing: missingPermissions,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
@@ -215,7 +213,7 @@ export class AuthMiddleware {
           success: false,
           error: 'Authentication required',
           code: 'NO_AUTH',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
@@ -238,7 +236,7 @@ export class AuthMiddleware {
         success: false,
         error: 'Access denied - insufficient permissions',
         code: 'ACCESS_DENIED',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     };
   }
@@ -277,7 +275,7 @@ export class AuthMiddleware {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: maxAge * 1000, // Convert to milliseconds
-      path: '/'
+      path: '/',
     });
   }
 
@@ -289,7 +287,7 @@ export class AuthMiddleware {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      path: '/'
+      path: '/',
     });
   }
 }

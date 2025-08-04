@@ -11,7 +11,7 @@ import {
   OptionalAuthRequest,
   AuthErrorCode,
   Permission,
-  UserRole
+  UserRole,
 } from '../types/auth.types';
 
 // Legacy export for backward compatibility - matches actual middleware output
@@ -31,19 +31,15 @@ const authService = AuthSecurityService.getInstance();
  * Strict authentication middleware - GUARANTEES authenticated user
  * Use this for endpoints that require authentication
  */
-export async function requireAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authResult = await performAuthentication(req);
-  
+
   if (!authResult.success) {
     const statusCode = getStatusCodeForError(authResult.error!.code);
     res.status(statusCode).json({
       error: authResult.error!.message,
       code: authResult.error!.code,
-      timestamp: authResult.error!.timestamp
+      timestamp: authResult.error!.timestamp,
     });
     return;
   }
@@ -52,7 +48,7 @@ export async function requireAuth(
   const authenticatedReq = req as AuthenticatedRequest;
   (authenticatedReq as any).user = authResult.user!;
   (authenticatedReq as any).authMetadata = authResult.metadata!;
-  
+
   next();
 }
 
@@ -60,19 +56,15 @@ export async function requireAuth(
  * Optional authentication middleware - allows both authenticated and anonymous users
  * Use this for endpoints that enhance functionality with authentication but don't require it
  */
-export async function optionalAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function optionalAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authResult = await performAuthentication(req);
-  
+
   if (authResult.success) {
     const optionalAuthReq = req as OptionalAuthRequest;
     (optionalAuthReq as any).user = authResult.user!;
     (optionalAuthReq as any).authMetadata = authResult.metadata!;
   }
-  
+
   next();
 }
 
@@ -86,11 +78,11 @@ export function requirePermission(permission: Permission) {
         error: 'Insufficient permissions',
         code: AuthErrorCode.INSUFFICIENT_PERMISSIONS,
         required: permission,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       return;
     }
-    
+
     next();
   };
 }
@@ -106,11 +98,11 @@ export function requireRole(minimumRole: UserRole) {
         code: AuthErrorCode.INSUFFICIENT_PERMISSIONS,
         required: minimumRole,
         current: req.user.role,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       return;
     }
-    
+
     next();
   };
 }
@@ -120,22 +112,22 @@ export function requireRole(minimumRole: UserRole) {
  */
 async function performAuthentication(req: Request) {
   const token = extractToken(req);
-  
+
   if (!token) {
     return {
       success: false,
       error: {
         code: AuthErrorCode.NO_TOKEN,
         message: 'Authentication token is required',
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      },
     };
   }
 
   const context = {
     ip: getClientIP(req),
     userAgent: req.headers['user-agent'] || 'unknown',
-    deviceId: req.headers['x-device-id'] as string
+    deviceId: req.headers['x-device-id'] as string,
   };
 
   return await authService.authenticateUser(token, context);
@@ -168,7 +160,7 @@ function getClientIP(req: Request): string {
   const realIp = req.headers['x-real-ip'] as string;
   const connectionIp = req.connection?.remoteAddress;
   const socketIp = req.socket?.remoteAddress;
-  
+
   const ip = forwarded || realIp || connectionIp || socketIp || 'unknown';
   return typeof ip === 'string' ? ip.split(',')[0]?.trim() || 'unknown' : 'unknown';
 }
@@ -187,7 +179,7 @@ function getStatusCodeForError(code: AuthErrorCode): number {
     [AuthErrorCode.INSUFFICIENT_PERMISSIONS]: 403,
     [AuthErrorCode.RATE_LIMITED]: 429,
     [AuthErrorCode.SERVICE_UNAVAILABLE]: 503,
-    [AuthErrorCode.INVALID_SESSION]: 401
+    [AuthErrorCode.INVALID_SESSION]: 401,
   };
 
   return errorStatusMap[code] || 500;
@@ -204,21 +196,21 @@ export const authRateLimit = rateLimit({
   message: {
     error: 'Too many authentication attempts. Please try again later.',
     code: AuthErrorCode.RATE_LIMITED,
-    retryAfter: 15 * 60 // seconds
+    retryAfter: 15 * 60, // seconds
   },
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: false,
   skipFailedRequests: false,
-  keyGenerator: (req) => `auth:${getClientIP(req)}`,
+  keyGenerator: req => `auth:${getClientIP(req)}`,
   handler: (req, res) => {
     res.status(429).json({
       error: 'Too many authentication attempts',
       code: AuthErrorCode.RATE_LIMITED,
       retryAfter: Math.ceil((req as any).rateLimit?.resetTime || 0),
-      timestamp: new Date()
+      timestamp: new Date(),
     });
-  }
+  },
 });
 
 // Moderate rate limiting for gameplay endpoints
@@ -227,14 +219,14 @@ export const gameplayRateLimit = rateLimit({
   max: 300, // 300 requests per minute (5 per second sustained)
   message: {
     error: 'Too many game actions. Please slow down.',
-    code: AuthErrorCode.RATE_LIMITED
+    code: AuthErrorCode.RATE_LIMITED,
   },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
+  keyGenerator: req => {
     const authReq = req as OptionalAuthRequest;
     return authReq.user ? `gameplay:${authReq.user.userId}` : `gameplay:${getClientIP(req)}`;
-  }
+  },
 });
 
 // General API rate limiting
@@ -243,11 +235,11 @@ export const generalRateLimit = rateLimit({
   max: 1000, // 1000 requests per window
   message: {
     error: 'Too many requests. Please try again later.',
-    code: AuthErrorCode.RATE_LIMITED
+    code: AuthErrorCode.RATE_LIMITED,
   },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => `general:${getClientIP(req)}`
+  keyGenerator: req => `general:${getClientIP(req)}`,
 });
 
 /**
@@ -260,34 +252,36 @@ export const validateRequiredFields = (fields: string[]) => {
       res.status(400).json({
         error: 'Invalid request body',
         code: 'INVALID_REQUEST_BODY',
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       return;
     }
 
     const missingFields = fields.filter(field => {
       const value = req.body[field];
-      return value === undefined || value === null || 
-             (typeof value === 'string' && value.trim() === '');
+      return (
+        value === undefined || value === null || (typeof value === 'string' && value.trim() === '')
+      );
     });
-    
+
     if (missingFields.length > 0) {
       res.status(400).json({
         error: `Missing or empty required fields: ${missingFields.join(', ')}`,
         code: 'MISSING_REQUIRED_FIELDS',
         fields: missingFields,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       return;
     }
 
     // Additional security: limit body size and field count
     const fieldCount = Object.keys(req.body).length;
-    if (fieldCount > 50) { // Prevent DoS via large payloads
+    if (fieldCount > 50) {
+      // Prevent DoS via large payloads
       res.status(400).json({
         error: 'Too many fields in request',
         code: 'EXCESSIVE_FIELDS',
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       return;
     }
@@ -307,9 +301,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
  * Type guards for request types
  */
 export function isAuthenticatedRequest(req: Request): req is AuthenticatedRequest {
-  return 'user' in req && 
-         req.user !== undefined &&
-         'userId' in req.user;
+  return 'user' in req && req.user !== undefined && 'userId' in req.user;
 }
 
 export function hasOptionalAuth(req: Request): req is OptionalAuthRequest {

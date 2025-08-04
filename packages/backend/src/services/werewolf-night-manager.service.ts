@@ -5,7 +5,7 @@ import {
   NightAction,
   ActionResult,
   WerewolfPlayer,
-  WerewolfGameState
+  WerewolfGameState,
 } from '../types/werewolf-roles.types';
 
 /**
@@ -28,34 +28,34 @@ export class WerewolfNightManager {
       phase: NightPhase.CUPID_PHASE,
       role: WerewolfRole.CUPID,
       description: 'Amor bestimmt die Verliebten',
-      isOptional: true // Nur erste Nacht
+      isOptional: true, // Nur erste Nacht
     },
     {
       phase: NightPhase.SEER_PHASE,
       role: WerewolfRole.SEER,
       description: 'Seherin erwacht und erfährt eine Identität',
-      isOptional: false
+      isOptional: false,
     },
     {
       phase: NightPhase.WEREWOLF_PHASE,
       role: WerewolfRole.WEREWOLF,
       description: 'Werwölfe erwachen und bestimmen gemeinsam ein Opfer',
-      isOptional: false
+      isOptional: false,
     },
     {
       phase: NightPhase.WITCH_PHASE,
       role: WerewolfRole.WITCH,
       description: 'Hexe erwacht und erfährt das Opfer, kann heilen oder vergiften',
-      isOptional: false
-    }
+      isOptional: false,
+    },
   ];
 
   /**
    * Startet eine neue Nacht-Phase
    */
   async startNightPhase(
-    gameId: string, 
-    dayNumber: number, 
+    gameId: string,
+    dayNumber: number,
     players: WerewolfPlayer[]
   ): Promise<{
     success: boolean;
@@ -78,8 +78,8 @@ export class WerewolfNightManager {
         lastNightResults: {
           deaths: [],
           protections: [],
-          investigations: []
-        }
+          investigations: [],
+        },
       };
 
       this.gameStates.set(gameId, gameState);
@@ -87,7 +87,7 @@ export class WerewolfNightManager {
 
       // Bestimme erste Phase
       const firstPhase = this.getNextNightPhase(gameId, players, null);
-      
+
       if (firstPhase) {
         gameState.currentNightPhase = firstPhase.phase;
         this.gameStates.set(gameId, gameState);
@@ -96,23 +96,22 @@ export class WerewolfNightManager {
           success: true,
           message: `Nacht ${dayNumber} beginnt mit ${firstPhase.description}`,
           firstPhase: firstPhase.phase,
-          activeRole: firstPhase.role
+          activeRole: firstPhase.role,
         };
       } else {
         return {
           success: false,
           message: 'Keine aktiven Nacht-Rollen gefunden',
           firstPhase: null,
-          activeRole: null
+          activeRole: null,
         };
       }
-
     } catch (error: any) {
       return {
         success: false,
         message: `Fehler beim Starten der Nacht: ${error.message}`,
         firstPhase: null,
-        activeRole: null
+        activeRole: null,
       };
     }
   }
@@ -128,14 +127,14 @@ export class WerewolfNightManager {
     if (!gameState) {
       return {
         success: false,
-        message: 'Spiel nicht gefunden'
+        message: 'Spiel nicht gefunden',
       };
     }
 
     if (gameState.phase !== 'NIGHT') {
       return {
         success: false,
-        message: 'Keine Nacht-Phase aktiv'
+        message: 'Keine Nacht-Phase aktiv',
       };
     }
 
@@ -144,7 +143,7 @@ export class WerewolfNightManager {
     if (!currentPhase) {
       return {
         success: false,
-        message: 'Keine aktive Nacht-Phase'
+        message: 'Keine aktive Nacht-Phase',
       };
     }
 
@@ -152,7 +151,7 @@ export class WerewolfNightManager {
     if (!this.isActionValidForPhase(action.actionType, currentPhase.phase)) {
       return {
         success: false,
-        message: `Aktion ${action.actionType} nicht gültig für Phase ${currentPhase.phase}`
+        message: `Aktion ${action.actionType} nicht gültig für Phase ${currentPhase.phase}`,
       };
     }
 
@@ -161,23 +160,23 @@ export class WerewolfNightManager {
       ...action,
       id: this.generateActionId(),
       timestamp: new Date(),
-      resolved: false
+      resolved: false,
     };
 
     // Füge zur Warteschlange hinzu
     const actions = this.pendingActions.get(gameId) || [];
-    
+
     // Entferne vorherige Aktion desselben Spielers für diese Phase
-    const filteredActions = actions.filter(a => 
-      !(a.playerId === action.playerId && a.phase === action.phase)
+    const filteredActions = actions.filter(
+      a => !(a.playerId === action.playerId && a.phase === action.phase)
     );
-    
+
     filteredActions.push(fullAction);
     this.pendingActions.set(gameId, filteredActions);
 
     return {
       success: true,
-      message: 'Aktion eingereicht'
+      message: 'Aktion eingereicht',
     };
   }
 
@@ -203,23 +202,19 @@ export class WerewolfNightManager {
         results: [],
         nextPhase: null,
         nextRole: null,
-        nightCompleted: false
+        nightCompleted: false,
       };
     }
 
     // Führe Aktionen der aktuellen Phase aus
-    const results = await this.executePhaseActions(
-      gameId, 
-      gameState.currentNightPhase, 
-      players
-    );
+    const results = await this.executePhaseActions(gameId, gameState.currentNightPhase, players);
 
     // Aktualisiere Game State mit Ergebnissen
     this.updateGameStateWithResults(gameState, results);
 
     // Bestimme nächste Phase
     const nextPhase = this.getNextNightPhase(gameId, players, gameState.currentNightPhase);
-    
+
     if (nextPhase) {
       // Wechsle zur nächsten Phase
       gameState.currentNightPhase = nextPhase.phase;
@@ -231,7 +226,7 @@ export class WerewolfNightManager {
         results,
         nextPhase: nextPhase.phase,
         nextRole: nextPhase.role,
-        nightCompleted: false
+        nightCompleted: false,
       };
     } else {
       // Nacht ist beendet
@@ -245,7 +240,7 @@ export class WerewolfNightManager {
         results,
         nextPhase: null,
         nextRole: null,
-        nightCompleted: true
+        nightCompleted: true,
       };
     }
   }
@@ -266,14 +261,14 @@ export class WerewolfNightManager {
       try {
         const result = await this.executeSpecificAction(action, players);
         results.push(result);
-        
+
         // Markiere als ausgeführt
         action.resolved = true;
         action.result = result;
       } catch (error: any) {
         results.push({
           success: false,
-          message: `Fehler bei Aktion: ${error.message}`
+          message: `Fehler bei Aktion: ${error.message}`,
         });
       }
     }
@@ -296,33 +291,33 @@ export class WerewolfNightManager {
     if (!actor || !actor.isAlive) {
       return {
         success: false,
-        message: 'Spieler nicht gefunden oder tot'
+        message: 'Spieler nicht gefunden oder tot',
       };
     }
 
     switch (action.actionType) {
       case ActionType.SEER_INVESTIGATE:
         return this.executeSeerInvestigation(action, players);
-      
+
       case ActionType.WEREWOLF_KILL:
         return this.executeWerewolfKill(action, players);
-      
+
       case ActionType.WITCH_HEAL:
         return this.executeWitchHeal(action, players, actor);
-      
+
       case ActionType.WITCH_POISON:
         return this.executeWitchPoison(action, players, actor);
-      
+
       case ActionType.CUPID_LINK:
         return this.executeCupidLink(action, players);
-      
+
       case ActionType.LITTLE_GIRL_SPY:
         return this.executeLittleGirlSpy(action, players, actor);
-      
+
       default:
         return {
           success: false,
-          message: 'Unbekannte Aktion'
+          message: 'Unbekannte Aktion',
         };
     }
   }
@@ -335,7 +330,7 @@ export class WerewolfNightManager {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
@@ -345,8 +340,8 @@ export class WerewolfNightManager {
       revealedInfo: {
         targetId: target.id,
         role: target.role,
-        team: target.team
-      }
+        team: target.team,
+      },
     };
   }
 
@@ -358,7 +353,7 @@ export class WerewolfNightManager {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
@@ -368,8 +363,8 @@ export class WerewolfNightManager {
       effects: {
         deaths: [target.id],
         protections: [],
-        lovers: []
-      }
+        lovers: [],
+      },
     };
   }
 
@@ -377,14 +372,14 @@ export class WerewolfNightManager {
    * Hexe heilt
    */
   private executeWitchHeal(
-    action: NightAction, 
-    players: WerewolfPlayer[], 
+    action: NightAction,
+    players: WerewolfPlayer[],
     witch: WerewolfPlayer
   ): ActionResult {
     if (!witch.specialStates.hasHealPotion) {
       return {
         success: false,
-        message: 'Heiltrank bereits verwendet'
+        message: 'Heiltrank bereits verwendet',
       };
     }
 
@@ -392,7 +387,7 @@ export class WerewolfNightManager {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
@@ -400,7 +395,7 @@ export class WerewolfNightManager {
     if (target.id === witch.id) {
       return {
         success: false,
-        message: 'Du kannst dich nicht selbst heilen'
+        message: 'Du kannst dich nicht selbst heilen',
       };
     }
 
@@ -413,8 +408,8 @@ export class WerewolfNightManager {
       effects: {
         deaths: [],
         protections: [target.id],
-        lovers: []
-      }
+        lovers: [],
+      },
     };
   }
 
@@ -422,14 +417,14 @@ export class WerewolfNightManager {
    * Hexe vergiftet
    */
   private executeWitchPoison(
-    action: NightAction, 
-    players: WerewolfPlayer[], 
+    action: NightAction,
+    players: WerewolfPlayer[],
     witch: WerewolfPlayer
   ): ActionResult {
     if (!witch.specialStates.hasPoisonPotion) {
       return {
         success: false,
-        message: 'Gifttrank bereits verwendet'
+        message: 'Gifttrank bereits verwendet',
       };
     }
 
@@ -437,7 +432,7 @@ export class WerewolfNightManager {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
@@ -450,8 +445,8 @@ export class WerewolfNightManager {
       effects: {
         deaths: [target.id],
         protections: [],
-        lovers: []
-      }
+        lovers: [],
+      },
     };
   }
 
@@ -462,7 +457,7 @@ export class WerewolfNightManager {
     if (!action.targetId || !action.secondTargetId) {
       return {
         success: false,
-        message: 'Zwei Ziele erforderlich'
+        message: 'Zwei Ziele erforderlich',
       };
     }
 
@@ -472,14 +467,14 @@ export class WerewolfNightManager {
     if (!target1 || !target2) {
       return {
         success: false,
-        message: 'Ein oder beide Ziele nicht gefunden'
+        message: 'Ein oder beide Ziele nicht gefunden',
       };
     }
 
     if (target1.id === target2.id) {
       return {
         success: false,
-        message: 'Spieler kann nicht mit sich selbst verkuppelt werden'
+        message: 'Spieler kann nicht mit sich selbst verkuppelt werden',
       };
     }
 
@@ -493,8 +488,8 @@ export class WerewolfNightManager {
       effects: {
         deaths: [],
         protections: [],
-        lovers: [target1.id, target2.id]
-      }
+        lovers: [target1.id, target2.id],
+      },
     };
   }
 
@@ -502,18 +497,18 @@ export class WerewolfNightManager {
    * Mädchen spioniert
    */
   private executeLittleGirlSpy(
-    action: NightAction, 
-    players: WerewolfPlayer[], 
+    action: NightAction,
+    players: WerewolfPlayer[],
     littleGirl: WerewolfPlayer
   ): ActionResult {
     const werewolves = players.filter(p => p.role === WerewolfRole.WEREWOLF && p.isAlive);
-    
+
     // Erhöhe Spionage-Risiko
     littleGirl.specialStates.spyRisk += 20;
-    
+
     // Prüfe ob entdeckt
     const discovered = Math.random() * 100 < littleGirl.specialStates.spyRisk;
-    
+
     if (discovered) {
       return {
         success: true,
@@ -524,13 +519,13 @@ export class WerewolfNightManager {
           lovers: [],
           spyResult: {
             spotted: true,
-            werewolves: werewolves.map(w => w.id)
-          }
-        }
+            werewolves: werewolves.map(w => w.id),
+          },
+        },
       };
     } else {
       littleGirl.specialStates.hasSpied = true;
-      
+
       return {
         success: true,
         message: 'Du hast erfolgreich spioniert',
@@ -540,9 +535,9 @@ export class WerewolfNightManager {
           lovers: [],
           spyResult: {
             spotted: false,
-            werewolves: werewolves.map(w => w.id)
-          }
-        }
+            werewolves: werewolves.map(w => w.id),
+          },
+        },
       };
     }
   }
@@ -558,21 +553,22 @@ export class WerewolfNightManager {
     const gameState = this.gameStates.get(gameId);
     if (!gameState) return null;
 
-    const currentIndex = currentPhase ? 
-      this.NIGHT_PHASE_ORDER.findIndex(p => p.phase === currentPhase) : -1;
+    const currentIndex = currentPhase
+      ? this.NIGHT_PHASE_ORDER.findIndex(p => p.phase === currentPhase)
+      : -1;
 
     // Suche nächste verfügbare Phase
     for (let i = currentIndex + 1; i < this.NIGHT_PHASE_ORDER.length; i++) {
       const phaseInfo = this.NIGHT_PHASE_ORDER[i];
-      
+
       if (!phaseInfo) continue;
-      
+
       // Prüfe ob Phase verfügbar ist
       if (this.isPhaseAvailable(phaseInfo, players, gameState)) {
         return {
           phase: phaseInfo.phase,
           role: phaseInfo.role,
-          description: phaseInfo.description
+          description: phaseInfo.description,
         };
       }
     }
@@ -584,7 +580,7 @@ export class WerewolfNightManager {
    * Prüft ob eine Phase verfügbar ist
    */
   private isPhaseAvailable(
-    phaseInfo: typeof this.NIGHT_PHASE_ORDER[0],
+    phaseInfo: (typeof this.NIGHT_PHASE_ORDER)[0],
     players: WerewolfPlayer[],
     gameState: WerewolfGameState
   ): boolean {
@@ -597,7 +593,7 @@ export class WerewolfNightManager {
       case NightPhase.CUPID_PHASE:
         // Nur in der ersten Nacht
         return gameState.dayNumber === 1;
-      
+
       default:
         return true;
     }
@@ -606,7 +602,9 @@ export class WerewolfNightManager {
   /**
    * Hilfsfunktionen
    */
-  private getCurrentPhaseInfo(phase: NightPhase | undefined): typeof this.NIGHT_PHASE_ORDER[0] | null {
+  private getCurrentPhaseInfo(
+    phase: NightPhase | undefined
+  ): (typeof this.NIGHT_PHASE_ORDER)[0] | null {
     if (!phase) return null;
     return this.NIGHT_PHASE_ORDER.find(p => p.phase === phase) || null;
   }
@@ -616,7 +614,7 @@ export class WerewolfNightManager {
       [NightPhase.SEER_PHASE]: [ActionType.SEER_INVESTIGATE],
       [NightPhase.WEREWOLF_PHASE]: [ActionType.WEREWOLF_KILL, ActionType.LITTLE_GIRL_SPY],
       [NightPhase.WITCH_PHASE]: [ActionType.WITCH_HEAL, ActionType.WITCH_POISON],
-      [NightPhase.CUPID_PHASE]: [ActionType.CUPID_LINK]
+      [NightPhase.CUPID_PHASE]: [ActionType.CUPID_LINK],
     };
 
     return validActions[phase]?.includes(actionType) || false;
@@ -639,7 +637,7 @@ export class WerewolfNightManager {
           gameState.lastNightResults.investigations.push({
             investigatorId: '', // Müsste aus der Aktion geholt werden
             targetId: result.revealedInfo.targetId,
-            result: result.revealedInfo.role
+            result: result.revealedInfo.role,
           });
         }
       }

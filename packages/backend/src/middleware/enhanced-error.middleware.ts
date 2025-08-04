@@ -44,17 +44,15 @@ export class AppError extends Error {
 
 @injectable()
 export class EnhancedErrorMiddleware {
-  constructor(
-    @inject(TYPES.Logger) private readonly logger: ILogger
-  ) {}
+  constructor(@inject(TYPES.Logger) private readonly logger: ILogger) {}
 
   /**
    * Global error handler
    */
   handleError() {
     return (error: Error, req: Request, res: Response, _next: NextFunction) => {
-      const requestId = req.headers['x-request-id'] as string || this.generateRequestId();
-      
+      const requestId = (req.headers['x-request-id'] as string) || this.generateRequestId();
+
       // Log the error
       this.logError(error, req, requestId);
 
@@ -126,7 +124,7 @@ export class EnhancedErrorMiddleware {
       error: error.message,
       code: error.code,
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     if (error.details) {
@@ -148,7 +146,7 @@ export class EnhancedErrorMiddleware {
     const validationErrors = error.errors.map(err => ({
       field: err.path.join('.'),
       message: err.message,
-      value: (err as any).received || 'invalid'
+      value: (err as any).received || 'invalid',
     }));
 
     const response: ErrorResponse = {
@@ -157,7 +155,7 @@ export class EnhancedErrorMiddleware {
       code: 'VALIDATION_ERROR',
       timestamp: new Date().toISOString(),
       requestId,
-      details: validationErrors
+      details: validationErrors,
     };
 
     res.status(400).json(response);
@@ -172,7 +170,7 @@ export class EnhancedErrorMiddleware {
       error: 'Invalid authentication token',
       code: 'INVALID_TOKEN',
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(401).json(response);
@@ -187,7 +185,7 @@ export class EnhancedErrorMiddleware {
       error: 'Authentication token expired',
       code: 'TOKEN_EXPIRED',
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(401).json(response);
@@ -220,7 +218,7 @@ export class EnhancedErrorMiddleware {
       error: message,
       code,
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(400).json(response);
@@ -254,7 +252,7 @@ export class EnhancedErrorMiddleware {
       error: message,
       code,
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(statusCode).json(response);
@@ -269,7 +267,7 @@ export class EnhancedErrorMiddleware {
       error: 'Service temporarily unavailable',
       code: 'NETWORK_ERROR',
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(503).json(response);
@@ -284,14 +282,14 @@ export class EnhancedErrorMiddleware {
       error: 'Internal server error',
       code: 'INTERNAL_ERROR',
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     // Include error details in development
     if (process.env.NODE_ENV === 'development') {
       response.details = {
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
       };
     }
 
@@ -312,8 +310,8 @@ export class EnhancedErrorMiddleware {
       error: {
         name: error.name,
         message: error.message,
-        stack: error.stack
-      }
+        stack: error.stack,
+      },
     };
 
     if (error instanceof AppError && !error.isOperational) {
@@ -331,12 +329,13 @@ export class EnhancedErrorMiddleware {
    * Check if error is database-related
    */
   private isDatabaseError(error: any): boolean {
-    return error.code && (
-      error.code.startsWith('23') || // Integrity constraint violation
-      error.code.startsWith('42') || // Syntax error or access rule violation
-      error.name === 'SequelizeError' ||
-      error.name === 'PrismaClientKnownRequestError' ||
-      error.name === 'QueryFailedError'
+    return (
+      error.code &&
+      (error.code.startsWith('23') || // Integrity constraint violation
+        error.code.startsWith('42') || // Syntax error or access rule violation
+        error.name === 'SequelizeError' ||
+        error.name === 'PrismaClientKnownRequestError' ||
+        error.name === 'QueryFailedError')
     );
   }
 
@@ -344,11 +343,13 @@ export class EnhancedErrorMiddleware {
    * Check if error is network-related
    */
   private isNetworkError(error: any): boolean {
-    return error.code === 'ECONNREFUSED' ||
-           error.code === 'ECONNRESET' ||
-           error.code === 'ETIMEDOUT' ||
-           error.code === 'ENOTFOUND' ||
-           error.name === 'TimeoutError';
+    return (
+      error.code === 'ECONNREFUSED' ||
+      error.code === 'ECONNRESET' ||
+      error.code === 'ETIMEDOUT' ||
+      error.code === 'ENOTFOUND' ||
+      error.name === 'TimeoutError'
+    );
   }
 
   /**

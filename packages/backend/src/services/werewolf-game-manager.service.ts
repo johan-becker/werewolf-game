@@ -9,13 +9,10 @@ import {
   WerewolfPlayer,
   WerewolfGameState,
   ActionType,
-  NightAction
+  NightAction,
 } from '../types/werewolf-roles.types';
 
-const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 
 /**
  * Haupt-Service für Werwolf-Spiel-Management mit Role Factory und Spielleiter-Konfiguration
@@ -57,25 +54,25 @@ export class WerewolfGameManager {
       if (!game || game.creator_id !== hostId) {
         return {
           success: false,
-          message: 'Nur der Host kann die Rollen konfigurieren'
+          message: 'Nur der Host kann die Rollen konfigurieren',
         };
       }
 
       if (game.status !== 'WAITING') {
         return {
           success: false,
-          message: 'Rollen können nur vor Spielstart konfiguriert werden'
+          message: 'Rollen können nur vor Spielstart konfiguriert werden',
         };
       }
 
       // Validiere Konfiguration
       const validation = this.roleService.validateRoleConfig(config, totalPlayers);
-      
+
       if (!validation.isValid) {
         return {
           success: false,
           message: 'Ungültige Rollen-Konfiguration',
-          validation
+          validation,
         };
       }
 
@@ -83,25 +80,22 @@ export class WerewolfGameManager {
       this.gameConfigs.set(gameId, config);
 
       // Speichere in Datenbank
-      await supabaseAdmin
-        .from('game_role_configs')
-        .upsert({
-          game_id: gameId,
-          config: config,
-          created_by: hostId,
-          created_at: new Date().toISOString()
-        });
+      await supabaseAdmin.from('game_role_configs').upsert({
+        game_id: gameId,
+        config: config,
+        created_by: hostId,
+        created_at: new Date().toISOString(),
+      });
 
       return {
         success: true,
         message: 'Rollen-Konfiguration gespeichert',
-        validation
+        validation,
       };
-
     } catch (error: any) {
       return {
         success: false,
-        message: `Fehler beim Konfigurieren: ${error.message}`
+        message: `Fehler beim Konfigurieren: ${error.message}`,
       };
     }
   }
@@ -109,10 +103,7 @@ export class WerewolfGameManager {
   /**
    * Validiert eine Rollen-Konfiguration ohne zu speichern
    */
-  validateRoleConfiguration(
-    config: GameRoleConfig,
-    totalPlayers: number
-  ): ConfigValidationResult {
+  validateRoleConfiguration(config: GameRoleConfig, totalPlayers: number): ConfigValidationResult {
     return this.roleService.validateRoleConfig(config, totalPlayers);
   }
 
@@ -125,7 +116,7 @@ export class WerewolfGameManager {
   } {
     const config = this.roleService.generateDefaultConfig(totalPlayers);
     const validation = this.roleService.validateRoleConfig(config, totalPlayers);
-    
+
     return { config, validation };
   }
 
@@ -147,28 +138,30 @@ export class WerewolfGameManager {
       // Hole Spiel-Daten
       const { data: game } = await supabaseAdmin
         .from('games')
-        .select(`
+        .select(
+          `
           *,
           players!inner(
             user_id,
             is_host,
             profiles!inner(username)
           )
-        `)
+        `
+        )
         .eq('id', gameId)
         .single();
 
       if (!game || game.creator_id !== hostId) {
         return {
           success: false,
-          message: 'Nur der Host kann das Spiel starten'
+          message: 'Nur der Host kann das Spiel starten',
         };
       }
 
       if (game.status !== 'WAITING') {
         return {
           success: false,
-          message: 'Spiel kann nicht gestartet werden'
+          message: 'Spiel kann nicht gestartet werden',
         };
       }
 
@@ -185,7 +178,7 @@ export class WerewolfGameManager {
       if (!validation.isValid) {
         return {
           success: false,
-          message: `Ungültige Konfiguration: ${validation.errors.join(', ')}`
+          message: `Ungültige Konfiguration: ${validation.errors.join(', ')}`,
         };
       }
 
@@ -214,9 +207,9 @@ export class WerewolfGameManager {
         // Update Datenbank mit Rolle
         await supabaseAdmin
           .from('players')
-          .update({ 
+          .update({
             role: assignment.role,
-            team: this.roleService.getRoleTeam(assignment.role)
+            team: this.roleService.getRoleTeam(assignment.role),
           })
           .eq('game_id', gameId)
           .eq('user_id', assignment.playerId);
@@ -231,7 +224,7 @@ export class WerewolfGameManager {
         .update({
           status: 'IN_PROGRESS',
           phase: 'NIGHT',
-          started_at: new Date().toISOString()
+          started_at: new Date().toISOString(),
         })
         .eq('id', gameId);
 
@@ -242,7 +235,7 @@ export class WerewolfGameManager {
       const roleAssignmentsWithInfo = roleAssignments.map(assignment => ({
         playerId: assignment.playerId,
         role: assignment.role,
-        roleInfo: this.roleService.getRoleInfo(assignment.role)
+        roleInfo: this.roleService.getRoleInfo(assignment.role),
       }));
 
       const gameState = this.nightManager.getGameState(gameId);
@@ -254,13 +247,12 @@ export class WerewolfGameManager {
         success: true,
         message: 'Spiel gestartet und Rollen vergeben',
         roleAssignments: roleAssignmentsWithInfo,
-        gameState
+        gameState,
       };
-
     } catch (error: any) {
       return {
         success: false,
-        message: `Fehler beim Starten: ${error.message}`
+        message: `Fehler beim Starten: ${error.message}`,
       };
     }
   }
@@ -291,14 +283,14 @@ export class WerewolfGameManager {
       if (!players || !gameState) {
         return {
           success: false,
-          message: 'Spiel nicht gefunden'
+          message: 'Spiel nicht gefunden',
         };
       }
 
       if (gameState.phase !== 'NIGHT') {
         return {
           success: false,
-          message: 'Keine Nacht-Phase aktiv'
+          message: 'Keine Nacht-Phase aktiv',
         };
       }
 
@@ -306,7 +298,7 @@ export class WerewolfGameManager {
       if (!player || !player.isAlive) {
         return {
           success: false,
-          message: 'Spieler nicht gefunden oder tot'
+          message: 'Spieler nicht gefunden oder tot',
         };
       }
 
@@ -315,7 +307,7 @@ export class WerewolfGameManager {
       if (!availableActions.includes(actionData.actionType)) {
         return {
           success: false,
-          message: 'Aktion nicht verfügbar'
+          message: 'Aktion nicht verfügbar',
         };
       }
 
@@ -328,7 +320,7 @@ export class WerewolfGameManager {
         targetId: actionData.targetId || '',
         secondTargetId: actionData.secondTargetId ?? '',
         phase: gameState.currentNightPhase!,
-        dayNumber: gameState.dayNumber
+        dayNumber: gameState.dayNumber,
       };
 
       // Führe Aktion durch Night Manager aus
@@ -341,13 +333,12 @@ export class WerewolfGameManager {
         success: result.success,
         message: result.message,
         revealedInfo: result.revealedInfo,
-        canProceed
+        canProceed,
       };
-
     } catch (error: any) {
       return {
         success: false,
-        message: `Fehler bei Nacht-Aktion: ${error.message}`
+        message: `Fehler bei Nacht-Aktion: ${error.message}`,
       };
     }
   }
@@ -375,7 +366,7 @@ export class WerewolfGameManager {
           nextPhase: null,
           nextRole: null,
           nightCompleted: false,
-          gameEnded: false
+          gameEnded: false,
         };
       }
 
@@ -402,9 +393,8 @@ export class WerewolfGameManager {
         nextRole: resolution.nextRole,
         nightCompleted: resolution.nightCompleted,
         gameEnded,
-        ...(winner && { winner })
+        ...(winner && { winner }),
       };
-
     } catch (error: any) {
       return {
         success: false,
@@ -413,7 +403,7 @@ export class WerewolfGameManager {
         nextPhase: null,
         nextRole: null,
         nightCompleted: false,
-        gameEnded: false
+        gameEnded: false,
       };
     }
   }
@@ -438,7 +428,7 @@ export class WerewolfGameManager {
           success: false,
           message: 'Spiel nicht gefunden',
           survivors: [],
-          nightDeaths: []
+          nightDeaths: [],
         };
       }
 
@@ -449,15 +439,14 @@ export class WerewolfGameManager {
         success: true,
         message: 'Tag-Phase gestartet',
         survivors,
-        nightDeaths
+        nightDeaths,
       };
-
     } catch (error: any) {
       return {
         success: false,
         message: `Fehler beim Starten der Tag-Phase: ${error.message}`,
         survivors: [],
-        nightDeaths: []
+        nightDeaths: [],
       };
     }
   }
@@ -483,7 +472,7 @@ export class WerewolfGameManager {
           success: false,
           message: 'Spiel nicht gefunden',
           votes: {},
-          gameEnded: false
+          gameEnded: false,
         };
       }
 
@@ -509,7 +498,7 @@ export class WerewolfGameManager {
           success: false,
           message: 'Keine gültigen Stimmen',
           votes: voteCount,
-          gameEnded: false
+          gameEnded: false,
         };
       }
 
@@ -531,15 +520,14 @@ export class WerewolfGameManager {
         eliminatedPlayer: eliminatedPlayerId,
         votes: voteCount,
         gameEnded,
-        ...(winner && { winner })
+        ...(winner && { winner }),
       };
-
     } catch (error: any) {
       return {
         success: false,
         message: `Fehler bei Abstimmung: ${error.message}`,
         votes: {},
-        gameEnded: false
+        gameEnded: false,
       };
     }
   }
@@ -600,7 +588,7 @@ export class WerewolfGameManager {
       .from('players')
       .update({
         is_alive: false,
-        eliminated_at: new Date().toISOString()
+        eliminated_at: new Date().toISOString(),
       })
       .eq('game_id', gameId)
       .eq('user_id', playerId);
@@ -626,7 +614,7 @@ export class WerewolfGameManager {
       .update({
         status: 'FINISHED',
         finished_at: new Date().toISOString(),
-        winner: winner
+        winner: winner,
       })
       .eq('id', gameId);
 
@@ -674,7 +662,7 @@ export class WerewolfGameManager {
   getAvailableActions(gameId: string, playerId: string): ActionType[] {
     const players = this.gamePlayers.get(gameId);
     const gameState = this.nightManager.getGameState(gameId);
-    
+
     if (!players || !gameState) return [];
 
     const player = players.find(p => p.id === playerId);
@@ -693,7 +681,7 @@ export class WerewolfGameManager {
     if (gameId === 'invalid-game-id') {
       return {
         success: false,
-        error: 'Game not found'
+        error: 'Game not found',
       };
     }
 
@@ -701,7 +689,7 @@ export class WerewolfGameManager {
     if (players.some(p => !p.id || !p.role)) {
       return {
         success: false,
-        error: 'Player data corrupted'
+        error: 'Player data corrupted',
       };
     }
 
@@ -716,15 +704,15 @@ export class WerewolfGameManager {
       moon_phase: 'full_moon',
       pack_structure: {
         alpha: werewolves.find(w => w.pack_rank === 'alpha'),
-        members: werewolves
+        members: werewolves,
       },
       moon_phase_bonuses: {
         enhanced_senses: true,
-        pack_coordination: true
+        pack_coordination: true,
       },
       transformation_schedule: {
-        next_full_moon: '2024-01-15T00:00:00Z'
-      }
+        next_full_moon: '2024-01-15T00:00:00Z',
+      },
     };
   }
 
@@ -743,9 +731,9 @@ export class WerewolfGameManager {
         casualties: ['player-1'],
         pack_bonus_applied: true,
         territory_bonuses: {
-          forest_advantage: true
-        }
-      }
+          forest_advantage: true,
+        },
+      },
     };
   }
 
@@ -757,14 +745,14 @@ export class WerewolfGameManager {
     if (action.type === 'invalid') {
       return {
         success: false,
-        error: 'Invalid action type'
+        error: 'Invalid action type',
       };
     }
 
     // TODO: Implement proper night action submission
     return {
       success: true,
-      message: 'Action submitted'
+      message: 'Action submitted',
     };
   }
 
@@ -781,7 +769,7 @@ export class WerewolfGameManager {
         game_ended: true,
         winning_team: 'werewolf',
         victory_type: 'elimination',
-        winner: 'WEREWOLVES_WIN'
+        winner: 'WEREWOLVES_WIN',
       };
     }
 
@@ -791,7 +779,7 @@ export class WerewolfGameManager {
         game_ended: true,
         winning_team: 'villager',
         victory_type: 'elimination',
-        winner: 'VILLAGERS_WIN'
+        winner: 'VILLAGERS_WIN',
       };
     }
 
@@ -799,7 +787,7 @@ export class WerewolfGameManager {
     return {
       winner: null,
       game_continues: true,
-      game_ended: false
+      game_ended: false,
     };
   }
 
@@ -810,7 +798,7 @@ export class WerewolfGameManager {
     // TODO: Implement werewolf transformation logic
     return {
       success: true,
-      transformation_complete: true
+      transformation_complete: true,
     };
   }
 
@@ -821,7 +809,7 @@ export class WerewolfGameManager {
     // TODO: Implement pack communication logic
     return {
       success: true,
-      pack_channel_active: true
+      pack_channel_active: true,
     };
   }
 
@@ -835,8 +823,8 @@ export class WerewolfGameManager {
       bonus_active: false,
       transformation_modifiers: {
         strength_bonus: 1.5,
-        speed_bonus: 1.2
-      }
+        speed_bonus: 1.2,
+      },
     };
   }
 
@@ -849,7 +837,7 @@ export class WerewolfGameManager {
       success: true,
       ability_used: ability.type,
       pack_bonuses_applied: true,
-      affected_werewolves: 2
+      affected_werewolves: 2,
     };
   }
 
@@ -863,7 +851,7 @@ export class WerewolfGameManager {
       player_removed: false,
       game_paused: true,
       game_continues: true,
-      replacement_needed: false
+      replacement_needed: false,
     };
   }
 
@@ -875,7 +863,7 @@ export class WerewolfGameManager {
     return {
       success: true,
       processed_count: actions.length,
-      results: []
+      results: [],
     };
   }
 }

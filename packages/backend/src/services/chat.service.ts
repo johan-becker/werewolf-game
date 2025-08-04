@@ -1,9 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 
 export interface ChatMessage {
   id: string;
@@ -41,19 +38,12 @@ export class ChatService {
   /**
    * Send a chat message with validation and permissions
    */
-  async sendMessage(
-    userId: string,
-    request: SendMessageRequest
-  ): Promise<ChatMessage> {
+  async sendMessage(userId: string, request: SendMessageRequest): Promise<ChatMessage> {
     // Validate message content
     this.validateMessage(request.content);
 
     // Check permissions
-    const permissions = await this.getChannelPermissions(
-      userId,
-      request.channel,
-      request.gameId
-    );
+    const permissions = await this.getChannelPermissions(userId, request.channel, request.gameId);
 
     if (!permissions.canWrite) {
       throw new Error(permissions.reason || 'No permission to write in this channel');
@@ -77,12 +67,14 @@ export class ChatService {
         channel: request.channel,
         type: 'TEXT',
         content: filteredContent,
-        mentions: mentions
+        mentions: mentions,
       })
-      .select(`
+      .select(
+        `
         *,
         user:profiles!inner(username, avatar_url)
-      `)
+      `
+      )
       .single();
 
     if (error) throw new Error(`Failed to send message: ${error.message}`);
@@ -106,12 +98,14 @@ export class ChatService {
         user_id: '00000000-0000-0000-0000-000000000000', // System user ID
         channel,
         type,
-        content
+        content,
       })
-      .select(`
+      .select(
+        `
         *,
         user:profiles!inner(username, avatar_url)
-      `)
+      `
+      )
       .single();
 
     if (error) throw new Error(`Failed to send system message: ${error.message}`);
@@ -137,10 +131,12 @@ export class ChatService {
 
     let query = supabaseAdmin
       .from('chat_messages')
-      .select(`
+      .select(
+        `
         *,
         user:profiles!inner(username, avatar_url)
-      `)
+      `
+      )
       .eq('channel', channel)
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -229,22 +225,26 @@ export class ChatService {
       case 'DAY':
         return {
           canRead: true,
-          canWrite: player.is_alive && game.phase === 'DAY'
+          canWrite: player.is_alive && game.phase === 'DAY',
         };
 
       case 'NIGHT':
         if (player.role !== 'WEREWOLF') {
-          return { canRead: false, canWrite: false, reason: 'Only werewolves can access night chat' };
+          return {
+            canRead: false,
+            canWrite: false,
+            reason: 'Only werewolves can access night chat',
+          };
         }
         return {
           canRead: true,
-          canWrite: player.is_alive && game.phase === 'NIGHT'
+          canWrite: player.is_alive && game.phase === 'NIGHT',
         };
 
       case 'DEAD':
         return {
           canRead: !player.is_alive,
-          canWrite: !player.is_alive
+          canWrite: !player.is_alive,
         };
 
       default:
@@ -343,7 +343,7 @@ export class ChatService {
       mentions: dbMessage.mentions || [],
       edited: dbMessage.edited,
       editedAt: dbMessage.edited_at,
-      createdAt: dbMessage.created_at
+      createdAt: dbMessage.created_at,
     };
   }
 
@@ -352,10 +352,7 @@ export class ChatService {
    */
   async deleteMessage(messageId: string, _moderatorId: string): Promise<void> {
     // Hier könntest du zusätzliche Moderator-Checks implementieren
-    const { error } = await supabaseAdmin
-      .from('chat_messages')
-      .delete()
-      .eq('id', messageId);
+    const { error } = await supabaseAdmin.from('chat_messages').delete().eq('id', messageId);
 
     if (error) throw new Error(`Failed to delete message: ${error.message}`);
   }
@@ -363,11 +360,7 @@ export class ChatService {
   /**
    * Edit message
    */
-  async editMessage(
-    messageId: string,
-    userId: string,
-    newContent: string
-  ): Promise<ChatMessage> {
+  async editMessage(messageId: string, userId: string, newContent: string): Promise<ChatMessage> {
     this.validateMessage(newContent);
 
     const filteredContent = this.filterContent(newContent);
@@ -379,14 +372,16 @@ export class ChatService {
         content: filteredContent,
         mentions: mentions,
         edited: true,
-        edited_at: new Date().toISOString()
+        edited_at: new Date().toISOString(),
       })
       .eq('id', messageId)
       .eq('user_id', userId) // Only owner can edit
-      .select(`
+      .select(
+        `
         *,
         user:profiles!inner(username, avatar_url)
-      `)
+      `
+      )
       .single();
 
     if (error) throw new Error(`Failed to edit message: ${error.message}`);

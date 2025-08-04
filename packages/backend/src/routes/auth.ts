@@ -36,33 +36,16 @@ router.post(
   asyncHandler(AuthController.signin)
 );
 
-router.post(
-  '/refresh',
-  authRateLimit,
-  asyncHandler(AuthController.refresh)
-);
+router.post('/refresh', authRateLimit, asyncHandler(AuthController.refresh));
 
-router.post(
-  '/logout',
-  asyncHandler(AuthController.logout)
-);
+router.post('/logout', asyncHandler(AuthController.logout));
 
 // Protected authentication routes (require valid access token)
-router.get(
-  '/me',
-  requireAuth,
-  asyncHandler(AuthController.me)
-);
+router.get('/me', requireAuth, asyncHandler(AuthController.me));
 
 // OAuth routes
-router.post(
-  '/provider/:provider',
-  asyncHandler(AuthController.signInWithProvider)
-);
+router.post('/provider/:provider', asyncHandler(AuthController.signInWithProvider));
 
-router.get(
-  '/callback',
-  asyncHandler(AuthController.oauthCallback)
-);
+router.get('/callback', asyncHandler(AuthController.oauthCallback));
 
 export default router;

@@ -7,9 +7,7 @@ class DatabaseService {
 
   private constructor() {
     this.prisma = new PrismaClient({
-      log: process.env.NODE_ENV === 'development' 
-        ? ['query', 'info', 'warn', 'error']
-        : ['error']
+      log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['error'],
     });
 
     // Test connection
@@ -58,9 +56,7 @@ class DatabaseService {
   }
 
   // Transaction wrapper
-  public async transaction<T>(
-    fn: (tx: any) => Promise<T>
-  ): Promise<T> {
+  public async transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
     return this.prisma.$transaction(fn);
   }
 }

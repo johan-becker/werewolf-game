@@ -20,7 +20,7 @@ import {
   GameListSuccess,
   GameDetailsSuccess,
   GameErrorFactory,
-  GameErrorCode
+  GameErrorCode,
 } from '../types/controller.types';
 
 export class EnhancedGameController {
@@ -53,7 +53,7 @@ export class EnhancedGameController {
     try {
       // Input validation
       const { maxPlayers, isPrivate, name } = req.body;
-      
+
       if (maxPlayers !== undefined) {
         if (typeof maxPlayers !== 'number' || maxPlayers < 4 || maxPlayers > 20) {
           return {
@@ -63,7 +63,7 @@ export class EnhancedGameController {
               maxPlayers,
               'number between 4 and 20',
               'Maximum players must be between 4 and 20'
-            )
+            ),
           };
         }
       }
@@ -77,10 +77,10 @@ export class EnhancedGameController {
               name,
               'string',
               'Game name must be a string'
-            )
+            ),
           };
         }
-        
+
         if (name.length > 50) {
           return {
             success: false,
@@ -90,11 +90,11 @@ export class EnhancedGameController {
               field: 'name',
               details: { maxLength: 50, actualLength: name.length },
               suggestion: 'Please use a shorter game name (max 50 characters)',
-              timestamp: new Date().toISOString()
-            }
+              timestamp: new Date().toISOString(),
+            },
           };
         }
-        
+
         if (name.trim().length === 0) {
           return {
             success: false,
@@ -103,8 +103,8 @@ export class EnhancedGameController {
               message: 'Game name cannot be empty',
               field: 'name',
               suggestion: 'Please provide a non-empty game name',
-              timestamp: new Date().toISOString()
-            }
+              timestamp: new Date().toISOString(),
+            },
           };
         }
       }
@@ -117,15 +117,16 @@ export class EnhancedGameController {
             isPrivate,
             'boolean',
             'isPrivate must be true or false'
-          )
+          ),
         };
       }
 
       // Check if user already has an active game
       const existingGames = await this.gameService.getGameList(10, 0);
-      const userActiveGame = existingGames.find(game => 
-        game.creatorId === req.user.userId && 
-        (game.status === 'waiting' || game.status === 'in_progress')
+      const userActiveGame = existingGames.find(
+        game =>
+          game.creatorId === req.user.userId &&
+          (game.status === 'waiting' || game.status === 'in_progress')
       );
 
       if (userActiveGame) {
@@ -134,14 +135,14 @@ export class EnhancedGameController {
           error: {
             code: GameErrorCode.PLAYER_ALREADY_IN_GAME,
             message: 'You already have an active game',
-            details: { 
-              existingGameId: userActiveGame.id, 
+            details: {
+              existingGameId: userActiveGame.id,
               existingGameCode: userActiveGame.code,
-              existingGameStatus: userActiveGame.status
+              existingGameStatus: userActiveGame.status,
             },
             suggestion: 'Finish or leave your current game before creating a new one',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 
@@ -150,7 +151,7 @@ export class EnhancedGameController {
         creatorId: req.user.userId,
         maxPlayers: maxPlayers || 8,
         isPrivate: isPrivate || false,
-        name: name?.trim()
+        name: name?.trim(),
       });
 
       const successData: GameCreationSuccess = {
@@ -162,16 +163,15 @@ export class EnhancedGameController {
           maxPlayers: game.maxPlayers,
           isPrivate: game.isPrivate ?? false,
           createdAt: this.formatDateSafely(game.createdAt),
-          hostId: game.creatorId
+          hostId: game.creatorId,
         },
-        playerCount: 1
+        playerCount: 1,
       };
 
       return {
         success: true,
-        data: successData
+        data: successData,
       };
-
     } catch (error: any) {
       // Transform service errors to controller errors
       if (error.message?.includes('duplicate') || error.message?.includes('unique')) {
@@ -182,8 +182,8 @@ export class EnhancedGameController {
             message: 'A game with this configuration already exists',
             details: { originalError: error.message },
             suggestion: 'Please try with different settings',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 
@@ -193,16 +193,13 @@ export class EnhancedGameController {
           error: GameErrorFactory.createServerError(
             error.message,
             'Unable to create game due to database connectivity'
-          )
+          ),
         };
       }
 
       return {
         success: false,
-        error: GameErrorFactory.createServerError(
-          error.message,
-          'Failed to create game'
-        )
+        error: GameErrorFactory.createServerError(error.message, 'Failed to create game'),
       };
     }
   }
@@ -214,9 +211,9 @@ export class EnhancedGameController {
     try {
       const limit = Math.min(Number(req.query.limit) || 20, 100);
       const offset = Math.max(Number(req.query.offset) || 0, 0);
-      
+
       // Validate pagination parameters were already handled by middleware
-      
+
       const games = await this.gameService.getGameList(limit, offset);
       const totalCount = games.length; // Simplified count for now
 
@@ -230,28 +227,24 @@ export class EnhancedGameController {
           maxPlayers: game.maxPlayers,
           isPrivate: game.isPrivate ?? false,
           createdAt: this.formatDateSafely(game.createdAt),
-          hostName: game.hostName || 'Unknown'
+          hostName: game.hostName || 'Unknown',
         })),
         pagination: {
           total: totalCount,
           limit,
           offset,
-          hasMore: offset + limit < totalCount
-        }
+          hasMore: offset + limit < totalCount,
+        },
       };
 
       return {
         success: true,
-        data: successData
+        data: successData,
       };
-
     } catch (error: any) {
       return {
         success: false,
-        error: GameErrorFactory.createServerError(
-          error.message,
-          'Failed to retrieve game list'
-        )
+        error: GameErrorFactory.createServerError(error.message, 'Failed to retrieve game list'),
       };
     }
   }
@@ -262,34 +255,31 @@ export class EnhancedGameController {
   async getGame(req: AuthenticatedRequest, _res: Response): Promise<GameDetailsResult> {
     try {
       const gameId = req.params.id;
-      
+
       if (!gameId) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError('undefined', 'id')
+          error: GameErrorFactory.createGameNotFoundError('undefined', 'id'),
         };
       }
-      
+
       const game = await this.gameService.getGameDetails(gameId || '');
-      
+
       if (!game) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(gameId, 'id')
+          error: GameErrorFactory.createGameNotFoundError(gameId, 'id'),
         };
       }
 
       // Check if user has permission to view this game
       const isParticipant = game.players?.some(player => player.id === req.user.userId);
       const isHost = game.creatorId === req.user.userId;
-      
+
       if (game.isPrivate && !isParticipant && !isHost) {
         return {
           success: false,
-          error: GameErrorFactory.createPermissionError(
-            'view private game',
-            'private game access'
-          )
+          error: GameErrorFactory.createPermissionError('view private game', 'private game access'),
         };
       }
 
@@ -306,41 +296,37 @@ export class EnhancedGameController {
         ...(game.startedAt && { startedAt: this.formatDateSafely(game.startedAt) }),
         host: {
           id: game.creatorId,
-          username: game.hostName || 'Unknown'
+          username: game.hostName || 'Unknown',
         },
         players: (game.players || []).map(player => ({
           id: player.id,
           username: player.username || 'Unknown',
           status: player.status || 'active',
           joinedAt: this.formatDateSafely(player.joinedAt),
-          isHost: player.id === game.creatorId
+          isHost: player.id === game.creatorId,
         })),
         settings: {
           ...(game.timeLimit !== undefined && { timeLimit: game.timeLimit }),
           enableChat: game.enableChat !== false,
-          allowSpectators: game.allowSpectators !== false
-        }
+          allowSpectators: game.allowSpectators !== false,
+        },
       };
 
       return {
         success: true,
-        data: successData
+        data: successData,
       };
-
     } catch (error: any) {
       if (error.message?.includes('not found')) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id')
+          error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id'),
         };
       }
 
       return {
         success: false,
-        error: GameErrorFactory.createServerError(
-          error.message,
-          'Failed to retrieve game details'
-        )
+        error: GameErrorFactory.createServerError(error.message, 'Failed to retrieve game details'),
       };
     }
   }
@@ -352,20 +338,20 @@ export class EnhancedGameController {
     try {
       const gameId = req.params.id;
       const userId = req.user.userId;
-      
+
       if (!gameId) {
         return {
           success: false,
-          error: GameErrorFactory.createValidationError('id', gameId, 'Game ID is required')
+          error: GameErrorFactory.createValidationError('id', gameId, 'Game ID is required'),
         };
       }
-      
+
       // Check if game exists first
       const game = await this.gameService.getGameDetails(gameId);
       if (!game) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(gameId, 'id')
+          error: GameErrorFactory.createGameNotFoundError(gameId, 'id'),
         };
       }
 
@@ -374,11 +360,7 @@ export class EnhancedGameController {
         const currentPhase = game.status === 'in_progress' ? 'in progress' : game.status;
         return {
           success: false,
-          error: GameErrorFactory.createGameStateError(
-            'waiting',
-            currentPhase,
-            'join game'
-          )
+          error: GameErrorFactory.createGameStateError('waiting', currentPhase, 'join game'),
         };
       }
 
@@ -390,13 +372,13 @@ export class EnhancedGameController {
           error: {
             code: GameErrorCode.GAME_FULL,
             message: `Game is full (${currentPlayerCount}/${game.maxPlayers} players)`,
-            details: { 
-              currentPlayers: currentPlayerCount, 
-              maxPlayers: game.maxPlayers 
+            details: {
+              currentPlayers: currentPlayerCount,
+              maxPlayers: game.maxPlayers,
             },
             suggestion: 'Try joining a different game or wait for a slot to open',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 
@@ -410,8 +392,8 @@ export class EnhancedGameController {
             message: 'You are already in this game',
             details: { gameId, playerId: userId },
             suggestion: 'You can leave and rejoin if needed',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 
@@ -425,7 +407,7 @@ export class EnhancedGameController {
       //     error: {
       //       code: GameErrorCode.PLAYER_ALREADY_IN_GAME,
       //       message: 'You are already in another game',
-      //       details: { 
+      //       details: {
       //         currentGameId: activeGame.id,
       //         currentGameCode: activeGame.code,
       //         currentGameStatus: activeGame.status
@@ -443,7 +425,7 @@ export class EnhancedGameController {
       if (!updatedGame) {
         return {
           success: false,
-          error: GameErrorFactory.createServerError('Failed to retrieve updated game details')
+          error: GameErrorFactory.createServerError('Failed to retrieve updated game details'),
         };
       }
 
@@ -454,33 +436,32 @@ export class EnhancedGameController {
           name: updatedGame.name || 'Unknown Game',
           status: updatedGame.status,
           playerCount: updatedGame.players?.length || 0,
-          maxPlayers: updatedGame.maxPlayers
+          maxPlayers: updatedGame.maxPlayers,
         },
         player: {
           id: userId,
           username: req.user.username || req.user.email?.split('@')[0] || 'Unknown',
           joinedAt: new Date().toISOString(),
-          isHost: updatedGame.creatorId === userId
+          isHost: updatedGame.creatorId === userId,
         },
         otherPlayers: (updatedGame.players || [])
           .filter(p => p.id !== userId)
           .map(player => ({
             id: player.id,
             username: player.username || 'Unknown',
-            isHost: player.id === updatedGame.creatorId
-          }))
+            isHost: player.id === updatedGame.creatorId,
+          })),
       };
 
       return {
         success: true,
-        data: successData
+        data: successData,
       };
-
     } catch (error: any) {
       if (error.message?.includes('not found')) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id')
+          error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id'),
         };
       }
 
@@ -491,17 +472,14 @@ export class EnhancedGameController {
             code: GameErrorCode.GAME_FULL,
             message: 'Cannot join - game is at capacity',
             suggestion: 'Try joining a different game',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 
       return {
         success: false,
-        error: GameErrorFactory.createServerError(
-          error.message,
-          'Failed to join game'
-        )
+        error: GameErrorFactory.createServerError(error.message, 'Failed to join game'),
       };
     }
   }
@@ -523,7 +501,7 @@ export class EnhancedGameController {
       if (!game) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(code, 'code')
+          error: GameErrorFactory.createGameNotFoundError(code, 'code'),
         };
       }
 
@@ -533,14 +511,10 @@ export class EnhancedGameController {
         { ...req, params: { ...req.params, id: game.id } } as unknown as AuthenticatedRequest,
         res
       );
-
     } catch (error: any) {
       return {
         success: false,
-        error: GameErrorFactory.createServerError(
-          error.message,
-          'Failed to join game by code'
-        )
+        error: GameErrorFactory.createServerError(error.message, 'Failed to join game by code'),
       };
     }
   }
@@ -556,7 +530,7 @@ export class EnhancedGameController {
       if (!gameId) {
         return {
           success: false,
-          error: GameErrorFactory.createValidationError('id', gameId, 'Game ID is required')
+          error: GameErrorFactory.createValidationError('id', gameId, 'Game ID is required'),
         };
       }
 
@@ -565,7 +539,7 @@ export class EnhancedGameController {
       if (!game) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(gameId, 'id')
+          error: GameErrorFactory.createGameNotFoundError(gameId, 'id'),
         };
       }
 
@@ -579,13 +553,17 @@ export class EnhancedGameController {
             message: 'You are not in this game',
             details: { gameId, playerId: userId },
             suggestion: 'You can only leave games you have joined',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 
       // Check if game can be left (not in critical phases)
-      if (game.status === 'in_progress' && game.phase && ['voting', 'night_action'].includes(game.phase)) {
+      if (
+        game.status === 'in_progress' &&
+        game.phase &&
+        ['voting', 'night_action'].includes(game.phase)
+      ) {
         return {
           success: false,
           error: {
@@ -593,8 +571,8 @@ export class EnhancedGameController {
             message: 'Cannot leave during critical game phase',
             details: { currentPhase: game.phase },
             suggestion: 'Wait for the current phase to complete before leaving',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 
@@ -617,27 +595,24 @@ export class EnhancedGameController {
       }
 
       const successData: GameLeaveSuccess = {
-        message: remainingPlayerCount === 0 
-          ? 'Game disbanded - no players remaining'
-          : isHost 
-            ? 'Left game and transferred host privileges'
-            : 'Successfully left the game',
+        message:
+          remainingPlayerCount === 0
+            ? 'Game disbanded - no players remaining'
+            : isHost
+              ? 'Left game and transferred host privileges'
+              : 'Successfully left the game',
         gameStatus,
-        ...(newHostId && { newHostId })
+        ...(newHostId && { newHostId }),
       };
 
       return {
         success: true,
-        data: successData
+        data: successData,
       };
-
     } catch (error: any) {
       return {
         success: false,
-        error: GameErrorFactory.createServerError(
-          error.message,
-          'Failed to leave game'
-        )
+        error: GameErrorFactory.createServerError(error.message, 'Failed to leave game'),
       };
     }
   }
@@ -653,7 +628,7 @@ export class EnhancedGameController {
       if (!gameId) {
         return {
           success: false,
-          error: GameErrorFactory.createValidationError('id', gameId, 'Game ID is required')
+          error: GameErrorFactory.createValidationError('id', gameId, 'Game ID is required'),
         };
       }
 
@@ -662,7 +637,7 @@ export class EnhancedGameController {
       if (!game) {
         return {
           success: false,
-          error: GameErrorFactory.createGameNotFoundError(gameId, 'id')
+          error: GameErrorFactory.createGameNotFoundError(gameId, 'id'),
         };
       }
 
@@ -673,7 +648,7 @@ export class EnhancedGameController {
           error: GameErrorFactory.createPermissionError(
             'start game',
             'only the host can start the game'
-          )
+          ),
         };
       }
 
@@ -681,32 +656,28 @@ export class EnhancedGameController {
       if (game.status !== 'waiting') {
         return {
           success: false,
-          error: GameErrorFactory.createGameStateError(
-            'waiting',
-            game.status,
-            'start game'
-          )
+          error: GameErrorFactory.createGameStateError('waiting', game.status, 'start game'),
         };
       }
 
       // Check minimum players
       const playerCount = game.players?.length || 0;
       const minPlayers = 4; // Minimum for werewolf game
-      
+
       if (playerCount < minPlayers) {
         return {
           success: false,
           error: {
             code: GameErrorCode.INSUFFICIENT_PLAYERS,
             message: `Not enough players to start (${playerCount}/${minPlayers} minimum)`,
-            details: { 
-              currentPlayers: playerCount, 
+            details: {
+              currentPlayers: playerCount,
               minRequired: minPlayers,
-              maxPlayers: game.maxPlayers
+              maxPlayers: game.maxPlayers,
             },
             suggestion: `Wait for at least ${minPlayers - playerCount} more player(s) to join`,
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 
@@ -720,14 +691,13 @@ export class EnhancedGameController {
         message: `Game started with ${playerCount} players`,
         gamePhase: 'night',
         playerCount,
-        estimatedDuration: estimatedMinutes
+        estimatedDuration: estimatedMinutes,
       };
 
       return {
         success: true,
-        data: successData
+        data: successData,
       };
-
     } catch (error: any) {
       if (error.message?.includes('already started')) {
         return {
@@ -736,17 +706,14 @@ export class EnhancedGameController {
             code: GameErrorCode.GAME_ALREADY_STARTED,
             message: 'Game has already been started',
             suggestion: 'Join the game in progress or create a new game',
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 
       return {
         success: false,
-        error: GameErrorFactory.createServerError(
-          error.message,
-          'Failed to start game'
-        )
+        error: GameErrorFactory.createServerError(error.message, 'Failed to start game'),
       };
     }
   }

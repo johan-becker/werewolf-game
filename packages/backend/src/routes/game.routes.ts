@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { GameController } from '../controllers/game.controller';
 import { requireAuth } from '../middleware/auth';
-import { 
-  validateCreateGame, 
-  validateGameId, 
-  validateGameCode, 
-  validateGameList 
+import {
+  validateCreateGame,
+  validateGameId,
+  validateGameCode,
+  validateGameList,
 } from '../validators/game.validator';
 
 const router = Router();

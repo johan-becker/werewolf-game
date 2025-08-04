@@ -8,7 +8,7 @@ import {
   PaginationOptions,
   PaginatedResponse,
   DatabaseError,
-  ConflictError
+  ConflictError,
 } from '@/types/database';
 
 export class UserService {
@@ -20,8 +20,8 @@ export class UserService {
       // Check if username already exists
       const existingUser = await prisma.profile.findFirst({
         where: {
-          username: userData.username
-        }
+          username: userData.username,
+        },
       });
 
       if (existingUser) {
@@ -34,13 +34,12 @@ export class UserService {
           id: crypto.randomUUID(), // Will be replaced by Supabase auth ID
           username: userData.username,
           full_name: null,
-          avatar_url: null
-        }
+          avatar_url: null,
+        },
       });
 
       logger.info(`User created: ${user.username} (${user.id})`);
       return user;
-
     } catch (error) {
       if (error instanceof ConflictError) {
         throw error;
@@ -54,7 +53,7 @@ export class UserService {
   static async getUserByUsername(username: string): Promise<User | null> {
     try {
       const user = await prisma.profile.findUnique({
-        where: { username: username }
+        where: { username: username },
       });
 
       if (!user) {
@@ -63,7 +62,6 @@ export class UserService {
 
       logger.info(`User found: ${user.username}`);
       return user;
-
     } catch (error) {
       logger.error('Error authenticating user:', error);
       throw new DatabaseError('Authentication failed');
@@ -74,7 +72,7 @@ export class UserService {
   static async getUserById(id: string): Promise<User | null> {
     try {
       return await prisma.profile.findUnique({
-        where: { id }
+        where: { id },
       });
     } catch (error) {
       logger.error('Error fetching user by ID:', error);
@@ -82,12 +80,11 @@ export class UserService {
     }
   }
 
-
   // Get user profile with calculated win rate
   static async getUserProfile(id: string): Promise<UserProfile | null> {
     try {
       const user = await prisma.profile.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!user) {
@@ -104,9 +101,8 @@ export class UserService {
         gamesWon: user.games_won,
         winRate: Math.round(winRate * 100) / 100,
         createdAt: user.created_at,
-        lastLogin: null // Not tracked in current schema
+        lastLogin: null, // Not tracked in current schema
       };
-
     } catch (error) {
       logger.error('Error fetching user profile:', error);
       throw new DatabaseError('Failed to fetch user profile');
@@ -120,12 +116,11 @@ export class UserService {
         where: { id: userId },
         data: {
           games_played: { increment: 1 },
-          ...(won && { games_won: { increment: 1 } })
-        }
+          ...(won && { games_won: { increment: 1 } }),
+        },
       });
 
       logger.info(`Updated stats for user ${userId}: won=${won}`);
-
     } catch (error) {
       logger.error('Error updating user stats:', error);
       throw new DatabaseError('Failed to update user stats');
@@ -152,9 +147,9 @@ export class UserService {
           where,
           orderBy: { [sortBy]: sortOrder },
           skip: (page - 1) * limit,
-          take: limit
+          take: limit,
         }),
-        prisma.profile.count({ where })
+        prisma.profile.count({ where }),
       ]);
 
       return {
@@ -163,10 +158,9 @@ export class UserService {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
-
     } catch (error) {
       logger.error('Error fetching users:', error);
       throw new DatabaseError('Failed to fetch users');
@@ -178,12 +172,11 @@ export class UserService {
     try {
       const user = await prisma.profile.update({
         where: { id },
-        data: updateData
+        data: updateData,
       });
 
       logger.info(`User updated: ${user.username} (${user.id})`);
       return user;
-
     } catch (error) {
       logger.error('Error updating user:', error);
       throw new DatabaseError('Failed to update user');
@@ -197,11 +190,10 @@ export class UserService {
       // In current implementation, we would need to delete the profile
       // or add an isActive field to the schema
       await prisma.profile.delete({
-        where: { id }
+        where: { id },
       });
 
       logger.info(`User profile deleted: ${id}`);
-
     } catch (error) {
       logger.error('Error deleting user profile:', error);
       throw new DatabaseError('Failed to delete user profile');
@@ -224,15 +216,15 @@ export class UserService {
                 status: true,
                 created_at: true,
                 started_at: true,
-                finished_at: true
-              }
-            }
+                finished_at: true,
+              },
+            },
           },
           orderBy: { joined_at: 'desc' },
           skip: (page - 1) * limit,
-          take: limit
+          take: limit,
         }),
-        prisma.player.count({ where: { user_id: userId } })
+        prisma.player.count({ where: { user_id: userId } }),
       ]);
 
       return {
@@ -241,10 +233,9 @@ export class UserService {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
-
     } catch (error) {
       logger.error('Error fetching user game history:', error);
       throw new DatabaseError('Failed to fetch game history');

@@ -10,24 +10,13 @@ const router = Router();
 router.use(generalRateLimit);
 
 // Get current user's full profile (protected)
-router.get(
-  '/me',
-  requireAuth,
-  asyncHandler(UserController.getMyProfile)
-);
+router.get('/me', requireAuth, asyncHandler(UserController.getMyProfile));
 
 // Update current user's profile (protected)
-router.patch(
-  '/me',
-  requireAuth,
-  asyncHandler(UserController.updateMyProfile)
-);
+router.patch('/me', requireAuth, asyncHandler(UserController.updateMyProfile));
 
 // Get public user profile by ID
-router.get(
-  '/:id',
-  asyncHandler(UserController.getPublicProfile)
-);
+router.get('/:id', asyncHandler(UserController.getPublicProfile));
 
 // Placeholder routes for future implementation
 router.get('/me/games', requireAuth, (req, res) => {

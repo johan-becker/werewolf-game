@@ -8,7 +8,7 @@ import {
   GamePhase,
   PaginationOptions,
   PaginatedResponse,
-  DatabaseError
+  DatabaseError,
 } from '@/types/database';
 import { $Enums } from '../generated/prisma';
 
@@ -23,13 +23,12 @@ export class GameLogService {
           phase: logData.phase,
           action: logData.actionType,
           user_id: logData.actorId || null,
-          details: logData.details
-        }
+          details: logData.details,
+        },
       });
 
       logger.debug(`Game log created: ${logData.actionType} in game ${logData.gameId}`);
       return gameLog;
-
     } catch (error) {
       logger.error('Error creating game log:', error);
       throw new DatabaseError('Failed to create game log');
@@ -52,21 +51,21 @@ export class GameLogService {
               select: {
                 id: true,
                 name: true,
-                code: true
-              }
+                code: true,
+              },
             },
             user: {
               select: {
                 id: true,
-                username: true
-              }
-            }
+                username: true,
+              },
+            },
           },
           orderBy: { [sortBy]: sortOrder },
           skip: (page - 1) * limit,
-          take: limit
+          take: limit,
         }),
-        prisma.gameLog.count({ where: { game_id: gameId } })
+        prisma.gameLog.count({ where: { game_id: gameId } }),
       ]);
 
       return {
@@ -75,10 +74,9 @@ export class GameLogService {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
-
     } catch (error) {
       logger.error('Error fetching game logs:', error);
       throw new DatabaseError('Failed to fetch game logs');
@@ -104,19 +102,18 @@ export class GameLogService {
             select: {
               id: true,
               name: true,
-              code: true
-            }
+              code: true,
+            },
           },
           user: {
             select: {
               id: true,
-              username: true
-            }
-          }
+              username: true,
+            },
+          },
         },
-        orderBy: { created_at: 'asc' }
+        orderBy: { created_at: 'asc' },
       });
-
     } catch (error) {
       logger.error('Error fetching round logs:', error);
       throw new DatabaseError('Failed to fetch round logs');
@@ -140,7 +137,7 @@ export class GameLogService {
       actionType,
       actorId,
       targetId: targetId || null,
-      details
+      details,
     });
   }
 
@@ -157,7 +154,7 @@ export class GameLogService {
       roundNumber,
       phase,
       actionType,
-      details
+      details,
     });
   }
 
@@ -256,13 +253,9 @@ export class GameLogService {
 
   // Log game start
   static async logGameStart(gameId: string): Promise<GameLog> {
-    return this.logGameEvent(
-      gameId,
-      0,
-      $Enums.GamePhase.DAY,
-      'GAME_START',
-      { event: 'game_started' }
-    );
+    return this.logGameEvent(gameId, 0, $Enums.GamePhase.DAY, 'GAME_START', {
+      event: 'game_started',
+    });
   }
 
   // Log game end
@@ -272,13 +265,11 @@ export class GameLogService {
     winningTeam: 'werewolves' | 'villagers',
     survivors: string[]
   ): Promise<GameLog> {
-    return this.logGameEvent(
-      gameId,
-      roundNumber,
-      $Enums.GamePhase.DAY,
-      'GAME_END',
-      { event: 'game_ended', winner: winningTeam, survivors }
-    );
+    return this.logGameEvent(gameId, roundNumber, $Enums.GamePhase.DAY, 'GAME_END', {
+      event: 'game_ended',
+      winner: winningTeam,
+      survivors,
+    });
   }
 
   // Log phase change
@@ -287,21 +278,15 @@ export class GameLogService {
     roundNumber: number,
     newPhase: GamePhase
   ): Promise<GameLog> {
-    return this.logGameEvent(
-      gameId,
-      roundNumber,
-      newPhase,
-      'PHASE_CHANGE',
-      { event: 'phase_change', phase: newPhase, round: roundNumber }
-    );
+    return this.logGameEvent(gameId, roundNumber, newPhase, 'PHASE_CHANGE', {
+      event: 'phase_change',
+      phase: newPhase,
+      round: roundNumber,
+    });
   }
 
   // Log player join
-  static async logPlayerJoin(
-    gameId: string,
-    playerId: string,
-    username: string
-  ): Promise<GameLog> {
+  static async logPlayerJoin(gameId: string, playerId: string, username: string): Promise<GameLog> {
     return this.logPlayerAction(
       gameId,
       0,
@@ -339,8 +324,8 @@ export class GameLogService {
           action: true,
           day_number: true,
           phase: true,
-          details: true
-        }
+          details: true,
+        },
       });
 
       const stats = {
@@ -349,10 +334,10 @@ export class GameLogService {
         actionsByType: {} as Record<string, number>,
         actionsByPhase: {
           DAY: 0,
-          NIGHT: 0
+          NIGHT: 0,
         },
         votingRounds: logs.filter(l => l.action === 'VOTE').length,
-        eliminations: logs.filter(l => l.action === 'PLAYER_ELIMINATED').length
+        eliminations: logs.filter(l => l.action === 'PLAYER_ELIMINATED').length,
       };
 
       // Count actions by type
@@ -364,7 +349,6 @@ export class GameLogService {
       });
 
       return stats;
-
     } catch (error) {
       logger.error('Error calculating game statistics:', error);
       throw new DatabaseError('Failed to calculate game statistics');
@@ -375,11 +359,10 @@ export class GameLogService {
   static async deleteGameLogs(gameId: string): Promise<void> {
     try {
       const result = await prisma.gameLog.deleteMany({
-        where: { game_id: gameId }
+        where: { game_id: gameId },
       });
 
       logger.info(`Deleted ${result.count} logs for game ${gameId}`);
-
     } catch (error) {
       logger.error('Error deleting game logs:', error);
       throw new DatabaseError('Failed to delete game logs');

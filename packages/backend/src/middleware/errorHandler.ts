@@ -1,11 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
-import {
-  DatabaseError,
-  ValidationError,
-  NotFoundError,
-  ConflictError
-} from '../types/database';
+import { DatabaseError, ValidationError, NotFoundError, ConflictError } from '../types/database';
 
 export interface AppError extends Error {
   statusCode?: number;
@@ -73,13 +68,13 @@ export const errorHandler = (
       url: req.url,
       method: req.method,
       ip: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent'),
     });
   } else if (statusCode === 404) {
     logger.warn('Not Found:', {
       url: req.url,
       method: req.method,
-      ip: req.ip
+      ip: req.ip,
     });
   } else {
     logger.info('Client Error:', {
@@ -87,7 +82,7 @@ export const errorHandler = (
       statusCode,
       url: req.url,
       method: req.method,
-      ip: req.ip
+      ip: req.ip,
     });
   }
 
@@ -95,8 +90,8 @@ export const errorHandler = (
     success: false,
     error: {
       code: errorCode,
-      message
-    }
+      message,
+    },
   };
 
   // Include stack trace in development
@@ -107,16 +102,13 @@ export const errorHandler = (
   res.status(statusCode).json(response);
 };
 
-export const notFoundHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
   const error = createError(`Route ${req.originalUrl} not found`, 404);
   error.code = 'ROUTE_NOT_FOUND';
   next(error);
 };
 
 export const asyncHandler =
-  (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) => (req: Request, res: Response, next: NextFunction) =>
+  (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) =>
+  (req: Request, res: Response, next: NextFunction) =>
     Promise.resolve(fn(req, res, next)).catch(next);

@@ -15,12 +15,12 @@ export class GameController {
         creatorId: userId,
         maxPlayers: req.body.maxPlayers || 8,
         isPrivate: req.body.isPrivate || false,
-        name: req.body.name
+        name: req.body.name,
       });
-      
+
       res.status(201).json({
         success: true,
-        data: game
+        data: game,
       });
     } catch (error) {
       next(error);
@@ -33,18 +33,15 @@ export class GameController {
   async listGames(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { limit = 20, offset = 0 } = req.query;
-      const games = await gameService.getGameList(
-        Number(limit),
-        Number(offset)
-      );
-      
+      const games = await gameService.getGameList(Number(limit), Number(offset));
+
       res.json({
         success: true,
         data: games,
         pagination: {
           limit: Number(limit),
-          offset: Number(offset)
-        }
+          offset: Number(offset),
+        },
       });
     } catch (error) {
       next(error);
@@ -62,10 +59,10 @@ export class GameController {
         return;
       }
       const game = await gameService.getGameDetails(gameId);
-      
+
       res.json({
         success: true,
-        data: game
+        data: game,
       });
     } catch (error) {
       next(error);
@@ -84,10 +81,10 @@ export class GameController {
         return;
       }
       const game = await gameService.joinGame(gameId, userId);
-      
+
       res.json({
         success: true,
-        data: game
+        data: game,
       });
     } catch (error) {
       next(error);
@@ -106,10 +103,10 @@ export class GameController {
         return;
       }
       const game = await gameService.joinGameByCode(code, userId);
-      
+
       res.json({
         success: true,
-        data: game
+        data: game,
       });
     } catch (error) {
       next(error);
@@ -128,11 +125,11 @@ export class GameController {
         return;
       }
       const result = await gameService.leaveGame(gameId, userId);
-      
+
       res.json({
         success: true,
         message: 'Successfully left the game',
-        data: result
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -151,10 +148,10 @@ export class GameController {
         return;
       }
       await gameService.startGame(gameId, userId);
-      
+
       res.json({
         success: true,
-        message: 'Game started successfully'
+        message: 'Game started successfully',
       });
     } catch (error) {
       next(error);

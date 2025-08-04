@@ -6,10 +6,7 @@
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
 import { AuthSecurityService } from '../services/auth-security.service';
-import { 
-  SocketAuthContext, 
-  AuthErrorCode
-} from '../types/auth.types';
+import { SocketAuthContext, AuthErrorCode } from '../types/auth.types';
 
 const authService = AuthSecurityService.getInstance();
 
@@ -31,12 +28,12 @@ export interface AuthenticatedSocket extends Socket {
  * Socket.IO authentication middleware with zero-tolerance security policy
  */
 export const authenticateSocket = async (
-  socket: Socket, 
+  socket: Socket,
   next: (err?: ExtendedError) => void
 ): Promise<void> => {
   try {
     const token = extractSocketToken(socket);
-    
+
     if (!token) {
       const error = createSocketError(
         AuthErrorCode.NO_TOKEN,
@@ -48,16 +45,13 @@ export const authenticateSocket = async (
     const context = {
       ip: getSocketIP(socket),
       userAgent: socket.handshake.headers['user-agent'] || 'unknown',
-      deviceId: socket.handshake.headers['x-device-id'] as string
+      deviceId: socket.handshake.headers['x-device-id'] as string,
     };
 
     const authResult = await authService.authenticateUser(token, context);
-    
+
     if (!authResult.success) {
-      const error = createSocketError(
-        authResult.error!.code,
-        authResult.error!.message
-      );
+      const error = createSocketError(authResult.error!.code, authResult.error!.message);
       return next(error);
     }
 
@@ -68,7 +62,7 @@ export const authenticateSocket = async (
       sessionId: generateSessionId(),
       connectedAt: new Date(),
       lastActivityAt: new Date(),
-      deviceId: context.deviceId
+      deviceId: context.deviceId,
     };
 
     // Set up activity tracking
@@ -78,7 +72,6 @@ export const authenticateSocket = async (
     setupSocketCleanup(authenticatedSocket);
 
     next();
-
   } catch (error) {
     const socketError = createSocketError(
       AuthErrorCode.SERVICE_UNAVAILABLE,
@@ -127,7 +120,7 @@ function getSocketIP(socket: Socket): string {
       return firstIP.trim();
     }
   }
-  
+
   if (realIP && typeof realIP === 'string') {
     return realIP;
   }
@@ -142,7 +135,7 @@ function createSocketError(code: AuthErrorCode, message: string): ExtendedError 
   const error = new Error(message) as ExtendedError;
   error.data = {
     code,
-    timestamp: new Date()
+    timestamp: new Date(),
   };
   return error;
 }
@@ -151,10 +144,12 @@ function createSocketError(code: AuthErrorCode, message: string): ExtendedError 
  * Type guard for authenticated sockets
  */
 export function isAuthenticatedSocket(socket: Socket): socket is AuthenticatedSocket {
-  return socket.data && 
-         socket.data.user && 
-         socket.data.sessionId && 
-         socket.data.connectedAt instanceof Date;
+  return (
+    socket.data &&
+    socket.data.user &&
+    socket.data.sessionId &&
+    socket.data.connectedAt instanceof Date
+  );
 }
 
 /**
@@ -170,7 +165,7 @@ function generateSessionId(): string {
 function setupActivityTracking(socket: AuthenticatedSocket): void {
   // Track activity on any event
   const originalEmit = socket.emit;
-  socket.emit = function(this: AuthenticatedSocket, event: string, ...args: any[]) {
+  socket.emit = function (this: AuthenticatedSocket, event: string, ...args: any[]) {
     socket.data.lastActivityAt = new Date();
     return originalEmit.call(this, event, ...args);
   } as any;
@@ -183,7 +178,7 @@ function setupActivityTracking(socket: AuthenticatedSocket): void {
     if (inactiveTime > maxInactiveTime) {
       socket.emit('session:timeout', {
         message: 'Session expired due to inactivity',
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       socket.disconnect(true);
     }
@@ -198,13 +193,13 @@ function setupActivityTracking(socket: AuthenticatedSocket): void {
  * Set up automatic socket cleanup
  */
 function setupSocketCleanup(socket: AuthenticatedSocket): void {
-  socket.on('disconnect', (reason) => {
+  socket.on('disconnect', reason => {
     console.log(`Socket ${socket.id} disconnected:`, {
       userId: socket.data.user.id,
       sessionId: socket.data.sessionId,
       reason,
       connectedDuration: Date.now() - socket.data.connectedAt.getTime(),
-      lastActivity: socket.data.lastActivityAt
+      lastActivity: socket.data.lastActivityAt,
     });
 
     // Clean up any game-specific state

@@ -8,74 +8,74 @@ import { z } from 'zod';
 // Werewolf Role Hierarchy
 export enum WerewolfRole {
   // Leadership Roles
-  ALPHA = 'ALPHA',           // Pack leader - highest authority
-  BETA = 'BETA',             // Second in command - trusted lieutenant
-  
+  ALPHA = 'ALPHA', // Pack leader - highest authority
+  BETA = 'BETA', // Second in command - trusted lieutenant
+
   // Specialized Roles
-  OMEGA = 'OMEGA',           // Pack peace keeper - conflict resolver
-  HUNTER = 'HUNTER',         // Skilled tracker and warrior
-  HEALER = 'HEALER',         // Pack medic and herbalist
-  SCOUT = 'SCOUT',           // Territory explorer and messenger
-  GUARDIAN = 'GUARDIAN',     // Pack protector and defender
-  
+  OMEGA = 'OMEGA', // Pack peace keeper - conflict resolver
+  HUNTER = 'HUNTER', // Skilled tracker and warrior
+  HEALER = 'HEALER', // Pack medic and herbalist
+  SCOUT = 'SCOUT', // Territory explorer and messenger
+  GUARDIAN = 'GUARDIAN', // Pack protector and defender
+
   // Standard Roles
   PACK_MEMBER = 'PACK_MEMBER', // Regular pack member
-  LONE_WOLF = 'LONE_WOLF',     // Independent werewolf
-  
+  LONE_WOLF = 'LONE_WOLF', // Independent werewolf
+
   // Special Status
-  CUB = 'CUB',               // Young werewolf in training
-  ELDER = 'ELDER',           // Retired pack member with wisdom
-  
+  CUB = 'CUB', // Young werewolf in training
+  ELDER = 'ELDER', // Retired pack member with wisdom
+
   // Human Roles (for mixed gameplay)
-  HUMAN = 'HUMAN',           // Unaware human
-  HUNTER_HUMAN = 'HUNTER_HUMAN' // Human werewolf hunter
+  HUMAN = 'HUMAN', // Unaware human
+  HUNTER_HUMAN = 'HUNTER_HUMAN', // Human werewolf hunter
 }
 
 // Pack Status
 export enum PackStatus {
-  ALPHA = 'ALPHA',           // Leading a pack
-  MEMBER = 'MEMBER',         // Part of a pack
-  BETA = 'BETA',             // Second in command
-  OMEGA = 'OMEGA',           // Special pack role
-  LONE = 'LONE',             // No pack affiliation
-  EXILE = 'EXILE',           // Banished from pack
-  CHALLENGER = 'CHALLENGER'   // Challenging current alpha
+  ALPHA = 'ALPHA', // Leading a pack
+  MEMBER = 'MEMBER', // Part of a pack
+  BETA = 'BETA', // Second in command
+  OMEGA = 'OMEGA', // Special pack role
+  LONE = 'LONE', // No pack affiliation
+  EXILE = 'EXILE', // Banished from pack
+  CHALLENGER = 'CHALLENGER', // Challenging current alpha
 }
 
 // Transformation State
 export enum TransformationState {
-  HUMAN = 'HUMAN',           // Human form
-  PARTIAL = 'PARTIAL',       // Partial transformation
-  WOLF = 'WOLF',             // Full wolf form
-  HYBRID = 'HYBRID',         // Human-wolf hybrid
+  HUMAN = 'HUMAN', // Human form
+  PARTIAL = 'PARTIAL', // Partial transformation
+  WOLF = 'WOLF', // Full wolf form
+  HYBRID = 'HYBRID', // Human-wolf hybrid
   LOCKED_HUMAN = 'LOCKED_HUMAN', // Cannot transform
-  LOCKED_WOLF = 'LOCKED_WOLF'    // Stuck in wolf form
+  LOCKED_WOLF = 'LOCKED_WOLF', // Stuck in wolf form
 }
 
 // User Abilities based on role and experience
 export interface WerewolfAbilities {
   // Physical Abilities
-  strength: number;          // 1-10 scale
-  speed: number;             // 1-10 scale
-  endurance: number;         // 1-10 scale
-  senses: number;            // Enhanced hearing/smell/sight
-  
+  strength: number; // 1-10 scale
+  speed: number; // 1-10 scale
+  endurance: number; // 1-10 scale
+  senses: number; // Enhanced hearing/smell/sight
+
   // Leadership Abilities (mainly for Alpha/Beta)
-  leadership: number;        // Ability to command pack
-  intimidation: number;      // Fear factor
-  diplomacy: number;         // Negotiation skills
-  
+  leadership: number; // Ability to command pack
+  intimidation: number; // Fear factor
+  diplomacy: number; // Negotiation skills
+
   // Specialized Skills
-  tracking: number;          // Following scents/trails
-  healing: number;           // Medical knowledge
-  stealth: number;           // Staying hidden
+  tracking: number; // Following scents/trails
+  healing: number; // Medical knowledge
+  stealth: number; // Staying hidden
   territory_knowledge: number; // Understanding of lands
-  
+
   // Supernatural Abilities
-  transformation_control: number;  // Control over shifting
-  moon_resistance: number;         // Resist forced transformation
-  silver_tolerance: number;        // Resistance to silver
-  pack_bond_strength: number;      // Connection to pack members
+  transformation_control: number; // Control over shifting
+  moon_resistance: number; // Resist forced transformation
+  silver_tolerance: number; // Resistance to silver
+  pack_bond_strength: number; // Connection to pack members
 }
 
 // Territory Control
@@ -83,7 +83,7 @@ export interface TerritoryInfo {
   controlled_territories: string[]; // Territory IDs
   claimed_at: Date;
   last_patrol: Date;
-  territory_disputes: string[];     // Active dispute IDs
+  territory_disputes: string[]; // Active dispute IDs
   boundary_markers: {
     latitude: number;
     longitude: number;
@@ -97,7 +97,7 @@ export interface PackInfo {
   pack_name: string;
   role_in_pack: PackStatus;
   joined_at: Date;
-  loyalty_score: number;        // 1-100 scale
+  loyalty_score: number; // 1-100 scale
   challenges_won: number;
   challenges_lost: number;
   last_challenge: Date | null;
@@ -110,41 +110,41 @@ export interface WerewolfUserProfile {
   username: string;
   email: string;
   full_name?: string;
-  
+
   // Werewolf-specific Information
   werewolf_role: WerewolfRole;
   transformation_state: TransformationState;
   abilities: WerewolfAbilities;
-  
+
   // Pack Information
   pack_info: PackInfo | null;
-  
+
   // Territory Information
   territory_info: TerritoryInfo | null;
-  
+
   // Status Information
   is_active: boolean;
   last_transformation: Date | null;
   next_forced_transformation: Date | null; // During full moon
   transformation_cooldown_until: Date | null;
-  
+
   // Experience and Progression
   level: number;
   experience_points: number;
-  reputation: number;           // Community standing
-  
+  reputation: number; // Community standing
+
   // Relationships
-  allies: string[];             // User IDs of allies
-  enemies: string[];            // User IDs of enemies
-  mentors: string[];            // User IDs of mentors
-  apprentices: string[];        // User IDs being mentored
-  
+  allies: string[]; // User IDs of allies
+  enemies: string[]; // User IDs of enemies
+  mentors: string[]; // User IDs of mentors
+  apprentices: string[]; // User IDs being mentored
+
   // Game Statistics
   games_played: number;
   games_won: number;
   total_eliminations: number;
   survival_rate: number;
-  
+
   // Metadata
   created_at: Date;
   updated_at: Date;
@@ -172,7 +172,7 @@ export const WerewolfAbilitiesSchema = z.object({
   transformation_control: z.number().min(1).max(10),
   moon_resistance: z.number().min(1).max(10),
   silver_tolerance: z.number().min(1).max(10),
-  pack_bond_strength: z.number().min(1).max(10)
+  pack_bond_strength: z.number().min(1).max(10),
 });
 
 export const TerritoryInfoSchema = z.object({
@@ -180,11 +180,13 @@ export const TerritoryInfoSchema = z.object({
   claimed_at: z.date(),
   last_patrol: z.date(),
   territory_disputes: z.array(z.string()),
-  boundary_markers: z.array(z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-    marker_type: z.enum(['scent', 'physical', 'spiritual'])
-  }))
+  boundary_markers: z.array(
+    z.object({
+      latitude: z.number(),
+      longitude: z.number(),
+      marker_type: z.enum(['scent', 'physical', 'spiritual']),
+    })
+  ),
 });
 
 export const PackInfoSchema = z.object({
@@ -195,7 +197,7 @@ export const PackInfoSchema = z.object({
   loyalty_score: z.number().min(1).max(100),
   challenges_won: z.number().min(0),
   challenges_lost: z.number().min(0),
-  last_challenge: z.date().nullable()
+  last_challenge: z.date().nullable(),
 });
 
 export const WerewolfUserProfileSchema = z.object({
@@ -226,7 +228,7 @@ export const WerewolfUserProfileSchema = z.object({
   created_at: z.date(),
   updated_at: z.date(),
   last_login: z.date().nullable(),
-  last_activity: z.date().nullable()
+  last_activity: z.date().nullable(),
 });
 
 // API Request/Response Types
@@ -235,23 +237,25 @@ export const CreateUserRequestSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(128),
   full_name: z.string().optional(),
-  preferred_role: WerewolfRoleSchema.optional()
+  preferred_role: WerewolfRoleSchema.optional(),
 });
 
-export const UpdateUserRequestSchema = z.object({
-  full_name: z.string().optional(),
-  werewolf_role: WerewolfRoleSchema.optional(),
-  abilities: WerewolfAbilitiesSchema.partial().optional()
-}).partial();
+export const UpdateUserRequestSchema = z
+  .object({
+    full_name: z.string().optional(),
+    werewolf_role: WerewolfRoleSchema.optional(),
+    abilities: WerewolfAbilitiesSchema.partial().optional(),
+  })
+  .partial();
 
 export const LoginRequestSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1)
+  password: z.string().min(1),
 });
 
 export const TransformationRequestSchema = z.object({
   target_state: TransformationStateSchema,
-  forced: z.boolean().default(false)
+  forced: z.boolean().default(false),
 });
 
 export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;

@@ -1,12 +1,12 @@
-import { Suspense } from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { MoonPhaseIndicator } from '@/components/werewolf/moon-phase-indicator'
-import { StatsCounter } from '@/components/werewolf/stats-counter'
-import { HeroSection } from '@/components/landing/hero-section'
-import { FeaturesSection } from '@/components/landing/features-section'
-import { Moon, Users, Map, Timer } from 'lucide-react'
+import { Suspense } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MoonPhaseIndicator } from '@/components/werewolf/moon-phase-indicator';
+import { StatsCounter } from '@/components/werewolf/stats-counter';
+import { HeroSection } from '@/components/landing/hero-section';
+import { FeaturesSection } from '@/components/landing/features-section';
+import { Moon, Users, Map, Timer } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -64,7 +64,8 @@ export default function HomePage() {
             <div className="text-center mb-12">
               <h2 className="text-heading mb-4">Current Lunar Cycle</h2>
               <p className="text-subheading max-w-2xl mx-auto">
-                The moon's power influences all werewolves. Track the current phase and prepare for transformations.
+                The moon's power influences all werewolves. Track the current phase and prepare for
+                transformations.
               </p>
             </div>
             <div className="flex justify-center">
@@ -130,9 +131,7 @@ export default function HomePage() {
         {/* Call to Action */}
         <section className="section-werewolf bg-gradient-to-br from-gray-900 via-gray-800 to-red-900">
           <div className="container-werewolf text-center">
-            <h2 className="text-display mb-6 text-white">
-              Join the Hunt Tonight
-            </h2>
+            <h2 className="text-display mb-6 text-white">Join the Hunt Tonight</h2>
             <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
               The moon is calling. Answer its call and discover your true nature among the pack.
             </p>
@@ -143,9 +142,9 @@ export default function HomePage() {
                 </Button>
               </Link>
               <Link href="/about">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
+                <Button
+                  size="lg"
+                  variant="outline"
                   className="text-lg px-8 py-4 border-gray-300 text-gray-100 hover:bg-gray-100 hover:text-gray-900"
                 >
                   Learn More
@@ -172,25 +171,43 @@ export default function HomePage() {
             <div className="space-y-3">
               <h4 className="font-semibold">Game</h4>
               <div className="space-y-2 text-sm">
-                <Link href="/features" className="block hover:text-foreground/80">Features</Link>
-                <Link href="/packs" className="block hover:text-foreground/80">Packs</Link>
-                <Link href="/territories" className="block hover:text-foreground/80">Territories</Link>
+                <Link href="/features" className="block hover:text-foreground/80">
+                  Features
+                </Link>
+                <Link href="/packs" className="block hover:text-foreground/80">
+                  Packs
+                </Link>
+                <Link href="/territories" className="block hover:text-foreground/80">
+                  Territories
+                </Link>
               </div>
             </div>
             <div className="space-y-3">
               <h4 className="font-semibold">Community</h4>
               <div className="space-y-2 text-sm">
-                <Link href="/discord" className="block hover:text-foreground/80">Discord</Link>
-                <Link href="/reddit" className="block hover:text-foreground/80">Reddit</Link>
-                <Link href="/twitter" className="block hover:text-foreground/80">Twitter</Link>
+                <Link href="/discord" className="block hover:text-foreground/80">
+                  Discord
+                </Link>
+                <Link href="/reddit" className="block hover:text-foreground/80">
+                  Reddit
+                </Link>
+                <Link href="/twitter" className="block hover:text-foreground/80">
+                  Twitter
+                </Link>
               </div>
             </div>
             <div className="space-y-3">
               <h4 className="font-semibold">Support</h4>
               <div className="space-y-2 text-sm">
-                <Link href="/help" className="block hover:text-foreground/80">Help Center</Link>
-                <Link href="/contact" className="block hover:text-foreground/80">Contact</Link>
-                <Link href="/privacy" className="block hover:text-foreground/80">Privacy</Link>
+                <Link href="/help" className="block hover:text-foreground/80">
+                  Help Center
+                </Link>
+                <Link href="/contact" className="block hover:text-foreground/80">
+                  Contact
+                </Link>
+                <Link href="/privacy" className="block hover:text-foreground/80">
+                  Privacy
+                </Link>
               </div>
             </div>
           </div>
@@ -200,5 +217,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

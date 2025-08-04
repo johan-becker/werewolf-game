@@ -17,7 +17,7 @@ import {
   changePasswordSchema,
   updateProfileSchema,
   forgotPasswordSchema,
-  resetPasswordSchema
+  resetPasswordSchema,
 } from '../validation/auth.validation';
 
 const router = Router();

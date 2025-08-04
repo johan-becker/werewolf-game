@@ -3,14 +3,13 @@ import {
   WerewolfRole,
   Team,
   ActionResult,
-  WerewolfGameState
+  WerewolfGameState,
 } from '../types/werewolf-roles.types';
 
 /**
  * Service für spezielle Werwolf-Mechaniken
  */
 export class WerewolfMechanicsService {
-
   /**
    * Liebespaar-Mechanik: Behandelt Verliebte
    */
@@ -31,15 +30,15 @@ export class WerewolfMechanicsService {
 
     // Finde den geliebten Partner
     const lover = allPlayers.find(p => p.id === deadPlayer.specialStates.loverId);
-    
+
     if (lover && lover.isAlive) {
       // Partner stirbt mit
       lover.isAlive = false;
       lover.eliminatedAt = new Date();
       additionalDeaths.push(lover.id);
-      
+
       messages.push(`${lover.username} stirbt aus Liebe zu ${deadPlayer.username}`);
-      
+
       // Prüfe Liebespaar-Sieg
       const alivePlayers = allPlayers.filter(p => p.isAlive);
       if (alivePlayers.length === 0) {
@@ -67,42 +66,42 @@ export class WerewolfMechanicsService {
         if (!witch.specialStates.hasHealPotion) {
           return {
             canPerform: false,
-            reason: 'Heiltrank bereits verwendet'
+            reason: 'Heiltrank bereits verwendet',
           };
         }
-        
+
         // Hexe kann sich nicht selbst heilen
         if (targetId === witch.id) {
           return {
             canPerform: false,
-            reason: 'Du kannst dich nicht selbst heilen'
+            reason: 'Du kannst dich nicht selbst heilen',
           };
         }
-        
+
         // Kann nur das Werwolf-Opfer heilen
         if (werewolfTarget && targetId !== werewolfTarget) {
           return {
             canPerform: false,
-            reason: 'Du kannst nur das Opfer der Werwölfe heilen'
+            reason: 'Du kannst nur das Opfer der Werwölfe heilen',
           };
         }
-        
+
         return { canPerform: true };
 
       case 'POISON':
         if (!witch.specialStates.hasPoisonPotion) {
           return {
             canPerform: false,
-            reason: 'Gifttrank bereits verwendet'
+            reason: 'Gifttrank bereits verwendet',
           };
         }
-        
+
         return { canPerform: true };
 
       default:
         return {
           canPerform: false,
-          reason: 'Unbekannte Aktion'
+          reason: 'Unbekannte Aktion',
         };
     }
   }
@@ -132,7 +131,7 @@ export class WerewolfMechanicsService {
     return {
       currentRisk,
       newRisk,
-      riskLevel
+      riskLevel,
     };
   }
 
@@ -151,7 +150,7 @@ export class WerewolfMechanicsService {
   } {
     const riskCalc = this.calculateSpyRisk(littleGirl, 1);
     const spotted = Math.random() * 100 < riskCalc.newRisk;
-    
+
     // Update Risiko
     littleGirl.specialStates.spyRisk = riskCalc.newRisk;
     littleGirl.specialStates.hasSpied = true;
@@ -160,26 +159,24 @@ export class WerewolfMechanicsService {
       // Mädchen wurde entdeckt und stirbt
       littleGirl.isAlive = false;
       littleGirl.eliminatedAt = new Date();
-      
+
       return {
         success: false,
         spotted: true,
         werewolvesSpotted: [],
         newRisk: riskCalc.newRisk,
-        died: true
+        died: true,
       };
     } else {
       // Erfolgreich spioniert
-      const werewolvesSpotted = werewolves
-        .filter(w => w.isAlive)
-        .map(w => w.id);
-      
+      const werewolvesSpotted = werewolves.filter(w => w.isAlive).map(w => w.id);
+
       return {
         success: true,
         spotted: false,
         werewolvesSpotted,
         newRisk: riskCalc.newRisk,
-        died: false
+        died: false,
       };
     }
   }
@@ -199,19 +196,17 @@ export class WerewolfMechanicsService {
       return {
         canShoot: false,
         availableTargets: [],
-        timeLimit: 0
+        timeLimit: 0,
       };
     }
 
     // Alle lebenden Spieler (außer dem Jäger selbst) als Ziele
-    const availableTargets = allPlayers
-      .filter(p => p.isAlive && p.id !== hunter.id)
-      .map(p => p.id);
+    const availableTargets = allPlayers.filter(p => p.isAlive && p.id !== hunter.id).map(p => p.id);
 
     return {
       canShoot: true,
       availableTargets,
-      timeLimit: 30 // 30 Sekunden für Entscheidung
+      timeLimit: 30, // 30 Sekunden für Entscheidung
     };
   }
 
@@ -226,7 +221,7 @@ export class WerewolfMechanicsService {
     if (!hunter.specialStates.canShoot) {
       return {
         success: false,
-        message: 'Jäger kann nicht mehr schießen'
+        message: 'Jäger kann nicht mehr schießen',
       };
     }
 
@@ -234,7 +229,7 @@ export class WerewolfMechanicsService {
     if (!target || !target.isAlive) {
       return {
         success: false,
-        message: 'Ungültiges Ziel'
+        message: 'Ungültiges Ziel',
       };
     }
 
@@ -251,8 +246,8 @@ export class WerewolfMechanicsService {
       effects: {
         deaths: [target.id],
         protections: [],
-        lovers: []
-      }
+        lovers: [],
+      },
     };
   }
 
@@ -271,7 +266,7 @@ export class WerewolfMechanicsService {
       return {
         success: false,
         message: 'Ein Spieler kann nicht mit sich selbst verliebt sein',
-        specialWin: false
+        specialWin: false,
       };
     }
 
@@ -280,7 +275,8 @@ export class WerewolfMechanicsService {
     target2.specialStates.loverId = target1.id;
 
     // Prüfe ob spezielles Gewinnerteam (Werwolf + Dorfbewohner)
-    const hasWerewolf = target1.role === WerewolfRole.WEREWOLF || target2.role === WerewolfRole.WEREWOLF;
+    const hasWerewolf =
+      target1.role === WerewolfRole.WEREWOLF || target2.role === WerewolfRole.WEREWOLF;
     const hasVillager = target1.team === Team.VILLAGE || target2.team === Team.VILLAGE;
     const specialWin = hasWerewolf && hasVillager;
 
@@ -293,7 +289,7 @@ export class WerewolfMechanicsService {
     return {
       success: true,
       message: `${target1.username} und ${target2.username} sind nun verliebt`,
-      specialWin
+      specialWin,
     };
   }
 
@@ -364,7 +360,7 @@ export class WerewolfMechanicsService {
       aliveVillagers,
       aliveLovers,
       balance,
-      turnsToEnd
+      turnsToEnd,
     };
   }
 
@@ -398,15 +394,18 @@ export class WerewolfMechanicsService {
     Object.keys(loversMap).forEach(playerId => {
       const player = players.find(p => p.id === playerId);
       const lover = players.find(p => p.id === loversMap[playerId]);
-      
+
       if (player && lover) {
         // Wenn Werwolf + Dorfbewohner verliebt, sollten beide LOVERS Team haben
-        const hasWerewolf = player.role === WerewolfRole.WEREWOLF || lover.role === WerewolfRole.WEREWOLF;
+        const hasWerewolf =
+          player.role === WerewolfRole.WEREWOLF || lover.role === WerewolfRole.WEREWOLF;
         const hasVillager = player.team === 'VILLAGE' || lover.team === 'VILLAGE';
-        
+
         if (hasWerewolf && hasVillager) {
           if (player.team !== 'LOVERS' || lover.team !== 'LOVERS') {
-            warnings.push(`Gemischtes Liebespaar sollte LOVERS Team haben: ${player.username} & ${lover.username}`);
+            warnings.push(
+              `Gemischtes Liebespaar sollte LOVERS Team haben: ${player.username} & ${lover.username}`
+            );
           }
         }
       }
@@ -415,7 +414,7 @@ export class WerewolfMechanicsService {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -457,36 +456,39 @@ export class WerewolfMechanicsService {
       team: p.team,
       isAlive: p.isAlive,
       specialStates: p.specialStates,
-      survivalTime: p.isAlive ? gameState.dayNumber : 
-        (p.eliminatedAt ? Math.floor((p.eliminatedAt.getTime() - p.joinedAt.getTime()) / (1000 * 60 * 60 * 24)) : 0)
+      survivalTime: p.isAlive
+        ? gameState.dayNumber
+        : p.eliminatedAt
+          ? Math.floor((p.eliminatedAt.getTime() - p.joinedAt.getTime()) / (1000 * 60 * 60 * 24))
+          : 0,
     }));
 
     const teamStats = {
       werewolves: {
         alive: balance.aliveWerewolves,
-        total: players.filter(p => p.role === WerewolfRole.WEREWOLF).length
+        total: players.filter(p => p.role === WerewolfRole.WEREWOLF).length,
       },
       villagers: {
         alive: balance.aliveVillagers,
-        total: players.filter(p => p.team === 'VILLAGE').length
+        total: players.filter(p => p.team === 'VILLAGE').length,
       },
       lovers: {
         alive: balance.aliveLovers,
-        total: players.filter(p => p.specialStates.loverId).length
-      }
+        total: players.filter(p => p.specialStates.loverId).length,
+      },
     };
 
     const gameProgress = {
       currentDay: gameState.dayNumber,
       phase: gameState.phase,
       estimatedEnd: balance.turnsToEnd,
-      balance: balance.balance
+      balance: balance.balance,
     };
 
     return {
       playerStats,
       teamStats,
-      gameProgress
+      gameProgress,
     };
   }
 }

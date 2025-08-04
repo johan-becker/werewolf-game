@@ -2,7 +2,8 @@
 
 /* Basic werewolf transformations */
 .transforming {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter;
+  transition-property:
+    background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter;
   transition-duration: 0.5s;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -27,7 +28,9 @@
 
 /* Smooth theme transitions */
 html {
-  transition: background-color 0.5s ease, color 0.5s ease;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
 }
 
 html * {

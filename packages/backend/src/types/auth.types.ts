@@ -53,7 +53,7 @@ export enum AuthErrorCode {
   INSUFFICIENT_PERMISSIONS = 'INSUFFICIENT_PERMISSIONS',
   RATE_LIMITED = 'RATE_LIMITED',
   SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
-  INVALID_SESSION = 'INVALID_SESSION'
+  INVALID_SESSION = 'INVALID_SESSION',
 }
 
 // Role-based authorization system
@@ -61,7 +61,7 @@ export enum UserRole {
   PLAYER = 'PLAYER',
   MODERATOR = 'MODERATOR',
   ADMIN = 'ADMIN',
-  SYSTEM = 'SYSTEM'
+  SYSTEM = 'SYSTEM',
 }
 
 export enum Permission {
@@ -70,7 +70,7 @@ export enum Permission {
   MODERATE_CHAT = 'MODERATE_CHAT',
   BAN_USER = 'BAN_USER',
   VIEW_ANALYTICS = 'VIEW_ANALYTICS',
-  MANAGE_SYSTEM = 'MANAGE_SYSTEM'
+  MANAGE_SYSTEM = 'MANAGE_SYSTEM',
 }
 
 // Secure request interface - user is ALWAYS present after authentication
@@ -140,14 +140,14 @@ export enum SecurityEventType {
   RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
   SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
   PRIVILEGE_ESCALATION_ATTEMPT = 'PRIVILEGE_ESCALATION_ATTEMPT',
-  SESSION_HIJACK_ATTEMPT = 'SESSION_HIJACK_ATTEMPT'
+  SESSION_HIJACK_ATTEMPT = 'SESSION_HIJACK_ATTEMPT',
 }
 
 export enum SecuritySeverity {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL'
+  CRITICAL = 'CRITICAL',
 }
 
 // Performance metrics for monitoring

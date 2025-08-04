@@ -26,7 +26,7 @@ export class ValidationMiddleware {
           body: req.body,
           query: req.query,
           params: req.params,
-          headers: req.headers
+          headers: req.headers,
         });
 
         // Replace request data with validated data
@@ -40,14 +40,14 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: (err as any).received || 'invalid'
+            value: (err as any).received || 'invalid',
           }));
 
           return res.status(400).json({
             success: false,
             error: 'Validation failed',
             details: validationErrors,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
 
@@ -56,7 +56,7 @@ export class ValidationMiddleware {
         return res.status(500).json({
           success: false,
           error: 'Internal validation error',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     };
@@ -76,14 +76,14 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: (err as any).received || 'invalid'
+            value: (err as any).received || 'invalid',
           }));
 
           return res.status(400).json({
             success: false,
             error: 'Request body validation failed',
             details: validationErrors,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
 
@@ -91,7 +91,7 @@ export class ValidationMiddleware {
         return res.status(500).json({
           success: false,
           error: 'Internal validation error',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     };
@@ -111,14 +111,14 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: (err as any).received || 'invalid'
+            value: (err as any).received || 'invalid',
           }));
 
           return res.status(400).json({
             success: false,
             error: 'Query parameter validation failed',
             details: validationErrors,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
 
@@ -126,7 +126,7 @@ export class ValidationMiddleware {
         return res.status(500).json({
           success: false,
           error: 'Internal validation error',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     };
@@ -146,14 +146,14 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: (err as any).received || 'invalid'
+            value: (err as any).received || 'invalid',
           }));
 
           return res.status(400).json({
             success: false,
             error: 'Path parameter validation failed',
             details: validationErrors,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
 
@@ -161,7 +161,7 @@ export class ValidationMiddleware {
         return res.status(500).json({
           success: false,
           error: 'Internal validation error',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     };
@@ -255,7 +255,7 @@ export class ValidationMiddleware {
           success: false,
           error: 'Rate limit exceeded',
           retryAfter: Math.ceil((clientData.resetTime - now) / 1000),
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
@@ -266,7 +266,7 @@ export class ValidationMiddleware {
       res.set({
         'X-RateLimit-Limit': maxRequests.toString(),
         'X-RateLimit-Remaining': (maxRequests - clientData.count).toString(),
-        'X-RateLimit-Reset': new Date(clientData.resetTime).toISOString()
+        'X-RateLimit-Reset': new Date(clientData.resetTime).toISOString(),
       });
 
       return next();

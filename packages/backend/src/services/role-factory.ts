@@ -2,7 +2,7 @@ import {
   GameRoleConfig,
   WerewolfRole,
   WerewolfPlayer,
-  ConfigValidationResult
+  ConfigValidationResult,
 } from '../types/werewolf-roles.types';
 import { WerewolfRoleService } from './werewolf-role.service';
 
@@ -15,10 +15,7 @@ export class RoleFactory {
   /**
    * Erstellt und weist Rollen basierend auf Konfiguration zu
    */
-  static createRolesFromConfig(
-    config: GameRoleConfig, 
-    players: WerewolfPlayer[]
-  ): void {
+  static createRolesFromConfig(config: GameRoleConfig, players: WerewolfPlayer[]): void {
     // Validierung der Konfiguration
     const validation = this.validateConfig(config, players.length);
     if (!validation.isValid) {
@@ -27,17 +24,17 @@ export class RoleFactory {
 
     // Spieler-IDs für Zuweisung sammeln
     const playerIds = players.map(p => p.id);
-    
+
     // Rollen zuweisen mit automatischem Shuffling
     const assignments = this.roleService.assignRoles(playerIds, config);
-    
+
     // Rollen zu Spielern zuweisen
     assignments.forEach(assignment => {
       const player = players.find(p => p.id === assignment.playerId);
       if (player) {
         player.role = assignment.role;
         player.team = this.roleService.getRoleTeam(assignment.role);
-        
+
         // Rolle-spezifische Initialisierung
         // const roleInfo = this.roleService.getRoleInfo(assignment.role);
         this.initializePlayerForRole(player, assignment.role);
@@ -48,10 +45,7 @@ export class RoleFactory {
   /**
    * Validiert eine Rollenkonfiguration
    */
-  static validateConfig(
-    config: GameRoleConfig,
-    playerCount: number
-  ): ConfigValidationResult {
+  static validateConfig(config: GameRoleConfig, playerCount: number): ConfigValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
     const suggestions: string[] = [];
@@ -60,7 +54,7 @@ export class RoleFactory {
     if (playerCount < 4) {
       errors.push('Mindestens 4 Spieler erforderlich');
     }
-    
+
     if (playerCount > 20) {
       errors.push('Maximal 20 Spieler unterstützt');
     }
@@ -81,12 +75,12 @@ export class RoleFactory {
 
     // Balance-Warnungen
     const werewolfPercentage = (config.werewolves / playerCount) * 100;
-    
+
     if (werewolfPercentage < 15) {
       warnings.push(`Nur ${werewolfPercentage.toFixed(1)}% Werwölfe - könnte zu einfach sein`);
       suggestions.push('Empfohlen: 20-30% Werwölfe für ausgewogenes Spiel');
     }
-    
+
     if (werewolfPercentage > 40) {
       warnings.push(`${werewolfPercentage.toFixed(1)}% Werwölfe - könnte zu schwer sein`);
       suggestions.push('Empfohlen: 20-30% Werwölfe für ausgewogenes Spiel');
@@ -111,7 +105,7 @@ export class RoleFactory {
       warnings,
       suggestions,
       totalPlayers: totalConfigured,
-      werewolfPercentage
+      werewolfPercentage,
     };
   }
 
@@ -121,7 +115,7 @@ export class RoleFactory {
   static createOptimalConfig(playerCount: number): GameRoleConfig {
     // Werwolf-Anzahl (25% der Spieler, minimum 1)
     const werewolves = Math.max(1, Math.floor(playerCount * 0.25));
-    
+
     const config: GameRoleConfig = {
       werewolves,
       villagers: playerCount - werewolves,
@@ -129,12 +123,12 @@ export class RoleFactory {
       witch: false,
       hunter: false,
       cupid: false,
-      littleGirl: false
+      littleGirl: false,
     };
 
     // Spezialrollen basierend auf Spieleranzahl
     const specialRoles = this.getRecommendedSpecialRoles(playerCount);
-    
+
     specialRoles.forEach(role => {
       switch (role) {
         case WerewolfRole.SEER:
@@ -182,24 +176,28 @@ export class RoleFactory {
    * Berechnet Gesamtspieleranzahl aus Konfiguration
    */
   private static getTotalPlayersFromConfig(config: GameRoleConfig): number {
-    return config.villagers + 
-           config.werewolves + 
-           (config.seer ? 1 : 0) +
-           (config.witch ? 1 : 0) +
-           (config.hunter ? 1 : 0) +
-           (config.cupid ? 1 : 0) +
-           (config.littleGirl ? 1 : 0);
+    return (
+      config.villagers +
+      config.werewolves +
+      (config.seer ? 1 : 0) +
+      (config.witch ? 1 : 0) +
+      (config.hunter ? 1 : 0) +
+      (config.cupid ? 1 : 0) +
+      (config.littleGirl ? 1 : 0)
+    );
   }
 
   /**
    * Zählt Spezialrollen in Konfiguration
    */
   private static getSpecialRoleCount(config: GameRoleConfig): number {
-    return (config.seer ? 1 : 0) +
-           (config.witch ? 1 : 0) +
-           (config.hunter ? 1 : 0) +
-           (config.cupid ? 1 : 0) +
-           (config.littleGirl ? 1 : 0);
+    return (
+      (config.seer ? 1 : 0) +
+      (config.witch ? 1 : 0) +
+      (config.hunter ? 1 : 0) +
+      (config.cupid ? 1 : 0) +
+      (config.littleGirl ? 1 : 0)
+    );
   }
 
   /**
@@ -212,15 +210,15 @@ export class RoleFactory {
         player.specialStates.hasHealPotion = true;
         player.specialStates.hasPoisonPotion = true;
         break;
-      
+
       case WerewolfRole.HUNTER:
         player.specialStates.canShoot = true;
         break;
-      
+
       case WerewolfRole.LITTLE_GIRL:
         player.specialStates.spyRisk = 30; // 30% Basis-Risiko
         break;
-      
+
       default:
         // Alle anderen Rollen haben Standard-Initialisierung
         break;
@@ -235,22 +233,22 @@ export class RoleFactory {
     preferences: Partial<GameRoleConfig> = {}
   ): GameRoleConfig {
     const baseConfig = this.createOptimalConfig(playerCount);
-    
+
     // Präferenzen anwenden
     const config = { ...baseConfig, ...preferences };
-    
+
     // Balance sicherstellen
     const totalConfigured = this.getTotalPlayersFromConfig(config);
     if (totalConfigured !== playerCount) {
       // Dorfbewohner anpassen
       config.villagers = playerCount - config.werewolves - this.getSpecialRoleCount(config);
     }
-    
+
     // Minimum-Validierung
     if (config.villagers < 1) {
       throw new Error('Zu viele Spezialrollen für diese Spieleranzahl');
     }
-    
+
     return config;
   }
 }

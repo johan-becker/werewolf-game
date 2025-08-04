@@ -31,18 +31,20 @@ const createPackSchema = z.object({
     description: z.string().max(500).optional(),
     isPrivate: z.boolean().default(false),
     maxMembers: z.number().min(3).max(20).default(12),
-    requirements: z.object({
-      minLevel: z.number().min(1).default(1),
-      minReputation: z.number().default(0),
-      requiredRoles: z.array(z.nativeEnum(WerewolfRole)).optional()
-    }).optional()
-  })
+    requirements: z
+      .object({
+        minLevel: z.number().min(1).default(1),
+        minReputation: z.number().default(0),
+        requiredRoles: z.array(z.nativeEnum(WerewolfRole)).optional(),
+      })
+      .optional(),
+  }),
 });
 
 const joinPackSchema = z.object({
   body: z.object({
-    message: z.string().max(200).optional()
-  })
+    message: z.string().max(200).optional(),
+  }),
 });
 
 const updatePackSchema = z.object({
@@ -51,18 +53,20 @@ const updatePackSchema = z.object({
     description: z.string().max(500).optional(),
     isPrivate: z.boolean().optional(),
     maxMembers: z.number().min(3).max(20).optional(),
-    requirements: z.object({
-      minLevel: z.number().min(1).optional(),
-      minReputation: z.number().optional(),
-      requiredRoles: z.array(z.nativeEnum(WerewolfRole)).optional()
-    }).optional()
-  })
+    requirements: z
+      .object({
+        minLevel: z.number().min(1).optional(),
+        minReputation: z.number().optional(),
+        requiredRoles: z.array(z.nativeEnum(WerewolfRole)).optional(),
+      })
+      .optional(),
+  }),
 });
 
 const assignRoleSchema = z.object({
   body: z.object({
-    role: z.nativeEnum(WerewolfRole)
-  })
+    role: z.nativeEnum(WerewolfRole),
+  }),
 });
 
 /**

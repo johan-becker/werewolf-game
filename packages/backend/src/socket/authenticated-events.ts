@@ -20,7 +20,7 @@ import {
   GameStateResponse,
   ActionResponse,
   VoteResponse,
-  ChatResponse
+  ChatResponse,
 } from '../types/socket-auth.types';
 import { GameService } from '../services/game.service';
 
@@ -39,13 +39,13 @@ export class AuthenticatedSocketEventHandler {
   public setupEventHandlers(socket: AuthenticatedSocket): void {
     // Authentication events (allowed before full authentication)
     this.setupAuthenticationEvents(socket);
-    
+
     // Game management events (require authentication)
     this.setupGameManagementEvents(socket);
-    
+
     // Game action events (require authentication)
     this.setupGameActionEvents(socket);
-    
+
     // Connection management events
     this.setupConnectionEvents(socket);
   }
@@ -68,9 +68,9 @@ export class AuthenticatedSocketEventHandler {
             user: {
               id: result.user.userId,
               username: result.user.username || result.user.email.split('@')[0],
-              role: result.user.role
+              role: result.user.role,
             },
-            session: result.metadata
+            session: result.metadata,
           });
 
           console.log(`User ${result.user.userId} authenticated on socket ${socket.id}`);
@@ -82,8 +82,8 @@ export class AuthenticatedSocketEventHandler {
           error: {
             code: 'SERVER_ERROR' as any,
             message: 'Authentication processing error',
-            canRetry: true
-          }
+            canRetry: true,
+          },
         });
       }
     });
@@ -97,13 +97,13 @@ export class AuthenticatedSocketEventHandler {
         error: {
           code: 'INVALID_TOKEN' as any,
           message: 'Refresh tokens not implemented yet',
-          canRetry: false
-        }
+          canRetry: false,
+        },
       });
     });
 
     // Handle logout
-    socket.on('auth:logout', async (callback) => {
+    socket.on('auth:logout', async callback => {
       try {
         // Clean up authentication state
         await socketAuthStateMachine.cleanupSocket(socket);
@@ -124,12 +124,12 @@ export class AuthenticatedSocketEventHandler {
 
       try {
         const user = socketAuthStateMachine.getAuthenticatedUser(socket);
-        
+
         const game = await this.gameService.createGame({
           creatorId: user.userId,
           name: data.name || '',
           maxPlayers: data.maxPlayers,
-          isPrivate: data.isPrivate
+          isPrivate: data.isPrivate,
         });
 
         // Join the created game room
@@ -145,8 +145,8 @@ export class AuthenticatedSocketEventHandler {
             status: game.status,
             playerCount: 1,
             userRole: 'host',
-            isHost: true
-          }
+            isHost: true,
+          },
         };
 
         callback(response);
@@ -158,8 +158,8 @@ export class AuthenticatedSocketEventHandler {
           success: false,
           error: {
             code: 'GAME_CREATION_FAILED',
-            message: error instanceof Error ? error.message : 'Failed to create game'
-          }
+            message: error instanceof Error ? error.message : 'Failed to create game',
+          },
         });
       }
     });
@@ -183,8 +183,8 @@ export class AuthenticatedSocketEventHandler {
             success: false,
             error: {
               code: 'INVALID_REQUEST',
-              message: 'Either gameId or gameCode is required'
-            }
+              message: 'Either gameId or gameCode is required',
+            },
           });
           return;
         }
@@ -201,8 +201,8 @@ export class AuthenticatedSocketEventHandler {
             gameCode: game.code,
             status: game.status,
             playerCount: game.playerCount || 1,
-            isHost: game.creatorId === user.userId
-          }
+            isHost: game.creatorId === user.userId,
+          },
         };
 
         callback(response);
@@ -213,9 +213,9 @@ export class AuthenticatedSocketEventHandler {
           player: {
             id: user.userId,
             username: user.username || user.email.split('@')[0],
-            isHost: game.creatorId === user.userId
+            isHost: game.creatorId === user.userId,
           },
-          playerCount: game.playerCount || 1
+          playerCount: game.playerCount || 1,
         });
 
         console.log(`User ${user.userId} joined game ${game.id}`);
@@ -225,8 +225,8 @@ export class AuthenticatedSocketEventHandler {
           success: false,
           error: {
             code: 'GAME_JOIN_FAILED',
-            message: error instanceof Error ? error.message : 'Failed to join game'
-          }
+            message: error instanceof Error ? error.message : 'Failed to join game',
+          },
         });
       }
     });
@@ -239,7 +239,7 @@ export class AuthenticatedSocketEventHandler {
 
       try {
         const user = socketAuthStateMachine.getAuthenticatedUser(socket);
-        
+
         await this.gameService.leaveGame(data.gameId, user.userId);
 
         // Leave the game room
@@ -255,7 +255,7 @@ export class AuthenticatedSocketEventHandler {
           playerId: user.userId,
           username: user.username || user.email.split('@')[0],
           reason: data.reason,
-          playerCount: 0 // Would need to get actual count
+          playerCount: 0, // Would need to get actual count
         });
 
         console.log(`User ${user.userId} left game ${data.gameId}`);
@@ -265,8 +265,8 @@ export class AuthenticatedSocketEventHandler {
           success: false,
           error: {
             code: 'GAME_LEAVE_FAILED',
-            message: error instanceof Error ? error.message : 'Failed to leave game'
-          }
+            message: error instanceof Error ? error.message : 'Failed to leave game',
+          },
         });
       }
     });
@@ -279,7 +279,7 @@ export class AuthenticatedSocketEventHandler {
 
       try {
         const user = socketAuthStateMachine.getAuthenticatedUser(socket);
-        
+
         await this.gameService.startGame(data.gameId, user.userId);
 
         callback({ success: true });
@@ -292,7 +292,7 @@ export class AuthenticatedSocketEventHandler {
           playerCount: 0, // Would need actual count
           userRole: 'villager', // Would need actual role assignment
           roleDescription: 'You are a villager...',
-          teammates: []
+          teammates: [],
         });
 
         console.log(`User ${user.userId} started game ${data.gameId}`);
@@ -302,14 +302,14 @@ export class AuthenticatedSocketEventHandler {
           success: false,
           error: {
             code: 'GAME_START_FAILED',
-            message: error instanceof Error ? error.message : 'Failed to start game'
-          }
+            message: error instanceof Error ? error.message : 'Failed to start game',
+          },
         });
       }
     });
 
     // Get game state
-    socket.on('game:getState', async (callback) => {
+    socket.on('game:getState', async callback => {
       if (!socketAuthStateMachine.validateAuthentication(socket, 'game:getState')) {
         return;
       }
@@ -323,8 +323,8 @@ export class AuthenticatedSocketEventHandler {
             success: false,
             error: {
               code: 'NOT_IN_GAME',
-              message: 'Not currently in a game'
-            }
+              message: 'Not currently in a game',
+            },
           });
           return;
         }
@@ -343,17 +343,17 @@ export class AuthenticatedSocketEventHandler {
               username: player.username || 'Unknown',
               isAlive: player.isAlive !== false,
               isHost: player.id === game.creatorId,
-              hasVoted: player.hasVoted
+              hasVoted: player.hasVoted,
             })),
             userState: {
               role: 'villager', // Would need actual role
               team: 'village',
               isAlive: true,
               canVote: true,
-              hasVoted: false
+              hasVoted: false,
             },
-            availableActions: [] // Would need actual available actions
-          }
+            availableActions: [], // Would need actual available actions
+          },
         };
 
         callback(response);
@@ -363,8 +363,8 @@ export class AuthenticatedSocketEventHandler {
           success: false,
           error: {
             code: 'GET_STATE_FAILED',
-            message: error instanceof Error ? error.message : 'Failed to get game state'
-          }
+            message: error instanceof Error ? error.message : 'Failed to get game state',
+          },
         });
       }
     });
@@ -386,8 +386,8 @@ export class AuthenticatedSocketEventHandler {
             success: false,
             error: {
               code: 'INVALID_GAME',
-              message: 'Not in the specified game'
-            }
+              message: 'Not in the specified game',
+            },
           });
           return;
         }
@@ -403,22 +403,24 @@ export class AuthenticatedSocketEventHandler {
               deaths: [],
               protected: [],
               lovers: [],
-              revealed: []
-            }
-          }
+              revealed: [],
+            },
+          },
         };
 
         callback(response);
 
-        console.log(`User ${user.userId} performed night action ${data.action} in game ${data.gameId}`);
+        console.log(
+          `User ${user.userId} performed night action ${data.action} in game ${data.gameId}`
+        );
       } catch (error) {
         console.error('Night action error:', error);
         callback({
           success: false,
           error: {
             code: 'ACTION_FAILED',
-            message: error instanceof Error ? error.message : 'Failed to perform action'
-          }
+            message: error instanceof Error ? error.message : 'Failed to perform action',
+          },
         });
       }
     });
@@ -438,8 +440,8 @@ export class AuthenticatedSocketEventHandler {
             success: false,
             error: {
               code: 'INVALID_GAME',
-              message: 'Not in the specified game'
-            }
+              message: 'Not in the specified game',
+            },
           });
           return;
         }
@@ -450,8 +452,8 @@ export class AuthenticatedSocketEventHandler {
           data: {
             voteCount: 1,
             totalVotes: 5,
-            timeRemaining: 60000
-          }
+            timeRemaining: 60000,
+          },
         };
 
         callback(response);
@@ -463,8 +465,8 @@ export class AuthenticatedSocketEventHandler {
           success: false,
           error: {
             code: 'VOTE_FAILED',
-            message: error instanceof Error ? error.message : 'Failed to cast vote'
-          }
+            message: error instanceof Error ? error.message : 'Failed to cast vote',
+          },
         });
       }
     });
@@ -484,8 +486,8 @@ export class AuthenticatedSocketEventHandler {
             success: false,
             error: {
               code: 'INVALID_GAME',
-              message: 'Not in the specified game'
-            }
+              message: 'Not in the specified game',
+            },
           });
           return;
         }
@@ -503,7 +505,7 @@ export class AuthenticatedSocketEventHandler {
           channel: data.channel,
           timestamp,
           mentions: data.mentions,
-          isSystemMessage: false
+          isSystemMessage: false,
         });
 
         const response: ChatResponse = {
@@ -511,8 +513,8 @@ export class AuthenticatedSocketEventHandler {
           data: {
             messageId,
             timestamp,
-            channel: data.channel
-          }
+            channel: data.channel,
+          },
         };
 
         callback(response);
@@ -524,8 +526,8 @@ export class AuthenticatedSocketEventHandler {
           success: false,
           error: {
             code: 'CHAT_FAILED',
-            message: error instanceof Error ? error.message : 'Failed to send message'
-          }
+            message: error instanceof Error ? error.message : 'Failed to send message',
+          },
         });
       }
     });
@@ -533,23 +535,23 @@ export class AuthenticatedSocketEventHandler {
 
   private setupConnectionEvents(socket: AuthenticatedSocket): void {
     // Connection heartbeat
-    socket.on('connection:heartbeat', (callback) => {
+    socket.on('connection:heartbeat', callback => {
       // This is allowed even without full authentication
       callback({
         timestamp: new Date(),
         serverTime: new Date(),
-        latency: Date.now() - socket.data.lastActivityAt.getTime()
+        latency: Date.now() - socket.data.lastActivityAt.getTime(),
       });
     });
 
     // Connection status
-    socket.on('connection:status', (callback) => {
+    socket.on('connection:status', callback => {
       callback({
         authState: socket.data.authState,
         connectedAt: socket.data.connectedAt,
         lastActivity: socket.data.lastActivityAt,
         gameId: socket.data.currentGame,
-        roomId: socket.data.roomId
+        roomId: socket.data.roomId,
       });
     });
   }

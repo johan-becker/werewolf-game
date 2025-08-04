@@ -1,11 +1,4 @@
-import { 
-  $Enums,
-  Profile, 
-  Game, 
-  Player, 
-  GameLog, 
-  Prisma 
-} from '../generated/prisma';
+import { $Enums, Profile, Game, Player, GameLog, Prisma } from '../generated/prisma';
 
 export type GameStatus = $Enums.GameStatus;
 export type GamePhase = $Enums.GamePhase;
@@ -171,7 +164,7 @@ export interface PaginatedResponse<T> {
 }
 
 // Game action types
-export type GameActionType = 
+export type GameActionType =
   | 'VOTE'
   | 'WEREWOLF_KILL'
   | 'SEER_CHECK'
@@ -185,25 +178,24 @@ export type GameActionType =
   | 'PLAYER_LEAVE';
 
 // Role types
-export type GameRole = 
-  | 'villager'
-  | 'werewolf'
-  | 'seer'
-  | 'doctor'
-  | 'hunter'
-  | 'mayor'
-  | 'witch';
+export type GameRole = 'villager' | 'werewolf' | 'seer' | 'doctor' | 'hunter' | 'mayor' | 'witch';
 
 // Error types
 export class DatabaseError extends Error {
-  constructor(message: string, public code?: string) {
+  constructor(
+    message: string,
+    public code?: string
+  ) {
     super(message);
     this.name = 'DatabaseError';
   }
 }
 
 export class ValidationError extends Error {
-  constructor(message: string, public field?: string) {
+  constructor(
+    message: string,
+    public field?: string
+  ) {
     super(message);
     this.name = 'ValidationError';
   }

@@ -3,25 +3,19 @@ import { generateGameCode } from '../utils/gameCode';
 import { CreateGameDTO, GameResponse } from '../types/game.types';
 import { RoleService } from './role.service';
 import { NightActionService } from './night-action.service';
-import { 
-  PlayerRole, 
-  PlayerState, 
-  GamePhaseState, 
+import {
+  PlayerRole,
+  PlayerState,
+  GamePhaseState,
   WinCondition,
   ActionType,
-  NightAction 
+  NightAction,
 } from '../types/roles.types';
 import { GameRoleConfig } from '../types/werewolf-roles.types';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
 
-const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 
 export class GameService {
   private roleService: RoleService;
@@ -37,19 +31,28 @@ export class GameService {
   /**
    * Creates a new game with auto-generated code
    */
-  async createGame(data: { creatorId: string; maxPlayers: number; isPrivate: boolean; name?: string }): Promise<GameResponse> {
+  async createGame(data: {
+    creatorId: string;
+    maxPlayers: number;
+    isPrivate: boolean;
+    name?: string;
+  }): Promise<GameResponse> {
     const gameData: CreateGameDTO = {
       name: data.name || `Game ${Date.now()}`,
-      maxPlayers: data.maxPlayers
+      maxPlayers: data.maxPlayers,
     };
-    
+
     return this.createGameInternal(data.creatorId, gameData, data.isPrivate);
   }
 
   /**
    * Internal method for creating games
    */
-  private async createGameInternal(userId: string, data: CreateGameDTO, _isPrivate: boolean = false): Promise<GameResponse> {
+  private async createGameInternal(
+    userId: string,
+    data: CreateGameDTO,
+    _isPrivate: boolean = false
+  ): Promise<GameResponse> {
     // Validate input
     if (!data.name || data.name.trim().length < 3) {
       throw new Error('Game name must be at least 3 characters long');
@@ -73,7 +76,7 @@ export class GameService {
     // Generate unique code (with retry logic)
     let code: string;
     let attempts = 0;
-    
+
     do {
       code = generateGameCode();
       const { data: existing } = await supabase
@@ -81,7 +84,7 @@ export class GameService {
         .select('id')
         .eq('code', code)
         .single();
-      
+
       if (!existing) break;
       attempts++;
     } while (attempts < 10);
@@ -98,7 +101,7 @@ export class GameService {
         code,
         max_players: data.maxPlayers,
         game_settings: data.settings || {},
-        creator_id: userId
+        creator_id: userId,
       })
       .select()
       .single();
@@ -106,13 +109,11 @@ export class GameService {
     if (error) throw new Error(`Failed to create game: ${error.message}`);
 
     // Add creator as host player using admin client
-    const { error: joinError } = await supabaseAdmin
-      .from('players')
-      .insert({
-        game_id: game.id,
-        user_id: userId,
-        is_host: true
-      });
+    const { error: joinError } = await supabaseAdmin.from('players').insert({
+      game_id: game.id,
+      user_id: userId,
+      is_host: true,
+    });
 
     if (joinError) {
       // Rollback game creation
@@ -155,13 +156,15 @@ export class GameService {
     // Get players separately to avoid relationship issues
     const { data: players, error: playersError } = await supabaseAdmin
       .from('players')
-      .select(`
+      .select(
+        `
         user_id,
         is_host,
         is_alive,
         role,
         joined_at
-      `)
+      `
+      )
       .eq('game_id', gameId);
 
     if (playersError) throw new Error(`Failed to get players: ${playersError.message}`);
@@ -177,13 +180,13 @@ export class GameService {
 
       playersWithProfiles.push({
         ...player,
-        profile: profile || { username: 'Unknown', avatar_url: null }
+        profile: profile || { username: 'Unknown', avatar_url: null },
       });
     }
 
     return this.formatGameResponseWithPlayers({
       ...game,
-      players: playersWithProfiles
+      players: playersWithProfiles,
     });
   }
 
@@ -213,13 +216,11 @@ export class GameService {
     if (existingPlayer) throw new Error('You are already in this game');
 
     // Add player to game
-    const { error } = await supabaseAdmin
-      .from('players')
-      .insert({
-        game_id: gameId,
-        user_id: userId,
-        is_host: false
-      });
+    const { error } = await supabaseAdmin.from('players').insert({
+      game_id: gameId,
+      user_id: userId,
+      is_host: false,
+    });
 
     if (error) throw new Error(`Failed to join: ${error.message}`);
 
@@ -252,13 +253,11 @@ export class GameService {
     if (existingPlayer) throw new Error('Already in this game');
 
     // Add player to game
-    const { error } = await supabaseAdmin
-      .from('players')
-      .insert({
-        game_id: game.id,
-        user_id: userId,
-        is_host: false
-      });
+    const { error } = await supabaseAdmin.from('players').insert({
+      game_id: game.id,
+      user_id: userId,
+      is_host: false,
+    });
 
     if (error) throw new Error(`Failed to join: ${error.message}`);
 
@@ -268,7 +267,10 @@ export class GameService {
   /**
    * Leave game
    */
-  async leaveGame(gameId: string, userId: string): Promise<{ gameDeleted: boolean; newHostId?: string }> {
+  async leaveGame(
+    gameId: string,
+    userId: string
+  ): Promise<{ gameDeleted: boolean; newHostId?: string }> {
     // Check if user is in game
     const { data: player } = await supabase
       .from('players')
@@ -327,8 +329,7 @@ export class GameService {
     }
 
     // Use Supabase RPC to start the game with role assignment
-    const { error } = await supabase
-      .rpc('start_game', { game_id_param: gameId });
+    const { error } = await supabase.rpc('start_game', { game_id_param: gameId });
 
     if (error) throw new Error(`Failed to start: ${error.message}`);
   }
@@ -336,7 +337,9 @@ export class GameService {
   /**
    * Handle host leaving - transfer or delete game
    */
-  private async handleHostLeave(gameId: string): Promise<{ gameDeleted: boolean; newHostId?: string }> {
+  private async handleHostLeave(
+    gameId: string
+  ): Promise<{ gameDeleted: boolean; newHostId?: string }> {
     // Get remaining players ordered by join time
     const { data: players } = await supabase
       .from('players')
@@ -347,7 +350,7 @@ export class GameService {
     if (players && players.length > 0) {
       // Transfer host to oldest remaining player
       const newHostId = players[0]!.user_id;
-      
+
       const { error } = await supabase
         .from('players')
         .update({ is_host: true })
@@ -361,10 +364,7 @@ export class GameService {
       return { gameDeleted: false, newHostId };
     } else {
       // Delete empty game
-      const { error } = await supabase
-        .from('games')
-        .delete()
-        .eq('id', gameId);
+      const { error } = await supabase.from('games').delete().eq('id', gameId);
 
       if (error) {
         console.error('Error deleting empty game:', error);
@@ -391,9 +391,9 @@ export class GameService {
     // Update game status to finished
     const { error } = await supabase
       .from('games')
-      .update({ 
+      .update({
         status: 'finished',
-        ended_at: new Date().toISOString()
+        ended_at: new Date().toISOString(),
       })
       .eq('id', gameId);
 
@@ -437,7 +437,7 @@ export class GameService {
       phase: game.phase || 'waiting',
       dayNumber: game.day_number || 1,
       timeRemaining: game.time_remaining,
-      hostName: game.host_name || 'Unknown'
+      hostName: game.host_name || 'Unknown',
     };
   }
 
@@ -446,7 +446,7 @@ export class GameService {
    */
   private formatGameResponseWithPlayers(game: any): GameResponse {
     const response = this.formatGameResponse(game);
-    
+
     response.players = game.players.map((p: any) => ({
       userId: p.user_id,
       username: p.profile.username || 'Unknown',
@@ -454,7 +454,7 @@ export class GameService {
       isHost: p.is_host,
       isAlive: p.is_alive,
       joinedAt: p.joined_at,
-      role: p.role
+      role: p.role,
     }));
 
     return response;
@@ -465,7 +465,10 @@ export class GameService {
   /**
    * Startet ein Spiel und vergibt Rollen
    */
-  async startGameWithRoles(gameId: string, hostId: string): Promise<{
+  async startGameWithRoles(
+    gameId: string,
+    hostId: string
+  ): Promise<{
     success: boolean;
     message: string;
     roleAssignments?: Array<{ userId: string; role: PlayerRole }>;
@@ -473,7 +476,7 @@ export class GameService {
     try {
       // Hol Spieldetails
       const game = await this.getGameDetails(gameId);
-      
+
       if (game.creatorId !== hostId) {
         throw new Error('Nur der Host kann das Spiel starten');
       }
@@ -499,13 +502,13 @@ export class GameService {
         if (!role) {
           throw new Error(`No role assigned for player at index ${i}`);
         }
-        
+
         const playerState = this.roleService.initializePlayerState(
           player.userId,
           role,
           player.isHost
         );
-        
+
         playerStates.push(playerState);
 
         // Update database mit Rolle
@@ -519,10 +522,10 @@ export class GameService {
       // Game Status aktualisieren
       await supabaseAdmin
         .from('games')
-        .update({ 
+        .update({
           status: 'IN_PROGRESS',
           phase: 'NIGHT',
-          started_at: new Date().toISOString()
+          started_at: new Date().toISOString(),
         })
         .eq('id', gameId);
 
@@ -530,7 +533,7 @@ export class GameService {
       const gamePhase: GamePhaseState = {
         phase: 'NIGHT',
         dayNumber: 1,
-        pendingActions: []
+        pendingActions: [],
       };
 
       this.gameStates.set(gameId, gamePhase);
@@ -541,14 +544,13 @@ export class GameService {
         message: 'Spiel gestartet und Rollen vergeben',
         roleAssignments: playerStates.map(p => ({
           userId: p.userId,
-          role: p.role
-        }))
+          role: p.role,
+        })),
       };
-
     } catch (error: any) {
       return {
         success: false,
-        message: error.message
+        message: error.message,
       };
     }
   }
@@ -570,7 +572,7 @@ export class GameService {
   getAvailableActions(gameId: string, userId: string): ActionType[] {
     const players = this.playerStates.get(gameId);
     const gamePhase = this.gameStates.get(gameId);
-    
+
     if (!players || !gamePhase) return [];
 
     const player = players.find(p => p.userId === userId);
@@ -598,14 +600,14 @@ export class GameService {
     }
 
     const result = await this.nightActionService.submitNightAction(gameId, action, players);
-    
+
     // Aktualisierte Spieler speichern
     this.playerStates.set(gameId, players);
 
     return {
       success: result.success,
       message: result.message,
-      revealedInfo: result.revealedInfo
+      revealedInfo: result.revealedInfo,
     };
   }
 
@@ -627,7 +629,11 @@ export class GameService {
     }
 
     // Nacht-Aktionen auflösen
-    const resolution = await this.nightActionService.resolveNightActions(gameId, players, gamePhase);
+    const resolution = await this.nightActionService.resolveNightActions(
+      gameId,
+      players,
+      gamePhase
+    );
 
     // Spieler-Status aktualisieren
     this.playerStates.set(gameId, resolution.updatedPlayers);
@@ -636,9 +642,9 @@ export class GameService {
     for (const deadPlayerId of resolution.deaths) {
       await supabaseAdmin
         .from('players')
-        .update({ 
+        .update({
           is_alive: false,
-          eliminated_at: new Date().toISOString()
+          eliminated_at: new Date().toISOString(),
         })
         .eq('game_id', gameId)
         .eq('user_id', deadPlayerId);
@@ -653,9 +659,9 @@ export class GameService {
       gameEnded = true;
       await supabaseAdmin
         .from('games')
-        .update({ 
+        .update({
           status: 'FINISHED',
-          finished_at: new Date().toISOString()
+          finished_at: new Date().toISOString(),
         })
         .eq('id', gameId);
 
@@ -667,10 +673,7 @@ export class GameService {
       gamePhase.phase = 'DAY';
       this.gameStates.set(gameId, gamePhase);
 
-      await supabaseAdmin
-        .from('games')
-        .update({ phase: 'DAY' })
-        .eq('id', gameId);
+      await supabaseAdmin.from('games').update({ phase: 'DAY' }).eq('id', gameId);
     }
 
     return {
@@ -678,16 +681,16 @@ export class GameService {
       message: 'Nacht-Phase aufgelöst',
       deaths: resolution.deaths,
       gameEnded,
-      ...(winner && { winner })
+      ...(winner && { winner }),
     };
   }
 
   /**
    * Wechselt zur Nacht-Phase
-   */  
+   */
   async startNightPhase(gameId: string): Promise<{ success: boolean; message: string }> {
     const gamePhase = this.gameStates.get(gameId);
-    
+
     if (!gamePhase) {
       return { success: false, message: 'Spiel nicht gefunden' };
     }
@@ -699,17 +702,14 @@ export class GameService {
     gamePhase.phase = 'NIGHT';
     gamePhase.dayNumber += 1;
     gamePhase.pendingActions = [];
-    
+
     this.gameStates.set(gameId, gamePhase);
 
-    await supabaseAdmin
-      .from('games')
-      .update({ phase: 'NIGHT' })
-      .eq('id', gameId);
+    await supabaseAdmin.from('games').update({ phase: 'NIGHT' }).eq('id', gameId);
 
     return {
       success: true,
-      message: 'Nacht-Phase gestartet'
+      message: 'Nacht-Phase gestartet',
     };
   }
 
@@ -719,16 +719,16 @@ export class GameService {
   async setRoleConfiguration(gameId: string, config: GameRoleConfig): Promise<void> {
     // Store configuration in memory (in production, this should be stored in database)
     this.roleConfigurations.set(gameId, config);
-    
+
     // Update game table with role configuration
     const { error } = await supabaseAdmin
       .from('games')
-      .update({ 
+      .update({
         role_config: JSON.stringify(config),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', gameId);
-    
+
     if (error) throw new Error(`Failed to save role configuration: ${error.message}`);
   }
 
@@ -748,7 +748,7 @@ export class GameService {
   } {
     return {
       phase: this.gameStates.get(gameId) || null,
-      players: this.playerStates.get(gameId) || null
+      players: this.playerStates.get(gameId) || null,
     };
   }
 
@@ -805,7 +805,7 @@ export class GameService {
     // Spieler mit den meisten Stimmen finden
     let maxVotes = 0;
     let eliminatedPlayer: string | undefined;
-    
+
     Object.entries(voteCount).forEach(([playerId, votes]) => {
       if (votes > maxVotes) {
         maxVotes = votes;
@@ -823,7 +823,10 @@ export class GameService {
       playerToEliminate.isAlive = false;
 
       // Jäger-Fähigkeit prüfen
-      if (playerToEliminate.role === PlayerRole.HUNTER && playerToEliminate.specialStates.canRevenge) {
+      if (
+        playerToEliminate.role === PlayerRole.HUNTER &&
+        playerToEliminate.specialStates.canRevenge
+      ) {
         // Jäger kann jemanden mitnehmen - das sollte in einem separaten Schritt behandelt werden
       }
 
@@ -838,9 +841,9 @@ export class GameService {
       // Datenbank aktualisieren
       await supabaseAdmin
         .from('players')
-        .update({ 
+        .update({
           is_alive: false,
-          eliminated_at: new Date().toISOString()
+          eliminated_at: new Date().toISOString(),
         })
         .eq('game_id', gameId)
         .eq('user_id', eliminatedPlayer);
@@ -855,9 +858,9 @@ export class GameService {
       gameEnded = true;
       await supabaseAdmin
         .from('games')
-        .update({ 
+        .update({
           status: 'FINISHED',
-          finished_at: new Date().toISOString()
+          finished_at: new Date().toISOString(),
         })
         .eq('id', gameId);
 
@@ -873,7 +876,7 @@ export class GameService {
       message: `${eliminatedPlayer} wurde eliminiert`,
       eliminatedPlayer,
       gameEnded,
-      ...(winner && { winner })
+      ...(winner && { winner }),
     };
   }
 }

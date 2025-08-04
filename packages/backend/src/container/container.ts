@@ -107,14 +107,26 @@ class DIContainer {
 
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware).inSingletonScope();
-    container.bind<ValidationMiddleware>(TYPES.ValidationMiddleware).to(ValidationMiddleware).inSingletonScope();
-    container.bind<EnhancedErrorMiddleware>(TYPES.EnhancedErrorMiddleware).to(EnhancedErrorMiddleware).inSingletonScope();
+    container
+      .bind<ValidationMiddleware>(TYPES.ValidationMiddleware)
+      .to(ValidationMiddleware)
+      .inSingletonScope();
+    container
+      .bind<EnhancedErrorMiddleware>(TYPES.EnhancedErrorMiddleware)
+      .to(EnhancedErrorMiddleware)
+      .inSingletonScope();
 
     // Controllers
     container.bind<AuthController>(TYPES.AuthController).to(AuthController).inSingletonScope();
-    container.bind<MoonPhaseController>(TYPES.MoonPhaseController).to(MoonPhaseController).inSingletonScope();
+    container
+      .bind<MoonPhaseController>(TYPES.MoonPhaseController)
+      .to(MoonPhaseController)
+      .inSingletonScope();
     container.bind<PackController>(TYPES.PackController).to(PackController).inSingletonScope();
-    container.bind<TerritoryController>(TYPES.TerritoryController).to(TerritoryController).inSingletonScope();
+    container
+      .bind<TerritoryController>(TYPES.TerritoryController)
+      .to(TerritoryController)
+      .inSingletonScope();
 
     return container;
   }
