@@ -335,11 +335,11 @@ export class EnhancedErrorMiddleware {
     const errorCode = (error as { code?: string }).code;
     return Boolean(
       errorCode &&
-      (errorCode.startsWith('23') || // Integrity constraint violation
-        errorCode.startsWith('42') || // Syntax error or access rule violation
-        (error as { name?: string }).name === 'SequelizeError' ||
-        (error as { name?: string }).name === 'PrismaClientKnownRequestError' ||
-        (error as { name?: string }).name === 'QueryFailedError')
+        (errorCode.startsWith('23') || // Integrity constraint violation
+          errorCode.startsWith('42') || // Syntax error or access rule violation
+          (error as { name?: string }).name === 'SequelizeError' ||
+          (error as { name?: string }).name === 'PrismaClientKnownRequestError' ||
+          (error as { name?: string }).name === 'QueryFailedError')
     );
   }
 
