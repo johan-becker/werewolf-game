@@ -48,7 +48,7 @@ export class AuthService {
         session: authData.session,
         message: 'Registration successful',
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Signup error:', error);
       throw error;
     }
@@ -75,7 +75,7 @@ export class AuthService {
         accessToken: authData.session.access_token,
         refreshToken: authData.session.refresh_token,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Signin error:', error);
       throw error;
     }
@@ -100,7 +100,7 @@ export class AuthService {
         accessToken: data.session.access_token,
         refreshToken: data.session.refresh_token,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Token refresh error:', error);
       throw error;
     }
@@ -117,7 +117,7 @@ export class AuthService {
       }
 
       logger.info('User logged out successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Logout error:', error);
       throw error;
     }
@@ -149,7 +149,7 @@ export class AuthService {
         createdAt: user.user.created_at,
         lastSignIn: user.user.last_sign_in_at,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get profile error:', error);
       throw error;
     }
@@ -170,7 +170,7 @@ export class AuthService {
       }
 
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create profile error:', error);
       throw error;
     }
@@ -198,7 +198,7 @@ export class AuthService {
 
       logger.info(`Profile updated for user: ${userId}`);
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update profile error:', error);
       throw error;
     }
@@ -218,7 +218,7 @@ export class AuthService {
       }
 
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get public profile error:', error);
       throw error;
     }
@@ -240,17 +240,17 @@ export class AuthService {
       }
 
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`OAuth ${provider} error:`, error);
       throw error;
     }
   }
 
   // Map Supabase errors to meaningful messages
-  static mapSupabaseError(error: any): Error {
-    const message = error?.message || 'Unknown error';
+  static mapSupabaseError(error: unknown): Error {
+    const message = (error as { message?: string })?.message || 'Unknown error';
 
-    switch (error?.message) {
+    switch ((error as { message?: string })?.message) {
       case 'Invalid login credentials':
         return new Error('Invalid email or password');
       case 'User already registered':

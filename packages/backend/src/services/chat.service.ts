@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { Player, Game } from '../types/database';
 
 const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 
@@ -218,8 +219,8 @@ export class ChatService {
    */
   private getGameChannelPermissions(
     channel: ChatMessage['channel'],
-    player: any,
-    game: any
+    player: Player & { is_alive?: boolean; role?: string },
+    game: Game & { phase?: string }
   ): ChatPermissions {
     switch (channel) {
       case 'DAY':
@@ -330,7 +331,19 @@ export class ChatService {
   /**
    * Format database message to ChatMessage interface
    */
-  private formatMessage(dbMessage: any): ChatMessage {
+  private formatMessage(dbMessage: {
+    id: string;
+    game_id?: string;
+    user_id: string;
+    user?: { username?: string; avatar_url?: string };
+    channel: ChatMessage['channel'];
+    type: ChatMessage['type'];
+    content: string;
+    mentions?: string[];
+    edited: boolean;
+    edited_at?: string;
+    created_at: string;
+  }): ChatMessage {
     return {
       id: dbMessage.id,
       gameId: dbMessage.game_id,

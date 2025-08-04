@@ -423,7 +423,20 @@ export class GameService {
   /**
    * Format game response
    */
-  private formatGameResponse(game: any): GameResponse {
+  private formatGameResponse(game: {
+    id: string;
+    name: string;
+    code: string;
+    status: string;
+    creator_id: string;
+    max_players: number;
+    current_players?: number;
+    created_at: string;
+    phase?: string;
+    day_number?: number;
+    time_remaining?: number;
+    host_name?: string;
+  }): GameResponse {
     return {
       id: game.id,
       name: game.name,
@@ -444,10 +457,30 @@ export class GameService {
   /**
    * Format game response with players
    */
-  private formatGameResponseWithPlayers(game: any): GameResponse {
+  private formatGameResponseWithPlayers(game: {
+    id: string;
+    name: string;
+    code: string;
+    status: string;
+    creator_id: string;
+    max_players: number;
+    current_players?: number;
+    created_at: string;
+    phase?: string;
+    day_number?: number;
+    time_remaining?: number;
+    host_name?: string;
+    players: Array<{
+      user_id: string;
+      profile: { username?: string; avatar_url?: string };
+      role?: string;
+      is_alive?: boolean;
+      joined_at?: string;
+    }>;
+  }): GameResponse {
     const response = this.formatGameResponse(game);
 
-    response.players = game.players.map((p: any) => ({
+    response.players = game.players.map((p) => ({
       userId: p.user_id,
       username: p.profile.username || 'Unknown',
       avatarUrl: p.profile.avatar_url,
@@ -547,10 +580,10 @@ export class GameService {
           role: p.role,
         })),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        message: error.message,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
@@ -587,7 +620,7 @@ export class GameService {
   async performNightAction(
     gameId: string,
     action: NightAction
-  ): Promise<{ success: boolean; message: string; revealedInfo?: any }> {
+  ): Promise<{ success: boolean; message: string; revealedInfo?: unknown }> {
     const players = this.playerStates.get(gameId);
     const gamePhase = this.gameStates.get(gameId);
 
@@ -765,7 +798,11 @@ export class GameService {
   /**
    * Holt Zusammenfassung der Nacht-Aktionen
    */
-  getNightActionsSummary(gameId: string): any {
+  getNightActionsSummary(gameId: string): {
+    kills: Array<{ playerId: string; killedBy: string }>;
+    investigations: Array<{ seer: string; target: string; result: string }>;
+    protections: Array<{ doctor: string; target: string }>;
+  } | null {
     const players = this.playerStates.get(gameId);
     if (!players) return null;
 
