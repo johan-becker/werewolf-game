@@ -46,8 +46,8 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
   // Type assertion is safe here because we've verified authentication success
   const authenticatedReq = req as AuthenticatedRequest;
-  (authenticatedReq as any).user = authResult.user!;
-  (authenticatedReq as any).authMetadata = authResult.metadata!;
+  (authenticatedReq as unknown as { user: typeof authResult.user; authMetadata: typeof authResult.metadata }).user = authResult.user!;
+  (authenticatedReq as unknown as { user: typeof authResult.user; authMetadata: typeof authResult.metadata }).authMetadata = authResult.metadata!;
 
   next();
 }
@@ -61,8 +61,8 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
 
   if (authResult.success) {
     const optionalAuthReq = req as OptionalAuthRequest;
-    (optionalAuthReq as any).user = authResult.user!;
-    (optionalAuthReq as any).authMetadata = authResult.metadata!;
+    (optionalAuthReq as unknown as { user: typeof authResult.user; authMetadata: typeof authResult.metadata }).user = authResult.user!;
+    (optionalAuthReq as unknown as { user: typeof authResult.user; authMetadata: typeof authResult.metadata }).authMetadata = authResult.metadata!;
   }
 
   next();
@@ -207,7 +207,7 @@ export const authRateLimit = rateLimit({
     res.status(429).json({
       error: 'Too many authentication attempts',
       code: AuthErrorCode.RATE_LIMITED,
-      retryAfter: Math.ceil((req as any).rateLimit?.resetTime || 0),
+      retryAfter: Math.ceil((req as Request & { rateLimit?: { resetTime?: number } }).rateLimit?.resetTime || 0),
       timestamp: new Date(),
     });
   },
