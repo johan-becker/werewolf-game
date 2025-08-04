@@ -18,12 +18,11 @@ export class GameLogService {
     try {
       const gameLog = await prisma.gameLog.create({
         data: {
-          gameId: logData.gameId,
-          roundNumber: logData.roundNumber,
+          game_id: logData.gameId,
+          day_number: logData.roundNumber,
           phase: logData.phase,
-          actionType: logData.actionType,
-          actorId: logData.actorId || null,
-          targetId: logData.targetId || null,
+          action: logData.actionType,
+          user_id: logData.actorId || null,
           details: logData.details
         }
       });
@@ -43,7 +42,7 @@ export class GameLogService {
     pagination: PaginationOptions = {}
   ): Promise<PaginatedResponse<GameLogWithDetails>> {
     try {
-      const { page = 1, limit = 50, sortBy = 'timestamp', sortOrder = 'asc' } = pagination;
+      const { page = 1, limit = 50, sortBy = 'created_at', sortOrder = 'asc' } = pagination;
 
       const [logs, total] = await Promise.all([
         prisma.gameLog.findMany({
@@ -56,7 +55,7 @@ export class GameLogService {
                 code: true
               }
             },
-            actor: {
+            user: {
               select: {
                 id: true,
                 username: true
@@ -93,7 +92,7 @@ export class GameLogService {
     phase?: GamePhase
   ): Promise<GameLogWithDetails[]> {
     try {
-      const where: any = { gameId, roundNumber };
+      const where: any = { game_id: gameId, day_number: roundNumber };
       if (phase) {
         where.phase = phase;
       }
@@ -108,14 +107,14 @@ export class GameLogService {
               code: true
             }
           },
-          actor: {
+          user: {
             select: {
               id: true,
               username: true
             }
           }
         },
-        orderBy: { timestamp: 'asc' }
+        orderBy: { created_at: 'asc' }
       });
 
     } catch (error) {
@@ -337,29 +336,31 @@ export class GameLogService {
       const logs = await prisma.gameLog.findMany({
         where: { game_id: gameId },
         select: {
-          actionType: true,
-          roundNumber: true,
+          action: true,
+          day_number: true,
           phase: true,
           details: true
         }
       });
 
       const stats = {
-        totalRounds: Math.max(...logs.map(l => l.roundNumber), 0),
+        totalRounds: Math.max(...logs.map(l => l.day_number || 0), 0),
         totalActions: logs.length,
         actionsByType: {} as Record<string, number>,
         actionsByPhase: {
           DAY: 0,
           NIGHT: 0
         },
-        votingRounds: logs.filter(l => l.actionType === 'VOTE').length,
-        eliminations: logs.filter(l => l.actionType === 'PLAYER_ELIMINATED').length
+        votingRounds: logs.filter(l => l.action === 'VOTE').length,
+        eliminations: logs.filter(l => l.action === 'PLAYER_ELIMINATED').length
       };
 
       // Count actions by type
       logs.forEach(log => {
-        stats.actionsByType[log.actionType] = (stats.actionsByType[log.actionType] || 0) + 1;
-        stats.actionsByPhase[log.phase]++;
+        stats.actionsByType[log.action] = (stats.actionsByType[log.action] || 0) + 1;
+        if (log.phase) {
+          stats.actionsByPhase[log.phase]++;
+        }
       });
 
       return stats;

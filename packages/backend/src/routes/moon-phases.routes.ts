@@ -10,6 +10,7 @@ import { AuthMiddleware } from '../middleware/auth.middleware';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
 import { EnhancedErrorMiddleware } from '../middleware/enhanced-error.middleware';
 import { MoonPhaseController } from '../controllers/moon-phase.controller';
+import { WerewolfRole } from '../types/werewolf-roles.types';
 import { z } from 'zod';
 
 const router = Router();
@@ -233,7 +234,7 @@ router.get(
 router.post(
   '/ritual',
   authMiddleware.authenticate(),
-  authMiddleware.requireRole('HEALER', 'ALPHA'),
+  authMiddleware.requireRole(WerewolfRole.WITCH), // Fixed: HEALER -> WITCH
   asyncHandler(moonPhaseController.performRitual.bind(moonPhaseController))
 );
 

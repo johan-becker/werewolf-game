@@ -47,4 +47,8 @@ export class AuthController {
   async resendVerification(req: Request, res: Response) {
     res.json({ success: false, message: 'Feature not implemented' });
   }
+
+  async me(req: Request, res: Response) {
+    res.json({ success: false, message: 'Feature not implemented' });
+  }
 }
