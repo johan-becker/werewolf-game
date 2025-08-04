@@ -809,6 +809,8 @@ export class WerewolfGameManager {
     // TODO: Implement werewolf transformation logic
     return {
       success: true,
+      transformation_progress: 75,
+      abilities_unlocked: ['enhanced_senses', 'pack_communication'],
       transformation_complete: true,
     };
   }
@@ -820,6 +822,8 @@ export class WerewolfGameManager {
     // TODO: Implement pack communication logic
     return {
       success: true,
+      werewolf_chat_enabled: true,
+      pack_members: ['player1', 'player2', 'player3'],
       pack_channel_active: true,
     };
   }
