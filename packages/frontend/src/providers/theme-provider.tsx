@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
 
 type Theme = 'light' | 'dark' | 'system'
@@ -55,6 +55,7 @@ export function ThemeProvider({
     handleChange() // Initial call
 
     return () => mediaQuery.removeEventListener('change', handleChange)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme])
 
   // Initialize theme from storage or user preferences
@@ -74,7 +75,7 @@ export function ThemeProvider({
   }, [storageKey, defaultTheme, user?.preferences?.theme])
 
   // Apply theme to document
-  const updateDocumentTheme = (resolvedTheme: ResolvedTheme) => {
+  const updateDocumentTheme = useCallback((resolvedTheme: ResolvedTheme) => {
     const root = document.documentElement
     
     // Remove existing theme classes
@@ -142,7 +143,7 @@ export function ThemeProvider({
         root.style.setProperty('--background', `color-mix(in srgb, var(--moonlight-50) ${100 - intensity * 5}%, var(--blood-50))`)
       }
     }
-  }
+  }, [isTransforming, enableTransformationMode, moonPhaseIntensity])
 
   // Update resolved theme when theme changes
   useEffect(() => {
@@ -159,7 +160,7 @@ export function ThemeProvider({
     if (mounted) {
       updateDocumentTheme(resolvedTheme)
     }
-  }, [resolvedTheme, isTransforming, moonPhaseIntensity, mounted, enableTransformationMode])
+  }, [resolvedTheme, mounted, updateDocumentTheme])
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme)

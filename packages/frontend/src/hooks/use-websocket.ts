@@ -163,9 +163,11 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
           setLastMessage(message);
+          // eslint-disable-next-line react-hooks/exhaustive-deps
           handleMessage(message);
           opts.onMessage(message);
         } catch (err) {
+          // eslint-disable-next-line no-console
           console.error('Failed to parse WebSocket message:', err);
         }
       };
@@ -202,6 +204,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
         })
       );
     } else {
+      // eslint-disable-next-line no-console
       console.warn('WebSocket is not connected. Message not sent:', { type, payload });
     }
   }, []);
@@ -214,6 +217,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
           const moonPhaseData = message.payload as MoonPhaseUpdate;
 
           // You could dispatch this to a moon phase store or handle it directly
+          // eslint-disable-next-line no-console
           console.log('Moon phase updated:', moonPhaseData);
 
           // If transformation time, show urgent notifications
@@ -236,9 +240,11 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
           // Handle transformation events - update user status, show notifications
           if (transformationData.userId === user?.id) {
             // User is transforming
+            // eslint-disable-next-line no-console
             console.log(`User transformation ${transformationData.phase.toLowerCase()}`);
           } else {
             // Another user is transforming
+            // eslint-disable-next-line no-console
             console.log(
               `${transformationData.username} transformation ${transformationData.phase.toLowerCase()}`
             );
@@ -282,6 +288,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
 
         case 'INVITATION_RECEIVED':
           // Handle pack invitations
+          // eslint-disable-next-line no-console
           console.log('New pack invitation received:', message.payload);
 
           // Show notification
@@ -295,10 +302,12 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
 
         case 'USER_STATUS_CHANGE':
           // Handle user status changes (online/offline, role changes, etc.)
+          // eslint-disable-next-line no-console
           console.log('User status changed:', message.payload);
           break;
 
         default:
+          // eslint-disable-next-line no-console
           console.log('Unhandled WebSocket message:', message);
       }
     },

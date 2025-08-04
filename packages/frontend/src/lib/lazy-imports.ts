@@ -53,14 +53,14 @@ export const FeaturesSection = lazy(() => import('@/components/landing/features-
 // export const ThemeSettings = lazy(() => import('@/components/settings/theme-settings'))
 
 // Helper function for creating lazy components with error boundaries  
-export const withLazyLoading = (
-  importFn: () => Promise<{ default: React.ComponentType<any> }>,
+export const withLazyLoading = <T extends Record<string, any> = Record<string, any>>(
+  importFn: () => Promise<{ default: React.ComponentType<T> }>,
   _fallback?: React.ComponentType
 ) => {
   const LazyComponent = lazy(importFn)
   
-  return function LazyWrapper(props: any) {
-    return React.createElement(LazyComponent, props)
+  return function LazyWrapper(props: T) {
+    return React.createElement(LazyComponent as any, props)
   }
 }
 
