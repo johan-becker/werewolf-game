@@ -15,7 +15,7 @@ export interface ErrorResponse {
   code: string;
   timestamp: string;
   requestId?: string;
-  details?: Record<string, unknown>;
+  details?: Record<string, unknown> | unknown[];
   stack?: string;
 }
 
@@ -23,14 +23,14 @@ export class AppError extends Error {
   public readonly statusCode: number;
   public readonly code: string;
   public readonly isOperational: boolean;
-  public readonly details?: Record<string, unknown>;
+  public readonly details?: Record<string, unknown> | unknown[] | undefined;
 
   constructor(
     message: string,
     statusCode: number = 500,
     code: string = 'INTERNAL_ERROR',
     isOperational: boolean = true,
-    details?: Record<string, unknown>
+    details?: Record<string, unknown> | unknown[]
   ) {
     super(message);
     this.statusCode = statusCode;
@@ -333,7 +333,7 @@ export class EnhancedErrorMiddleware {
    */
   private isDatabaseError(error: unknown): boolean {
     const errorCode = (error as { code?: string }).code;
-    return (
+    return Boolean(
       errorCode &&
       (errorCode.startsWith('23') || // Integrity constraint violation
         errorCode.startsWith('42') || // Syntax error or access rule violation
