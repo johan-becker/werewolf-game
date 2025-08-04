@@ -4,6 +4,17 @@ import { AuthService } from '../services/authService';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 
+// Helper function to safely extract error message
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'An unknown error occurred';
+};
+
 export class AuthController {
   // Signup new user with Supabase
   static async signup(req: Request, res: Response): Promise<void> {
@@ -55,10 +66,10 @@ export class AuthController {
             }
           : null,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Signup controller error:', error);
       res.status(400).json({
-        error: error.message || 'Registration failed',
+        error: getErrorMessage(error) || 'Registration failed',
       });
     }
   }
@@ -94,10 +105,10 @@ export class AuthController {
           expires_at: result.session.expires_at,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Signin controller error:', error);
       res.status(401).json({
-        error: error.message || 'Login failed',
+        error: getErrorMessage(error) || 'Login failed',
       });
     }
   }
@@ -127,10 +138,10 @@ export class AuthController {
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Refresh controller error:', error);
       res.status(401).json({
-        error: error.message || 'Token refresh failed',
+        error: getErrorMessage(error) || 'Token refresh failed',
       });
     }
   }
@@ -144,7 +155,7 @@ export class AuthController {
         success: true,
         message: 'Logout successful',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Logout controller error:', error);
       // Still return success even if logout fails
       res.status(200).json({
@@ -170,10 +181,10 @@ export class AuthController {
         success: true,
         user: profile,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get profile controller error:', error);
       res.status(500).json({
-        error: error.message || 'Failed to get user profile',
+        error: getErrorMessage(error) || 'Failed to get user profile',
       });
     }
   }
@@ -198,10 +209,10 @@ export class AuthController {
         success: true,
         data: result,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('OAuth signin controller error:', error);
       res.status(400).json({
-        error: error.message || 'OAuth signin failed',
+        error: getErrorMessage(error) || 'OAuth signin failed',
       });
     }
   }
@@ -212,7 +223,7 @@ export class AuthController {
       // This would typically handle the OAuth callback
       // and redirect to the frontend with tokens
       res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('OAuth callback error:', error);
       res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
     }

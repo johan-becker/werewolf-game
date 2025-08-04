@@ -57,7 +57,8 @@
       "Bash(NODE_ENV=test npm test -- --testNamePattern=\"should pass\" --passWithNoTests)",
       "Bash(NODE_ENV=test npm run test -- src/__tests__/env-setup.ts)",
       "Bash(NODE_ENV=test npm test -- src/__tests__/helpers/test-app.ts)",
-      "Bash(NODE_ENV=test npm test -- --passWithNoTests --maxWorkers=1)"
+      "Bash(NODE_ENV=test npm test -- --passWithNoTests --maxWorkers=1)",
+      "Bash(npx turbo run:*)"
     ],
     "deny": []
   }

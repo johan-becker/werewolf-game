@@ -5,6 +5,17 @@
 
 import { Response } from 'express';
 import { GameService } from '../services/game.service';
+
+// Helper function to safely extract error message
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'An unknown error occurred';
+};
 import { AuthenticatedRequest } from '../types/auth.types';
 import {
   GameCreationResult,
@@ -33,7 +44,7 @@ export class EnhancedGameController {
   /**
    * Helper function to safely convert dates to ISO strings
    */
-  private formatDateSafely(date: any): string {
+  private formatDateSafely(date: unknown): string {
     if (typeof date === 'string') {
       return date;
     }
@@ -172,26 +183,27 @@ export class EnhancedGameController {
         success: true,
         data: successData,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Transform service errors to controller errors
-      if (error.message?.includes('duplicate') || error.message?.includes('unique')) {
+      const errorMessage = getErrorMessage(error);
+      if (errorMessage.includes('duplicate') || errorMessage.includes('unique')) {
         return {
           success: false,
           error: {
             code: GameErrorCode.GAME_ALREADY_EXISTS,
             message: 'A game with this configuration already exists',
-            details: { originalError: error.message },
+            details: { originalError: errorMessage },
             suggestion: 'Please try with different settings',
             timestamp: new Date().toISOString(),
           },
         };
       }
 
-      if (error.message?.includes('connection') || error.message?.includes('timeout')) {
+      if (errorMessage.includes('connection') || errorMessage.includes('timeout')) {
         return {
           success: false,
           error: GameErrorFactory.createServerError(
-            error.message,
+            errorMessage,
             'Unable to create game due to database connectivity'
           ),
         };
@@ -199,7 +211,7 @@ export class EnhancedGameController {
 
       return {
         success: false,
-        error: GameErrorFactory.createServerError(error.message, 'Failed to create game'),
+        error: GameErrorFactory.createServerError(errorMessage, 'Failed to create game'),
       };
     }
   }
@@ -241,10 +253,11 @@ export class EnhancedGameController {
         success: true,
         data: successData,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
       return {
         success: false,
-        error: GameErrorFactory.createServerError(error.message, 'Failed to retrieve game list'),
+        error: GameErrorFactory.createServerError(errorMessage, 'Failed to retrieve game list'),
       };
     }
   }
@@ -316,8 +329,9 @@ export class EnhancedGameController {
         success: true,
         data: successData,
       };
-    } catch (error: any) {
-      if (error.message?.includes('not found')) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
+      if (errorMessage.includes('not found')) {
         return {
           success: false,
           error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id'),
@@ -326,7 +340,7 @@ export class EnhancedGameController {
 
       return {
         success: false,
-        error: GameErrorFactory.createServerError(error.message, 'Failed to retrieve game details'),
+        error: GameErrorFactory.createServerError(errorMessage, 'Failed to retrieve game details'),
       };
     }
   }
@@ -457,15 +471,16 @@ export class EnhancedGameController {
         success: true,
         data: successData,
       };
-    } catch (error: any) {
-      if (error.message?.includes('not found')) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
+      if (errorMessage.includes('not found')) {
         return {
           success: false,
           error: GameErrorFactory.createGameNotFoundError(req.params.id || 'unknown', 'id'),
         };
       }
 
-      if (error.message?.includes('full') || error.message?.includes('capacity')) {
+      if (errorMessage.includes('full') || errorMessage.includes('capacity')) {
         return {
           success: false,
           error: {
@@ -479,7 +494,7 @@ export class EnhancedGameController {
 
       return {
         success: false,
-        error: GameErrorFactory.createServerError(error.message, 'Failed to join game'),
+        error: GameErrorFactory.createServerError(errorMessage, 'Failed to join game'),
       };
     }
   }
@@ -511,10 +526,11 @@ export class EnhancedGameController {
         { ...req, params: { ...req.params, id: game.id } } as unknown as AuthenticatedRequest,
         res
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
       return {
         success: false,
-        error: GameErrorFactory.createServerError(error.message, 'Failed to join game by code'),
+        error: GameErrorFactory.createServerError(errorMessage, 'Failed to join game by code'),
       };
     }
   }
@@ -609,10 +625,11 @@ export class EnhancedGameController {
         success: true,
         data: successData,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
       return {
         success: false,
-        error: GameErrorFactory.createServerError(error.message, 'Failed to leave game'),
+        error: GameErrorFactory.createServerError(errorMessage, 'Failed to leave game'),
       };
     }
   }
@@ -698,8 +715,9 @@ export class EnhancedGameController {
         success: true,
         data: successData,
       };
-    } catch (error: any) {
-      if (error.message?.includes('already started')) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
+      if (errorMessage.includes('already started')) {
         return {
           success: false,
           error: {
@@ -713,7 +731,7 @@ export class EnhancedGameController {
 
       return {
         success: false,
-        error: GameErrorFactory.createServerError(error.message, 'Failed to start game'),
+        error: GameErrorFactory.createServerError(errorMessage, 'Failed to start game'),
       };
     }
   }
