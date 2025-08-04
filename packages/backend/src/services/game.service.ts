@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateGameCode } from '../utils/gameCode';
-import { CreateGameDTO, GameResponse } from '../types/game.types';
+import { CreateGameDTO, GameResponse, PlayerResponse } from '../types/game.types';
 import { RoleService } from './role.service';
 import { NightActionService } from './night-action.service';
 import {
@@ -449,7 +449,7 @@ export class GameService {
       playerCount: game.current_players || 0,
       phase: game.phase || 'waiting',
       dayNumber: game.day_number || 1,
-      timeRemaining: game.time_remaining,
+      timeRemaining: game.time_remaining || 0,
       hostName: game.host_name || 'Unknown',
     };
   }
@@ -471,24 +471,39 @@ export class GameService {
     time_remaining?: number;
     host_name?: string;
     players: Array<{
+      id?: string;
       user_id: string;
       profile: { username?: string; avatar_url?: string };
       role?: string;
       is_alive?: boolean;
+      is_host?: boolean;
       joined_at?: string;
     }>;
   }): GameResponse {
     const response = this.formatGameResponse(game);
 
-    response.players = game.players.map((p) => ({
-      userId: p.user_id,
-      username: p.profile.username || 'Unknown',
-      avatarUrl: p.profile.avatar_url,
-      isHost: p.is_host,
-      isAlive: p.is_alive,
-      joinedAt: p.joined_at,
-      role: p.role,
-    }));
+    response.players = game.players.map((p) => {
+      const player: PlayerResponse = {
+        id: p.id || p.user_id,
+        userId: p.user_id,
+        username: p.profile.username || 'Unknown',
+        isHost: p.is_host || false,
+        isAlive: p.is_alive || true,
+        hasVoted: false, // Default value
+        status: 'active', // Default value
+        joinedAt: p.joined_at || new Date().toISOString(),
+      };
+
+      if (p.profile.avatar_url) {
+        player.avatarUrl = p.profile.avatar_url;
+      }
+
+      if (p.role) {
+        player.role = p.role;
+      }
+
+      return player;
+    });
 
     return response;
   }
@@ -798,11 +813,7 @@ export class GameService {
   /**
    * Holt Zusammenfassung der Nacht-Aktionen
    */
-  getNightActionsSummary(gameId: string): {
-    kills: Array<{ playerId: string; killedBy: string }>;
-    investigations: Array<{ seer: string; target: string; result: string }>;
-    protections: Array<{ doctor: string; target: string }>;
-  } | null {
+  getNightActionsSummary(gameId: string): unknown {
     const players = this.playerStates.get(gameId);
     if (!players) return null;
 

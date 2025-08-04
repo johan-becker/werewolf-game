@@ -219,14 +219,14 @@ export class ChatService {
    */
   private getGameChannelPermissions(
     channel: ChatMessage['channel'],
-    player: Player & { is_alive?: boolean; role?: string },
-    game: Game & { phase?: string }
+    player: { is_alive?: boolean; role?: string },
+    game: { phase?: string }
   ): ChatPermissions {
     switch (channel) {
       case 'DAY':
         return {
           canRead: true,
-          canWrite: player.is_alive && game.phase === 'DAY',
+          canWrite: (player.is_alive ?? true) && game.phase === 'DAY',
         };
 
       case 'NIGHT':
@@ -239,7 +239,7 @@ export class ChatService {
         }
         return {
           canRead: true,
-          canWrite: player.is_alive && game.phase === 'NIGHT',
+          canWrite: (player.is_alive ?? true) && game.phase === 'NIGHT',
         };
 
       case 'DEAD':
@@ -344,20 +344,31 @@ export class ChatService {
     edited_at?: string;
     created_at: string;
   }): ChatMessage {
-    return {
+    const message: ChatMessage = {
       id: dbMessage.id,
-      gameId: dbMessage.game_id,
       userId: dbMessage.user_id,
       username: dbMessage.user?.username || 'System',
-      avatarUrl: dbMessage.user?.avatar_url,
       channel: dbMessage.channel,
       type: dbMessage.type,
       content: dbMessage.content,
       mentions: dbMessage.mentions || [],
       edited: dbMessage.edited,
-      editedAt: dbMessage.edited_at,
       createdAt: dbMessage.created_at,
     };
+
+    if (dbMessage.game_id) {
+      message.gameId = dbMessage.game_id;
+    }
+
+    if (dbMessage.user?.avatar_url) {
+      message.avatarUrl = dbMessage.user.avatar_url;
+    }
+
+    if (dbMessage.edited_at) {
+      message.editedAt = dbMessage.edited_at;
+    }
+
+    return message;
   }
 
   /**

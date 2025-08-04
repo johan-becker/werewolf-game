@@ -20,6 +20,7 @@ import {
   GameStateResponse,
   ActionResponse,
   VoteResponse,
+  SocketAuthErrorCode,
   ChatResponse,
 } from '../types/socket-auth.types';
 import { GameService } from '../services/game.service';
@@ -80,7 +81,7 @@ export class AuthenticatedSocketEventHandler {
         callback({
           success: false,
           error: {
-            code: 'SERVER_ERROR' as any,
+            code: SocketAuthErrorCode.SERVER_ERROR,
             message: 'Authentication processing error',
             canRetry: true,
           },
@@ -95,7 +96,7 @@ export class AuthenticatedSocketEventHandler {
       callback({
         success: false,
         error: {
-          code: 'INVALID_TOKEN' as any,
+          code: SocketAuthErrorCode.INVALID_TOKEN,
           message: 'Refresh tokens not implemented yet',
           canRetry: false,
         },
