@@ -15,7 +15,7 @@ export interface ErrorResponse {
   code: string;
   timestamp: string;
   requestId?: string;
-  details?: any;
+  details?: Record<string, unknown>;
   stack?: string;
 }
 
@@ -23,14 +23,14 @@ export class AppError extends Error {
   public readonly statusCode: number;
   public readonly code: string;
   public readonly isOperational: boolean;
-  public readonly details?: any;
+  public readonly details?: Record<string, unknown>;
 
   constructor(
     message: string,
     statusCode: number = 500,
     code: string = 'INTERNAL_ERROR',
     isOperational: boolean = true,
-    details?: any
+    details?: Record<string, unknown>
   ) {
     super(message);
     this.statusCode = statusCode;
@@ -109,7 +109,7 @@ export class EnhancedErrorMiddleware {
   /**
    * Async error wrapper
    */
-  asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
+  asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) {
     return (req: Request, res: Response, next: NextFunction) => {
       Promise.resolve(fn(req, res, next)).catch(next);
     };
@@ -146,7 +146,7 @@ export class EnhancedErrorMiddleware {
     const validationErrors = error.errors.map(err => ({
       field: err.path.join('.'),
       message: err.message,
-      value: (err as any).received || 'invalid',
+      value: (err as { received?: unknown }).received || 'invalid',
     }));
 
     const response: ErrorResponse = {
@@ -194,11 +194,12 @@ export class EnhancedErrorMiddleware {
   /**
    * Handle file upload errors
    */
-  private handleFileUploadError(error: any, res: Response, requestId: string): void {
+  private handleFileUploadError(error: unknown, res: Response, requestId: string): void {
     let message = 'File upload error';
     let code = 'FILE_UPLOAD_ERROR';
 
-    switch (error.code) {
+    const errorCode = (error as { code?: string }).code;
+    switch (errorCode) {
       case 'LIMIT_FILE_SIZE':
         message = 'File too large';
         code = 'FILE_TOO_LARGE';
@@ -227,21 +228,23 @@ export class EnhancedErrorMiddleware {
   /**
    * Handle database errors
    */
-  private handleDatabaseError(error: any, res: Response, requestId: string): void {
+  private handleDatabaseError(error: unknown, res: Response, requestId: string): void {
     let message = 'Database error';
     let code = 'DATABASE_ERROR';
     let statusCode = 500;
 
     // Handle common database errors
-    if (error.code === '23505' || error.message.includes('unique constraint')) {
+    const errorCode = (error as { code?: string }).code;
+    const errorMessage = (error as { message?: string }).message || '';
+    if (errorCode === '23505' || errorMessage.includes('unique constraint')) {
       message = 'Resource already exists';
       code = 'DUPLICATE_RESOURCE';
       statusCode = 409;
-    } else if (error.code === '23503' || error.message.includes('foreign key')) {
+    } else if (errorCode === '23503' || errorMessage.includes('foreign key')) {
       message = 'Referenced resource not found';
       code = 'FOREIGN_KEY_ERROR';
       statusCode = 400;
-    } else if (error.code === '23502' || error.message.includes('null value')) {
+    } else if (errorCode === '23502' || errorMessage.includes('null value')) {
       message = 'Required field is missing';
       code = 'NULL_CONSTRAINT_ERROR';
       statusCode = 400;
@@ -261,7 +264,7 @@ export class EnhancedErrorMiddleware {
   /**
    * Handle network errors
    */
-  private handleNetworkError(error: any, res: Response, requestId: string): void {
+  private handleNetworkError(error: unknown, res: Response, requestId: string): void {
     const response: ErrorResponse = {
       success: false,
       error: 'Service temporarily unavailable',
@@ -328,27 +331,29 @@ export class EnhancedErrorMiddleware {
   /**
    * Check if error is database-related
    */
-  private isDatabaseError(error: any): boolean {
+  private isDatabaseError(error: unknown): boolean {
+    const errorCode = (error as { code?: string }).code;
     return (
-      error.code &&
-      (error.code.startsWith('23') || // Integrity constraint violation
-        error.code.startsWith('42') || // Syntax error or access rule violation
-        error.name === 'SequelizeError' ||
-        error.name === 'PrismaClientKnownRequestError' ||
-        error.name === 'QueryFailedError')
+      errorCode &&
+      (errorCode.startsWith('23') || // Integrity constraint violation
+        errorCode.startsWith('42') || // Syntax error or access rule violation
+        (error as { name?: string }).name === 'SequelizeError' ||
+        (error as { name?: string }).name === 'PrismaClientKnownRequestError' ||
+        (error as { name?: string }).name === 'QueryFailedError')
     );
   }
 
   /**
    * Check if error is network-related
    */
-  private isNetworkError(error: any): boolean {
+  private isNetworkError(error: unknown): boolean {
+    const errorCode = (error as { code?: string }).code;
     return (
-      error.code === 'ECONNREFUSED' ||
-      error.code === 'ECONNRESET' ||
-      error.code === 'ETIMEDOUT' ||
-      error.code === 'ENOTFOUND' ||
-      error.name === 'TimeoutError'
+      errorCode === 'ECONNREFUSED' ||
+      errorCode === 'ECONNRESET' ||
+      errorCode === 'ETIMEDOUT' ||
+      errorCode === 'ENOTFOUND' ||
+      (error as { name?: string }).name === 'TimeoutError'
     );
   }
 

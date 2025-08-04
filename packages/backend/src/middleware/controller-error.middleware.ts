@@ -130,7 +130,7 @@ export function controllerErrorInterceptor(
     url: req.url,
     method: req.method,
     body: req.body,
-    userId: (req as any).user?.id,
+    userId: (req as { user?: { id?: string } }).user?.id,
     timestamp: new Date().toISOString(),
   });
 

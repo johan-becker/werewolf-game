@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient, Prisma } from '../generated/prisma';
 import { logger } from '@utils/logger';
 
 class DatabaseService {
@@ -56,7 +56,7 @@ class DatabaseService {
   }
 
   // Transaction wrapper
-  public async transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+  public async transaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
     return this.prisma.$transaction(fn);
   }
 }

@@ -62,7 +62,7 @@ export class UserController {
       }
 
       const { username, full_name, bio, avatar_url } = req.body;
-      const updates: any = {};
+      const updates: Record<string, string> = {};
 
       if (username !== undefined) {
         if (username.length < 3 || username.length > 20) {
