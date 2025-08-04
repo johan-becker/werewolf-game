@@ -759,7 +759,17 @@ export class WerewolfGameManager {
   /**
    * Check win conditions (stub implementation for tests)
    */
-  async checkWinConditions(gameId: string, players: any[], _options?: any): Promise<any> {
+  async checkWinConditions(gameId: string, players: any[], options?: any): Promise<any> {
+    // Check special conditions first (like lovers victory)
+    if (options?.special_conditions?.lovers_alive && options?.special_conditions?.others_eliminated) {
+      return {
+        game_ended: true,
+        winning_team: 'lovers',
+        victory_type: 'special',
+        winner: 'LOVERS_WIN',
+      };
+    }
+
     const werewolves = players.filter(p => p.role === 'WEREWOLF' && p.is_alive);
     const villagers = players.filter(p => p.role !== 'WEREWOLF' && p.is_alive);
 
@@ -786,6 +796,7 @@ export class WerewolfGameManager {
     // Game continues
     return {
       winner: null,
+      winning_team: null,
       game_continues: true,
       game_ended: false,
     };
