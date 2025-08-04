@@ -85,7 +85,20 @@ export class AppConfig implements IAppConfig {
 
   constructor() {
     try {
-      this.config = ConfigSchema.parse(process.env);
+      // Apply test environment defaults if in test mode and missing values
+      const envVars = { ...process.env };
+      if (process.env.NODE_ENV === 'test') {
+        envVars.JWT_SECRET = envVars.JWT_SECRET || 'test-jwt-secret-that-is-at-least-32-characters-long-for-testing';
+        envVars.JWT_REFRESH_SECRET = envVars.JWT_REFRESH_SECRET || 'test-jwt-refresh-secret-that-is-at-least-32-characters-long-for-testing';
+        envVars.SESSION_SECRET = envVars.SESSION_SECRET || 'test-session-secret-that-is-at-least-32-characters-long-for-testing';
+        envVars.DATABASE_URL = envVars.DATABASE_URL || 'postgresql://test:test@localhost:5432/werewolf_game_test';
+        envVars.REDIS_URL = envVars.REDIS_URL || 'redis://localhost:6379';
+        envVars.SUPABASE_URL = envVars.SUPABASE_URL || 'https://test.supabase.co';
+        envVars.SUPABASE_ANON_KEY = envVars.SUPABASE_ANON_KEY || 'test-anon-key';
+        envVars.SUPABASE_SERVICE_ROLE_KEY = envVars.SUPABASE_SERVICE_ROLE_KEY || 'test-service-key';
+      }
+      
+      this.config = ConfigSchema.parse(envVars);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errorMessages = error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
