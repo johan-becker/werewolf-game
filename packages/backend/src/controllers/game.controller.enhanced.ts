@@ -51,7 +51,12 @@ export class EnhancedGameController {
     if (date instanceof Date) {
       return date.toISOString();
     }
-    if (date && typeof date === 'object' && 'toISOString' in date && typeof (date as any).toISOString === 'function') {
+    if (
+      date &&
+      typeof date === 'object' &&
+      'toISOString' in date &&
+      typeof (date as any).toISOString === 'function'
+    ) {
       return (date as any).toISOString();
     }
     return new Date().toISOString();
