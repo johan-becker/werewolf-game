@@ -5,10 +5,11 @@ beforeAll(async () => {
   // Set test environment variables
   process.env.NODE_ENV = 'test';
   process.env.JWT_SECRET = 'test-secret-for-werewolf-game';
-  process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 'postgresql://test:test@localhost:5432/werewolf_test';
+  process.env.DATABASE_URL =
+    process.env.TEST_DATABASE_URL || 'postgresql://test:test@localhost:5432/werewolf_test';
   process.env.SUPABASE_URL = process.env.TEST_SUPABASE_URL || 'http://localhost:54321';
   process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.TEST_SUPABASE_SERVICE_ROLE_KEY || 'test-key';
-  
+
   // Initialize test database if needed
   // eslint-disable-next-line no-console
   console.log('🌕 Setting up werewolf test environment...');

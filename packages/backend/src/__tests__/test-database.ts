@@ -1,4 +1,13 @@
-import { PrismaClient, GameStatus, GamePhase, NightPhase, Team, WerewolfRole, ChatChannel, MessageType } from '../generated/prisma';
+import {
+  PrismaClient,
+  GameStatus,
+  GamePhase,
+  NightPhase,
+  Team,
+  WerewolfRole,
+  ChatChannel,
+  MessageType,
+} from '../generated/prisma';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { faker } from '@faker-js/faker';
 
@@ -11,7 +20,8 @@ export class TestDatabaseManager {
     this.prisma = new PrismaClient({
       datasources: {
         db: {
-          url: process.env.TEST_DATABASE_URL || 'postgresql://test:test@localhost:5432/werewolf_test',
+          url:
+            process.env.TEST_DATABASE_URL || 'postgresql://test:test@localhost:5432/werewolf_test',
         },
       },
     });
@@ -26,10 +36,10 @@ export class TestDatabaseManager {
     try {
       // Clean existing test data
       await this.cleanup();
-      
+
       // Seed werewolf-themed test data
       await this.seedTestData();
-      
+
       // eslint-disable-next-line no-console
       console.log('🌕 Test database setup completed with werewolf-themed data');
     } catch (error) {
@@ -47,7 +57,7 @@ export class TestDatabaseManager {
       await this.prisma.player.deleteMany();
       await this.prisma.game.deleteMany();
       await this.prisma.profile.deleteMany();
-      
+
       // eslint-disable-next-line no-console
       console.log('🌑 Test database cleaned up');
     } catch (error) {
@@ -60,16 +70,16 @@ export class TestDatabaseManager {
   async seedTestData(): Promise<TestGameData> {
     // Create werewolf-themed test users
     const werewolfUsers = await this.createWerewolfUsers();
-    
+
     // Create test games with different phases
     const games = await this.createTestGames(werewolfUsers);
-    
+
     // Create players with werewolf roles
     const players = await this.createWerewolfPlayers(games, werewolfUsers);
-    
+
     // Create werewolf-themed chat messages
     await this.createWerewolfChatMessages(games, players);
-    
+
     return {
       users: werewolfUsers,
       games,
@@ -79,13 +89,22 @@ export class TestDatabaseManager {
 
   private async createWerewolfUsers(): Promise<TestUser[]> {
     const werewolfNames = [
-      'Luna_Nighthowl', 'Shadow_Fang', 'Crimson_Claw', 'Moonlight_Hunter',
-      'Silver_Bite', 'Dark_Paw', 'Blood_Moon', 'Alpha_Storm',
-      'Night_Stalker', 'Howling_Wind', 'Mystic_Wolf', 'Savage_Tooth'
+      'Luna_Nighthowl',
+      'Shadow_Fang',
+      'Crimson_Claw',
+      'Moonlight_Hunter',
+      'Silver_Bite',
+      'Dark_Paw',
+      'Blood_Moon',
+      'Alpha_Storm',
+      'Night_Stalker',
+      'Howling_Wind',
+      'Mystic_Wolf',
+      'Savage_Tooth',
     ];
 
     const users: TestUser[] = [];
-    
+
     for (const name of werewolfNames) {
       const user = await this.prisma.profile.create({
         data: {
@@ -122,12 +141,20 @@ export class TestDatabaseManager {
         data: {
           code: this.generateWerewolfGameCode(),
           name: scenario.name,
-          status: scenario.status === 'in_progress' ? GameStatus.IN_PROGRESS : 
-                  scenario.status === 'finished' ? GameStatus.FINISHED : GameStatus.WAITING,
-          phase: scenario.status === 'in_progress' ? 
-            faker.helpers.arrayElement([GamePhase.DAY, GamePhase.NIGHT]) : null,
-          night_phase: scenario.status === 'in_progress' ? 
-            faker.helpers.arrayElement([NightPhase.SEER_PHASE, NightPhase.WEREWOLF_PHASE]) : null,
+          status:
+            scenario.status === 'in_progress'
+              ? GameStatus.IN_PROGRESS
+              : scenario.status === 'finished'
+                ? GameStatus.FINISHED
+                : GameStatus.WAITING,
+          phase:
+            scenario.status === 'in_progress'
+              ? faker.helpers.arrayElement([GamePhase.DAY, GamePhase.NIGHT])
+              : null,
+          night_phase:
+            scenario.status === 'in_progress'
+              ? faker.helpers.arrayElement([NightPhase.SEER_PHASE, NightPhase.WEREWOLF_PHASE])
+              : null,
           day_number: scenario.status === 'in_progress' ? faker.number.int({ min: 1, max: 5 }) : 1,
           max_players: scenario.max_players,
           current_players: scenario.current_players || 0,
@@ -154,9 +181,13 @@ export class TestDatabaseManager {
 
   private async createWerewolfPlayers(games: TestGame[], users: TestUser[]): Promise<TestPlayer[]> {
     const werewolfRoles: WerewolfRole[] = [
-      WerewolfRole.VILLAGER, WerewolfRole.WEREWOLF, WerewolfRole.SEER, 
-      WerewolfRole.WITCH, WerewolfRole.HUNTER, WerewolfRole.CUPID, 
-      WerewolfRole.LITTLE_GIRL
+      WerewolfRole.VILLAGER,
+      WerewolfRole.WEREWOLF,
+      WerewolfRole.SEER,
+      WerewolfRole.WITCH,
+      WerewolfRole.HUNTER,
+      WerewolfRole.CUPID,
+      WerewolfRole.LITTLE_GIRL,
     ];
 
     const players: TestPlayer[] = [];
@@ -166,7 +197,7 @@ export class TestDatabaseManager {
         faker.number.int({ min: 4, max: game.max_players }),
         users.length
       );
-      
+
       const gameUsers = faker.helpers.arrayElements(users, playerCount);
 
       for (let i = 0; i < gameUsers.length; i++) {
@@ -174,9 +205,9 @@ export class TestDatabaseManager {
         if (!user?.id) {
           throw new Error(`User at index ${i} is missing or has no id`);
         }
-        
+
         const role = i === 0 ? WerewolfRole.WEREWOLF : faker.helpers.arrayElement(werewolfRoles);
-        
+
         const player = await this.prisma.player.create({
           data: {
             game_id: game.id,
@@ -193,7 +224,8 @@ export class TestDatabaseManager {
             has_poison_potion: role === WerewolfRole.WITCH,
             can_shoot: role === WerewolfRole.HUNTER,
             has_spied: role === WerewolfRole.LITTLE_GIRL && faker.datatype.boolean(0.3),
-            spy_risk: role === WerewolfRole.LITTLE_GIRL ? faker.number.int({ min: 5, max: 15 }) : 10,
+            spy_risk:
+              role === WerewolfRole.LITTLE_GIRL ? faker.number.int({ min: 5, max: 15 }) : 10,
             is_protected: faker.datatype.boolean(0.1),
           },
         });
@@ -204,18 +236,21 @@ export class TestDatabaseManager {
     return players;
   }
 
-  private async createWerewolfChatMessages(games: TestGame[], players: TestPlayer[]): Promise<void> {
+  private async createWerewolfChatMessages(
+    games: TestGame[],
+    players: TestPlayer[]
+  ): Promise<void> {
     const werewolfPhrases = [
-      "The pack grows stronger under the full moon 🌕",
-      "I sense something lurking in the shadows...",
-      "The village elder speaks of ancient werewolf legends",
-      "Blood moon tonight - perfect for hunting 🩸",
-      "My werewolf instincts are tingling",
+      'The pack grows stronger under the full moon 🌕',
+      'I sense something lurking in the shadows...',
+      'The village elder speaks of ancient werewolf legends',
+      'Blood moon tonight - perfect for hunting 🩸',
+      'My werewolf instincts are tingling',
       "The alpha's howl echoes through the forest",
       "Silver bullets won't save you now!",
-      "The hunt begins at midnight 🐺",
-      "Pack loyalty above all else",
-      "The moon reveals all secrets...",
+      'The hunt begins at midnight 🐺',
+      'Pack loyalty above all else',
+      'The moon reveals all secrets...',
     ];
 
     for (const game of games) {
@@ -224,13 +259,18 @@ export class TestDatabaseManager {
 
       for (let i = 0; i < messageCount; i++) {
         const sender = faker.helpers.arrayElement(gamePlayers);
-        
+
         await this.prisma.chatMessage.create({
           data: {
             game_id: game.id,
             user_id: sender.user_id,
             content: faker.helpers.arrayElement(werewolfPhrases),
-            channel: faker.helpers.arrayElement([ChatChannel.LOBBY, ChatChannel.DAY, ChatChannel.NIGHT, ChatChannel.DEAD]),
+            channel: faker.helpers.arrayElement([
+              ChatChannel.LOBBY,
+              ChatChannel.DAY,
+              ChatChannel.NIGHT,
+              ChatChannel.DEAD,
+            ]),
             type: MessageType.TEXT,
             mentions: [],
             edited: faker.datatype.boolean(0.05), // 5% chance of being edited
@@ -246,7 +286,7 @@ export class TestDatabaseManager {
     const werewolfChars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // Exclude confusing characters
     const prefixes = ['WOLF', 'MOON', 'PACK', 'HUNT', 'HOWL'];
     const prefix = faker.helpers.arrayElement(prefixes);
-    const suffix = Array.from({ length: 2 }, () => 
+    const suffix = Array.from({ length: 2 }, () =>
       werewolfChars.charAt(faker.number.int({ max: werewolfChars.length - 1 }))
     ).join('');
     return `${prefix}${suffix}`;

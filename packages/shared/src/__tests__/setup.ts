@@ -16,7 +16,7 @@ afterAll(() => {
 // Global test utilities
 global.testUtils = {
   delay: (ms: number) => new Promise(resolve => setTimeout(resolve, ms)),
-  randomId: () => Math.random().toString(36).substring(7)
+  randomId: () => Math.random().toString(36).substring(7),
 };
 
 // Jest configuration
@@ -28,8 +28,8 @@ jest.mock('../utils/logger', () => ({
     info: jest.fn(),
     error: jest.fn(),
     warn: jest.fn(),
-    debug: jest.fn()
-  }
+    debug: jest.fn(),
+  },
 }));
 
 // TypeScript declarations for global test utilities

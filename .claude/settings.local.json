@@ -49,7 +49,11 @@
       "Bash(mv:*)",
       "Bash(docker buildx build:*)",
       "Bash(docker:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(npx turbo run typecheck:*)",
+      "Bash(npx turbo run format:*)"
     ],
     "deny": []
   }

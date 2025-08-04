@@ -30,7 +30,7 @@ jobs:
         run: npm run typecheck
 
       - name: Format check
-        run: npm run format -- --check
+        run: npx turbo run format:check
 
   test-backend:
     name: Backend Tests

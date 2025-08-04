@@ -36,7 +36,7 @@ jobs:
       - name: 🎨 Check Prettier formatting  
         run: |
           echo "🌙 Checking werewolf code formatting..."
-          npm run format -- --check || echo "⚠️  Prettier configuration incomplete - this is expected for new projects"
+          npx turbo run format:check || echo "⚠️  Prettier configuration incomplete - this is expected for new projects"
 
       - name: 📝 TypeScript type checking
         run: |
