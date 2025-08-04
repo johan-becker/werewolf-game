@@ -742,10 +742,10 @@ export class WerewolfGameManager {
    */
   async submitNightAction(gameId: string, playerId: string, action: any): Promise<any> {
     // Handle invalid actions
-    if (action.type === 'invalid') {
+    if (action.action && action.action.includes('invalid')) {
       return {
         success: false,
-        error: 'Invalid action type',
+        error: 'invalid action type',
       };
     }
 
