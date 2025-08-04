@@ -21,10 +21,16 @@ export class TestDatabaseManager {
     this.prisma = {
       chatMessage: { deleteMany: async () => ({}), create: async () => ({}) },
       gameLog: { deleteMany: async () => ({}) },
-      player: { deleteMany: async () => ({}), create: async (data: any) => ({ ...data.data, id: 'test-id' }) },
-      game: { deleteMany: async () => ({}), create: async (data: any) => ({ ...data.data, id: 'test-id' }) },
+      player: {
+        deleteMany: async () => ({}),
+        create: async (data: any) => ({ ...data.data, id: 'test-id' }),
+      },
+      game: {
+        deleteMany: async () => ({}),
+        create: async (data: any) => ({ ...data.data, id: 'test-id' }),
+      },
       profile: { deleteMany: async () => ({}), create: async (data: any) => ({ ...data.data }) },
-      $disconnect: async () => {}
+      $disconnect: async () => {},
     } as any;
 
     this.supabase = createClient(
