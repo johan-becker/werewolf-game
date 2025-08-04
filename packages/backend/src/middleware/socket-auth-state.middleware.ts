@@ -345,27 +345,27 @@ export class SocketAuthenticationStateMachine {
     // Override socket.on to queue messages during pending authentication
     const originalOn = socket.on.bind(socket);
 
-    socket.on = ((event: string, listener: (...args: any[]) => void) => {
+    socket.on = ((event: string, listener: (...args: unknown[]) => void) => {
       if (
         socket.data.authState === SocketAuthenticationState.PENDING &&
         !event.startsWith('auth:') &&
         !event.startsWith('connection:')
       ) {
         // Queue the message instead of processing immediately
-        return originalOn(event, (...args: any[]) => {
+        return originalOn(event, (...args: unknown[]) => {
           this.queueMessage(socket, event, args, listener);
         });
       }
 
       return originalOn(event, listener);
-    }) as any;
+    }) as typeof socket.on;
   }
 
   private queueMessage(
     socket: AuthenticatedSocket,
     event: string,
-    args: any[],
-    _originalListener: (...args: any[]) => void
+    args: unknown[],
+    _originalListener: (...args: unknown[]) => void
   ): void {
     if (socket.data.messageQueue.length >= this.messageQueueConfig.maxQueueSize) {
       socket.emit('error', {
@@ -458,7 +458,7 @@ export class SocketAuthenticationStateMachine {
   }
 
   private challengeAuthentication(socket: AuthenticatedSocket): void {
-    socket.emit('auth:challenge', (_response: any) => {
+    socket.emit('auth:challenge', (_response: unknown) => {
       // Client should respond with authentication token
     });
   }

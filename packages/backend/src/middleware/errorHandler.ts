@@ -86,7 +86,14 @@ export const errorHandler = (
     });
   }
 
-  const response: any = {
+  const response: {
+    success: false;
+    error: {
+      code: string;
+      message: string;
+      stack?: string;
+    };
+  } = {
     success: false,
     error: {
       code: errorCode,
@@ -109,6 +116,6 @@ export const notFoundHandler = (req: Request, res: Response, next: NextFunction)
 };
 
 export const asyncHandler =
-  (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) =>
+  (fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) =>
   (req: Request, res: Response, next: NextFunction) =>
     Promise.resolve(fn(req, res, next)).catch(next);

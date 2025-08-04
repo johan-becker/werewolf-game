@@ -10,7 +10,7 @@ import { z, ZodError } from 'zod';
 export interface ValidationError {
   field: string;
   message: string;
-  value?: any;
+  value?: unknown;
 }
 
 @injectable()
@@ -40,7 +40,7 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: (err as any).received || 'invalid',
+            value: (err as { received?: unknown }).received || 'invalid',
           }));
 
           return res.status(400).json({
@@ -76,7 +76,7 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: (err as any).received || 'invalid',
+            value: (err as { received?: unknown }).received || 'invalid',
           }));
 
           return res.status(400).json({
@@ -111,7 +111,7 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: (err as any).received || 'invalid',
+            value: (err as { received?: unknown }).received || 'invalid',
           }));
 
           return res.status(400).json({
@@ -146,7 +146,7 @@ export class ValidationMiddleware {
           const validationErrors: ValidationError[] = error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
-            value: (err as any).received || 'invalid',
+            value: (err as { received?: unknown }).received || 'invalid',
           }));
 
           return res.status(400).json({
@@ -189,7 +189,7 @@ export class ValidationMiddleware {
   /**
    * Recursively sanitize object properties
    */
-  private sanitizeObject(obj: any): any {
+  private sanitizeObject(obj: unknown): unknown {
     if (obj === null || obj === undefined) {
       return obj;
     }
@@ -203,7 +203,7 @@ export class ValidationMiddleware {
     }
 
     if (typeof obj === 'object') {
-      const sanitized: any = {};
+      const sanitized: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(obj)) {
         sanitized[key] = this.sanitizeObject(value);
       }
