@@ -23,24 +23,28 @@ export async function createTestApp(): Promise<Express> {
   const app = express();
 
   // Security middleware
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https://werewolf-avatars.test"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https://werewolf-avatars.test'],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+        },
       },
-    },
-  }));
+    })
+  );
 
   // CORS configuration for werewolf game
-  app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Werewolf-Game-Token'],
-  }));
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Werewolf-Game-Token'],
+    })
+  );
 
   // Body parsing middleware
   app.use(express.json({ limit: '10mb' }));
@@ -63,8 +67,8 @@ export async function createTestApp(): Promise<Express> {
 
   // Health check endpoint
   app.get('/health', (req, res) => {
-    res.json({ 
-      status: 'healthy', 
+    res.json({
+      status: 'healthy',
       environment: 'test',
       werewolf_status: 'pack_assembled',
       moon_phase: 'testing_phase',
@@ -99,15 +103,15 @@ function createTestRoutes(): express.Router {
       const { testDb } = await import('../test-database');
       await testDb.cleanup();
       await testDb.setup();
-      
-      res.json({ 
-        success: true, 
+
+      res.json({
+        success: true,
         message: 'Test database reset successfully',
         werewolf_status: 'territory_cleared',
       });
     } catch (error: unknown) {
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         werewolf_status: 'pack_scattered',
       });
@@ -119,9 +123,9 @@ function createTestRoutes(): express.Router {
     try {
       const { scenario } = req.params;
       const { WerewolfFactories } = await import('../factories/werewolf-factories');
-      
+
       let scenarioData;
-      
+
       switch (scenario) {
         case 'full-moon-pack':
           scenarioData = {
@@ -134,14 +138,14 @@ function createTestRoutes(): express.Router {
             ],
           };
           break;
-          
+
         case 'new-moon-mystery':
           scenarioData = {
             game: WerewolfFactories.Game.create({ moon_phase: 'new_moon' }),
             players: WerewolfFactories.Player.createGamePlayers('test-game', 6),
           };
           break;
-          
+
         case 'alpha-showdown':
           scenarioData = {
             game: WerewolfFactories.Game.createActiveGame(),
@@ -153,15 +157,15 @@ function createTestRoutes(): express.Router {
             ],
           };
           break;
-          
+
         default:
-          res.status(400).json({ 
+          res.status(400).json({
             error: 'Unknown werewolf scenario',
             available_scenarios: ['full-moon-pack', 'new-moon-mystery', 'alpha-showdown'],
           });
           return;
       }
-      
+
       res.json({
         success: true,
         scenario,
@@ -169,8 +173,8 @@ function createTestRoutes(): express.Router {
         werewolf_status: 'scenario_prepared',
       });
     } catch (error: unknown) {
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         werewolf_status: 'scenario_failed',
       });
@@ -182,8 +186,14 @@ function createTestRoutes(): express.Router {
     try {
       const { phase } = req.params;
       const validPhases = [
-        'new_moon', 'waxing_crescent', 'first_quarter', 'waxing_gibbous',
-        'full_moon', 'waning_gibbous', 'third_quarter', 'waning_crescent'
+        'new_moon',
+        'waxing_crescent',
+        'first_quarter',
+        'waxing_gibbous',
+        'full_moon',
+        'waning_gibbous',
+        'third_quarter',
+        'waning_crescent',
       ];
 
       if (!phase || !validPhases.includes(phase)) {
@@ -210,9 +220,9 @@ function createTestRoutes(): express.Router {
         next_transition: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
       });
     } catch (error: unknown) {
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   });
@@ -222,10 +232,8 @@ function createTestRoutes(): express.Router {
     try {
       const count = parseInt(req.params.count || '10') || 10;
       const { WerewolfFactories } = await import('../factories/werewolf-factories');
-      
-      const messages = Array.from({ length: count }, () => 
-        WerewolfFactories.Chat.create()
-      );
+
+      const messages = Array.from({ length: count }, () => WerewolfFactories.Chat.create());
 
       res.json({
         success: true,
@@ -234,9 +242,9 @@ function createTestRoutes(): express.Router {
         werewolf_status: 'pack_communication_established',
       });
     } catch (error: unknown) {
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   });
@@ -245,7 +253,7 @@ function createTestRoutes(): express.Router {
   router.post('/validate/rules', async (req, res) => {
     try {
       const { players, settings } = req.body;
-      
+
       const validation = {
         player_count_valid: players.length >= 4 && players.length <= 20,
         werewolf_ratio_valid: settings.werewolf_ratio >= 0.15 && settings.werewolf_ratio <= 0.45,
@@ -255,7 +263,9 @@ function createTestRoutes(): express.Router {
         moon_phase_compatible: settings.moon_phase_effects ? true : 'disabled',
       };
 
-      const isValid = Object.values(validation).every(v => v === true || typeof v === 'number' || typeof v === 'string');
+      const isValid = Object.values(validation).every(
+        v => v === true || typeof v === 'number' || typeof v === 'string'
+      );
 
       res.json({
         success: true,
@@ -264,9 +274,9 @@ function createTestRoutes(): express.Router {
         werewolf_status: isValid ? 'rules_validated' : 'rules_violation',
       });
     } catch (error: unknown) {
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   });
@@ -295,7 +305,7 @@ export async function cleanupTestDatabase(): Promise<void> {
  */
 export function createAuthHeaders(token: string): Record<string, string> {
   return {
-    'Authorization': `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
     'X-Werewolf-Game-Token': 'test-token',
   };
@@ -307,11 +317,11 @@ export function createAuthHeaders(token: string): Record<string, string> {
 export function createTestSocketServer(httpServer: any): any {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Server } = require('socket.io');
-  
+
   const io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST"],
+      origin: 'http://localhost:3000',
+      methods: ['GET', 'POST'],
       credentials: true,
     },
     transports: ['polling'], // Use polling for tests to avoid WebSocket issues
@@ -323,8 +333,8 @@ export function createTestSocketServer(httpServer: any): any {
 
     socket.on('join_pack', (data: any) => {
       socket.join(`game:${data.gameId}`);
-      socket.emit('pack_joined', { 
-        success: true, 
+      socket.emit('pack_joined', {
+        success: true,
         pack_id: data.gameId,
         werewolf_status: 'pack_member',
       });

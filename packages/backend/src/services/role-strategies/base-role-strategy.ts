@@ -5,7 +5,7 @@ import {
   NightAction,
   ActionResult,
   WerewolfGameState,
-  ActionType
+  ActionType,
 } from '../../types/werewolf-roles.types';
 
 /**
@@ -24,7 +24,7 @@ export abstract class BaseRoleStrategy implements RoleStrategy {
   ): boolean {
     // Basis-Validierung
     if (!player.isAlive) return false;
-    
+
     // Rollen-spezifische Validierung
     return this.validateRoleSpecificAction(player, action, gameState);
   }
@@ -42,10 +42,7 @@ export abstract class BaseRoleStrategy implements RoleStrategy {
   /**
    * Ermittelt verfügbare Aktionen
    */
-  abstract getAvailableActions(
-    player: WerewolfPlayer,
-    gameState: WerewolfGameState
-  ): ActionType[];
+  abstract getAvailableActions(player: WerewolfPlayer, gameState: WerewolfGameState): ActionType[];
 
   /**
    * Initialisiert einen Spieler für diese Rolle

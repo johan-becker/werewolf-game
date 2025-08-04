@@ -17,12 +17,12 @@ async function testSupabase() {
     const timestamp = Date.now();
     const testEmail = `testplayer${timestamp}@example.com`;
     let userId: string | undefined;
-    
+
     // First try to create user with admin client
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: testEmail,
       password: 'TestPassword123!',
-      email_confirm: true
+      email_confirm: true,
     });
 
     if (authError) {
@@ -31,9 +31,9 @@ async function testSupabase() {
       console.log('Trying alternative signup method...');
       const { data: signupData, error: signupError } = await supabase.auth.signUp({
         email: testEmail,
-        password: 'TestPassword123!'
+        password: 'TestPassword123!',
       });
-      
+
       if (signupError) {
         console.error('❌ Signup Error:', signupError.message);
         return;
@@ -48,7 +48,7 @@ async function testSupabase() {
     // 2. Wait for trigger and test Profile
     console.log('\n⏳ Waiting for profile trigger...');
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     console.log('\n2️⃣ Testing Profile - Checking auto-created profile...');
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -69,7 +69,7 @@ async function testSupabase() {
       .insert({
         name: 'Test Werwolf Game',
         creator_id: userId,
-        max_players: 8
+        max_players: 8,
       })
       .select()
       .single();
@@ -81,7 +81,7 @@ async function testSupabase() {
     console.log('✅ Game created:', {
       id: game.id,
       name: game.name,
-      code: game.code
+      code: game.code,
     });
 
     // 4. Test Join Game
@@ -91,7 +91,7 @@ async function testSupabase() {
       .insert({
         game_id: game.id,
         user_id: userId,
-        is_host: true
+        is_host: true,
       })
       .select()
       .single();
@@ -131,8 +131,9 @@ async function testSupabase() {
 
     // 7. Test Helper Functions
     console.log('\n7️⃣ Testing Functions - Join by code...');
-    const { data: joinResult, error: joinError } = await supabase
-      .rpc('join_game_by_code', { code_param: game.code });
+    const { data: joinResult, error: joinError } = await supabase.rpc('join_game_by_code', {
+      code_param: game.code,
+    });
 
     if (joinError) {
       console.error('❌ Function Error:', joinError.message);
@@ -148,7 +149,6 @@ async function testSupabase() {
     await supabase.from('games').delete().eq('id', game.id);
     await supabase.auth.admin.deleteUser(userId!);
     console.log('✅ Cleanup complete');
-
   } catch (error) {
     console.error('❌ Unexpected error:', error);
   }

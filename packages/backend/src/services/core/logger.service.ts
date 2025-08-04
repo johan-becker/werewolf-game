@@ -41,10 +41,7 @@ export class LoggerService implements ILogger {
     if (process.env.NODE_ENV !== 'production') {
       this.logger.add(
         new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple()
-          ),
+          format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
         })
       );
     }
@@ -88,7 +85,7 @@ export class LoggerService implements ILogger {
       },
       debug: (message: string, childMeta?: any) => childLogger.debug(message, childMeta),
       verbose: (message: string, childMeta?: any) => childLogger.verbose(message, childMeta),
-      child: (nestedMeta: any) => this.child({ ...meta, ...nestedMeta })
+      child: (nestedMeta: any) => this.child({ ...meta, ...nestedMeta }),
     };
   }
 }

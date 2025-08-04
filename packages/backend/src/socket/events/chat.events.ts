@@ -3,26 +3,25 @@ import { ChatService } from '../../services/chat.service';
 import { RoomManager } from '../rooms';
 
 // Typing indicator tracking
-const typingUsers = new Map<string, {
-  userId: string;
-  username: string;
-  channel: string;
-  gameId?: string;
-  timeout: NodeJS.Timeout;
-}>();
+const typingUsers = new Map<
+  string,
+  {
+    userId: string;
+    username: string;
+    channel: string;
+    gameId?: string;
+    timeout: NodeJS.Timeout;
+  }
+>();
 
-export function handleChatEvents(
-  socket: Socket,
-  io: Server,
-  roomManager: RoomManager
-) {
+export function handleChatEvents(socket: Socket, io: Server, roomManager: RoomManager) {
   const chatService = new ChatService();
 
   // Send chat message
   socket.on('chat:send', async (data, callback) => {
     try {
       const { content, channel, gameId } = data;
-      
+
       if (!content || !channel) {
         return callback({ success: false, error: 'Content and channel are required' });
       }
@@ -31,7 +30,7 @@ export function handleChatEvents(
       const message = await chatService.sendMessage(socket.data.userId, {
         content,
         channel,
-        gameId
+        gameId,
       });
 
       // Broadcast message to appropriate recipients
@@ -47,7 +46,7 @@ export function handleChatEvents(
   socket.on('chat:history', async (data, callback) => {
     try {
       const { channel, gameId, limit = 50, before } = data;
-      
+
       if (!channel) {
         return callback({ success: false, error: 'Channel is required' });
       }
@@ -60,10 +59,10 @@ export function handleChatEvents(
         before
       );
 
-      callback({ 
-        success: true, 
+      callback({
+        success: true,
         messages,
-        hasMore: messages.length === limit 
+        hasMore: messages.length === limit,
       });
     } catch (error: any) {
       callback({ success: false, error: error.message });
@@ -71,11 +70,11 @@ export function handleChatEvents(
   });
 
   // Start typing indicator
-  socket.on('chat:typing:start', (data) => {
+  socket.on('chat:typing:start', data => {
     try {
       const { channel, gameId } = data;
       const typingKey = `${socket.data.userId}:${channel}:${gameId || 'lobby'}`;
-      
+
       // Clear existing timeout if any
       const existing = typingUsers.get(typingKey);
       if (existing) {
@@ -85,7 +84,15 @@ export function handleChatEvents(
       // Set new typing indicator with auto-clear timeout
       const timeout = setTimeout(() => {
         typingUsers.delete(typingKey);
-        broadcastTyping(io, roomManager, socket.data.userId, socket.data.username, channel, gameId, false);
+        broadcastTyping(
+          io,
+          roomManager,
+          socket.data.userId,
+          socket.data.username,
+          channel,
+          gameId,
+          false
+        );
       }, 3000); // Auto-clear after 3 seconds
 
       typingUsers.set(typingKey, {
@@ -93,29 +100,45 @@ export function handleChatEvents(
         username: socket.data.username,
         channel,
         gameId,
-        timeout
+        timeout,
       });
 
       // Broadcast typing start
-      broadcastTyping(io, roomManager, socket.data.userId, socket.data.username, channel, gameId, true);
+      broadcastTyping(
+        io,
+        roomManager,
+        socket.data.userId,
+        socket.data.username,
+        channel,
+        gameId,
+        true
+      );
     } catch (error) {
       console.error('Chat typing start error:', error);
     }
   });
 
   // Stop typing indicator
-  socket.on('chat:typing:stop', (data) => {
+  socket.on('chat:typing:stop', data => {
     try {
       const { channel, gameId } = data;
       const typingKey = `${socket.data.userId}:${channel}:${gameId || 'lobby'}`;
-      
+
       const existing = typingUsers.get(typingKey);
       if (existing) {
         clearTimeout(existing.timeout);
         typingUsers.delete(typingKey);
-        
+
         // Broadcast typing stop
-        broadcastTyping(io, roomManager, socket.data.userId, socket.data.username, channel, gameId, false);
+        broadcastTyping(
+          io,
+          roomManager,
+          socket.data.userId,
+          socket.data.username,
+          channel,
+          gameId,
+          false
+        );
       }
     } catch (error) {
       console.error('Chat typing stop error:', error);
@@ -126,16 +149,12 @@ export function handleChatEvents(
   socket.on('chat:edit', async (data, callback) => {
     try {
       const { messageId, content } = data;
-      
+
       if (!messageId || !content) {
         return callback({ success: false, error: 'Message ID and content are required' });
       }
 
-      const editedMessage = await chatService.editMessage(
-        messageId,
-        socket.data.userId,
-        content
-      );
+      const editedMessage = await chatService.editMessage(messageId, socket.data.userId, content);
 
       // Broadcast edit to appropriate recipients
       await broadcastMessageEdit(io, roomManager, editedMessage);
@@ -150,7 +169,7 @@ export function handleChatEvents(
   socket.on('chat:delete', async (data, callback) => {
     try {
       const { messageId } = data;
-      
+
       if (!messageId) {
         return callback({ success: false, error: 'Message ID is required' });
       }
@@ -174,9 +193,17 @@ export function handleChatEvents(
       if (typing.userId === socket.data.userId) {
         clearTimeout(typing.timeout);
         typingUsers.delete(key);
-        
+
         // Broadcast typing stop
-        broadcastTyping(io, roomManager, typing.userId, typing.username, typing.channel, typing.gameId, false);
+        broadcastTyping(
+          io,
+          roomManager,
+          typing.userId,
+          typing.username,
+          typing.channel,
+          typing.gameId,
+          false
+        );
       }
     }
   });
@@ -185,11 +212,7 @@ export function handleChatEvents(
 /**
  * Broadcast message to appropriate recipients based on channel and permissions
  */
-async function broadcastMessage(
-  io: Server,
-  roomManager: RoomManager,
-  message: any
-): Promise<void> {
+async function broadcastMessage(io: Server, roomManager: RoomManager, message: any): Promise<void> {
   const { channel, gameId } = message;
 
   switch (channel) {
@@ -239,14 +262,14 @@ function broadcastTyping(
     username,
     channel,
     gameId,
-    isTyping
+    isTyping,
   };
 
   switch (channel) {
     case 'LOBBY':
       roomManager.broadcastToLobby(io, 'chat:typing', typingData);
       break;
-    
+
     case 'DAY':
     case 'NIGHT':
     case 'DEAD':
@@ -268,7 +291,7 @@ async function broadcastMessageEdit(
   const editData = {
     messageId: message.id,
     content: message.content,
-    editedAt: message.editedAt
+    editedAt: message.editedAt,
   };
 
   // Same logic as broadcastMessage, but send edit event
@@ -286,13 +309,25 @@ async function broadcastMessageEdit(
 
     case 'NIGHT':
       if (message.gameId) {
-        await broadcastToWerewolves(io, roomManager, message.gameId, editData, 'chat:messageEdited');
+        await broadcastToWerewolves(
+          io,
+          roomManager,
+          message.gameId,
+          editData,
+          'chat:messageEdited'
+        );
       }
       break;
 
     case 'DEAD':
       if (message.gameId) {
-        await broadcastToDeadPlayers(io, roomManager, message.gameId, editData, 'chat:messageEdited');
+        await broadcastToDeadPlayers(
+          io,
+          roomManager,
+          message.gameId,
+          editData,
+          'chat:messageEdited'
+        );
       }
       break;
   }
@@ -309,7 +344,7 @@ async function broadcastToWerewolves(
   event: string = 'chat:message'
 ): Promise<void> {
   const sockets = roomManager.getSocketsInRoom(gameId);
-  
+
   // This would need to be implemented with actual game state
   // For now, broadcast to all players in the room
   // In a real implementation, you'd filter by player role
@@ -330,7 +365,7 @@ async function broadcastToDeadPlayers(
   event: string = 'chat:message'
 ): Promise<void> {
   const sockets = roomManager.getSocketsInRoom(gameId);
-  
+
   // This would need to be implemented with actual game state
   // For now, broadcast to all players in the room
   // In a real implementation, you'd filter by player alive status

@@ -7,7 +7,7 @@ import {
   WerewolfGameState,
   ActionType,
   Team,
-  NightPhase
+  NightPhase,
 } from '../../types/werewolf-roles.types';
 
 /**
@@ -19,31 +19,31 @@ export class WitchStrategy extends BaseRoleStrategy {
   /**
    * Hexe kann nachts heilen/vergiften und tagsüber abstimmen
    */
-  getAvailableActions(
-    player: WerewolfPlayer,
-    gameState: WerewolfGameState
-  ): ActionType[] {
+  getAvailableActions(player: WerewolfPlayer, gameState: WerewolfGameState): ActionType[] {
     if (!player.isAlive) return [];
-    
+
     const actions: ActionType[] = [];
-    
+
     if (gameState.phase === 'DAY') {
       actions.push(ActionType.VILLAGE_VOTE);
-    } else if (gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WITCH_PHASE) {
+    } else if (
+      gameState.phase === 'NIGHT' &&
+      gameState.currentNightPhase === NightPhase.WITCH_PHASE
+    ) {
       // Heiltrank verfügbar?
       if (player.specialStates.hasHealPotion) {
         actions.push(ActionType.WITCH_HEAL);
       }
-      
+
       // Gifttrank verfügbar?
       if (player.specialStates.hasPoisonPotion) {
         actions.push(ActionType.WITCH_POISON);
       }
-      
+
       // Keine Aktion auch möglich
       actions.push(ActionType.NO_ACTION);
     }
-    
+
     return actions;
   }
 
@@ -59,20 +59,20 @@ export class WitchStrategy extends BaseRoleStrategy {
     switch (action.actionType) {
       case ActionType.WITCH_HEAL:
         return this.executeHeal(player, action, allPlayers, _gameState);
-      
+
       case ActionType.WITCH_POISON:
         return this.executePoison(player, action, allPlayers, _gameState);
-      
+
       case ActionType.NO_ACTION:
         return {
           success: true,
-          message: 'Du hast keine Aktion gewählt'
+          message: 'Du hast keine Aktion gewählt',
         };
-      
+
       default:
         return {
           success: false,
-          message: 'Ungültige Aktion für Hexe'
+          message: 'Ungültige Aktion für Hexe',
         };
     }
   }
@@ -89,14 +89,14 @@ export class WitchStrategy extends BaseRoleStrategy {
     if (!player.specialStates.hasHealPotion) {
       return {
         success: false,
-        message: 'Heiltrank bereits verwendet'
+        message: 'Heiltrank bereits verwendet',
       };
     }
 
     if (!action.targetId) {
       return {
         success: false,
-        message: 'Ziel erforderlich für Heilung'
+        message: 'Ziel erforderlich für Heilung',
       };
     }
 
@@ -104,7 +104,7 @@ export class WitchStrategy extends BaseRoleStrategy {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
@@ -112,7 +112,7 @@ export class WitchStrategy extends BaseRoleStrategy {
     if (target.id === player.id) {
       return {
         success: false,
-        message: 'Du kannst dich nicht selbst heilen'
+        message: 'Du kannst dich nicht selbst heilen',
       };
     }
 
@@ -128,8 +128,8 @@ export class WitchStrategy extends BaseRoleStrategy {
       effects: {
         deaths: [],
         protections: [target.id],
-        lovers: []
-      }
+        lovers: [],
+      },
     };
   }
 
@@ -145,14 +145,14 @@ export class WitchStrategy extends BaseRoleStrategy {
     if (!player.specialStates.hasPoisonPotion) {
       return {
         success: false,
-        message: 'Gifttrank bereits verwendet'
+        message: 'Gifttrank bereits verwendet',
       };
     }
 
     if (!action.targetId) {
       return {
         success: false,
-        message: 'Ziel erforderlich für Vergiftung'
+        message: 'Ziel erforderlich für Vergiftung',
       };
     }
 
@@ -160,14 +160,14 @@ export class WitchStrategy extends BaseRoleStrategy {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
     if (!target.isAlive) {
       return {
         success: false,
-        message: 'Kann keine toten Spieler vergiften'
+        message: 'Kann keine toten Spieler vergiften',
       };
     }
 
@@ -180,8 +180,8 @@ export class WitchStrategy extends BaseRoleStrategy {
       effects: {
         deaths: [target.id],
         protections: [],
-        lovers: []
-      }
+        lovers: [],
+      },
     };
   }
 
@@ -193,13 +193,13 @@ export class WitchStrategy extends BaseRoleStrategy {
       role: WerewolfRole.WITCH,
       team: Team.VILLAGE,
       specialStates: {
-        hasHealPotion: true,  // Startet mit Heiltrank
+        hasHealPotion: true, // Startet mit Heiltrank
         hasPoisonPotion: true, // Startet mit Gifttrank
         canShoot: false,
         hasSpied: false,
         spyRisk: 0,
-        isProtected: false
-      }
+        isProtected: false,
+      },
     };
   }
 
@@ -213,21 +213,27 @@ export class WitchStrategy extends BaseRoleStrategy {
   ): boolean {
     switch (action) {
       case ActionType.WITCH_HEAL:
-        return gameState.phase === 'NIGHT' && 
-               gameState.currentNightPhase === NightPhase.WITCH_PHASE &&
-               player.specialStates.hasHealPotion;
-      
+        return (
+          gameState.phase === 'NIGHT' &&
+          gameState.currentNightPhase === NightPhase.WITCH_PHASE &&
+          player.specialStates.hasHealPotion
+        );
+
       case ActionType.WITCH_POISON:
-        return gameState.phase === 'NIGHT' && 
-               gameState.currentNightPhase === NightPhase.WITCH_PHASE &&
-               player.specialStates.hasPoisonPotion;
-      
+        return (
+          gameState.phase === 'NIGHT' &&
+          gameState.currentNightPhase === NightPhase.WITCH_PHASE &&
+          player.specialStates.hasPoisonPotion
+        );
+
       case ActionType.VILLAGE_VOTE:
         return gameState.phase === 'DAY';
-      
+
       case ActionType.NO_ACTION:
-        return gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WITCH_PHASE;
-      
+        return (
+          gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WITCH_PHASE
+        );
+
       default:
         return false;
     }

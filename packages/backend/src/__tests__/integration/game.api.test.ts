@@ -18,26 +18,22 @@ describe('Werewolf Game API Integration Tests', () => {
   beforeEach(async () => {
     // Create test user and authenticate
     testUser = WerewolfFactories.User.create();
-    
+
     // Register user
-    const registerResponse = await request(app)
-      .post('/api/auth/register')
-      .send({
-        username: testUser.username,
-        email: testUser.email,
-        password: 'WerewolfPack123!',
-        display_name: testUser.display_name,
-      });
+    const registerResponse = await request(app).post('/api/auth/register').send({
+      username: testUser.username,
+      email: testUser.email,
+      password: 'WerewolfPack123!',
+      display_name: testUser.display_name,
+    });
 
     expect(registerResponse.status).toBe(201);
 
     // Login to get auth token
-    const loginResponse = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: testUser.email,
-        password: 'WerewolfPack123!',
-      });
+    const loginResponse = await request(app).post('/api/auth/login').send({
+      email: testUser.email,
+      password: 'WerewolfPack123!',
+    });
 
     expect(loginResponse.status).toBe(200);
     authToken = loginResponse.body.token;
@@ -101,9 +97,7 @@ describe('Werewolf Game API Integration Tests', () => {
     it('should require authentication for game creation', async () => {
       const gameData = WerewolfFactories.Game.create();
 
-      const response = await request(app)
-        .post('/api/games')
-        .send(gameData);
+      const response = await request(app).post('/api/games').send(gameData);
 
       expect(response.status).toBe(401);
       expect(response.body.error).toContain('authentication');
@@ -111,7 +105,7 @@ describe('Werewolf Game API Integration Tests', () => {
 
     it('should generate unique werewolf game codes', async () => {
       const gameCodes = new Set();
-      
+
       for (let i = 0; i < 5; i++) {
         const response = await request(app)
           .post('/api/games')
@@ -146,21 +140,17 @@ describe('Werewolf Game API Integration Tests', () => {
     it('should allow player to join werewolf game by code', async () => {
       // Create another user to join
       const joinUser = WerewolfFactories.User.create();
-      
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          username: joinUser.username,
-          email: joinUser.email,
-          password: 'WerewolfPack123!',
-        });
 
-      const loginResponse = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: joinUser.email,
-          password: 'WerewolfPack123!',
-        });
+      await request(app).post('/api/auth/register').send({
+        username: joinUser.username,
+        email: joinUser.email,
+        password: 'WerewolfPack123!',
+      });
+
+      const loginResponse = await request(app).post('/api/auth/login').send({
+        email: joinUser.email,
+        password: 'WerewolfPack123!',
+      });
 
       const joinToken = loginResponse.body.token;
 
@@ -178,23 +168,19 @@ describe('Werewolf Game API Integration Tests', () => {
     it('should not allow joining full werewolf game', async () => {
       // Fill the game to capacity
       testGame.max_players = 1; // Game creator already in
-      
+
       // Try to join full game
       const joinUser = WerewolfFactories.User.create();
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          username: joinUser.username,
-          email: joinUser.email,
-          password: 'WerewolfPack123!',
-        });
+      await request(app).post('/api/auth/register').send({
+        username: joinUser.username,
+        email: joinUser.email,
+        password: 'WerewolfPack123!',
+      });
 
-      const loginResponse = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: joinUser.email,
-          password: 'WerewolfPack123!',
-        });
+      const loginResponse = await request(app).post('/api/auth/login').send({
+        email: joinUser.email,
+        password: 'WerewolfPack123!',
+      });
 
       const response = await request(app)
         .post(`/api/games/${testGame.code}/join`)
@@ -220,20 +206,16 @@ describe('Werewolf Game API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       const joinUser = WerewolfFactories.User.create();
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          username: joinUser.username,
-          email: joinUser.email,
-          password: 'WerewolfPack123!',
-        });
+      await request(app).post('/api/auth/register').send({
+        username: joinUser.username,
+        email: joinUser.email,
+        password: 'WerewolfPack123!',
+      });
 
-      const loginResponse = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: joinUser.email,
-          password: 'WerewolfPack123!',
-        });
+      const loginResponse = await request(app).post('/api/auth/login').send({
+        email: joinUser.email,
+        password: 'WerewolfPack123!',
+      });
 
       const response = await request(app)
         .post(`/api/games/${testGame.code}/join`)
@@ -259,20 +241,16 @@ describe('Werewolf Game API Integration Tests', () => {
       // Add more players for a valid game start
       for (let i = 0; i < 4; i++) {
         const player = WerewolfFactories.User.create();
-        await request(app)
-          .post('/api/auth/register')
-          .send({
-            username: player.username,
-            email: player.email,
-            password: 'WerewolfPack123!',
-          });
+        await request(app).post('/api/auth/register').send({
+          username: player.username,
+          email: player.email,
+          password: 'WerewolfPack123!',
+        });
 
-        const loginResponse = await request(app)
-          .post('/api/auth/login')
-          .send({
-            email: player.email,
-            password: 'WerewolfPack123!',
-          });
+        const loginResponse = await request(app).post('/api/auth/login').send({
+          email: player.email,
+          password: 'WerewolfPack123!',
+        });
 
         await request(app)
           .post(`/api/games/${testGame.code}/join`)
@@ -295,20 +273,16 @@ describe('Werewolf Game API Integration Tests', () => {
 
     it('should only allow host to start the game', async () => {
       const nonHostUser = WerewolfFactories.User.create();
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          username: nonHostUser.username,
-          email: nonHostUser.email,
-          password: 'WerewolfPack123!',
-        });
+      await request(app).post('/api/auth/register').send({
+        username: nonHostUser.username,
+        email: nonHostUser.email,
+        password: 'WerewolfPack123!',
+      });
 
-      const loginResponse = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: nonHostUser.email,
-          password: 'WerewolfPack123!',
-        });
+      const loginResponse = await request(app).post('/api/auth/login').send({
+        email: nonHostUser.email,
+        password: 'WerewolfPack123!',
+      });
 
       const response = await request(app)
         .patch(`/api/games/${testGame.id}/start`)
@@ -355,20 +329,16 @@ describe('Werewolf Game API Integration Tests', () => {
       // Add players and start game
       for (let i = 0; i < 4; i++) {
         const player = WerewolfFactories.User.create();
-        await request(app)
-          .post('/api/auth/register')
-          .send({
-            username: player.username,
-            email: player.email,
-            password: 'WerewolfPack123!',
-          });
+        await request(app).post('/api/auth/register').send({
+          username: player.username,
+          email: player.email,
+          password: 'WerewolfPack123!',
+        });
 
-        const loginResponse = await request(app)
-          .post('/api/auth/login')
-          .send({
-            email: player.email,
-            password: 'WerewolfPack123!',
-          });
+        const loginResponse = await request(app).post('/api/auth/login').send({
+          email: player.email,
+          password: 'WerewolfPack123!',
+        });
 
         await request(app)
           .post(`/api/games/${testGame.code}/join`)
@@ -391,12 +361,12 @@ describe('Werewolf Game API Integration Tests', () => {
         .get(`/api/games/${testGame.id}`)
         .set('Authorization', `Bearer ${authToken}`);
 
-      const werewolfPlayer = gameStateResponse.body.players.find((p: any) => 
-        p.role === 'werewolf' && p.user_id === testUser.id
+      const werewolfPlayer = gameStateResponse.body.players.find(
+        (p: any) => p.role === 'werewolf' && p.user_id === testUser.id
       );
 
-      const villagerPlayer = gameStateResponse.body.players.find((p: any) => 
-        p.werewolf_team === 'villager'
+      const villagerPlayer = gameStateResponse.body.players.find(
+        (p: any) => p.werewolf_team === 'villager'
       );
 
       if (werewolfPlayer) {
@@ -507,17 +477,14 @@ describe('Werewolf Game API Integration Tests', () => {
     it('should rate limit werewolf game creation', async () => {
       // Create multiple games quickly
       const promises = Array.from({ length: 10 }, () =>
-        request(app)
-          .post('/api/games')
-          .set('Authorization', `Bearer ${authToken}`)
-          .send({
-            name: 'Rate Limit Test',
-            max_players: 8,
-          })
+        request(app).post('/api/games').set('Authorization', `Bearer ${authToken}`).send({
+          name: 'Rate Limit Test',
+          max_players: 8,
+        })
       );
 
       const responses = await Promise.all(promises);
-      
+
       // At least some should be rate limited
       const rateLimitedResponses = responses.filter(r => r.status === 429);
       expect(rateLimitedResponses.length).toBeGreaterThan(0);

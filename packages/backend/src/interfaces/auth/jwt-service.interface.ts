@@ -41,7 +41,10 @@ export interface IJwtService {
   /**
    * Refresh tokens with rotation
    */
-  refreshTokens(refreshToken: string, userPayload: Omit<JwtPayload, 'iat' | 'exp' | 'jti'>): Promise<TokenPair>;
+  refreshTokens(
+    refreshToken: string,
+    userPayload: Omit<JwtPayload, 'iat' | 'exp' | 'jti'>
+  ): Promise<TokenPair>;
 
   /**
    * Blacklist a token (for logout)

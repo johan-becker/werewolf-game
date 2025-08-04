@@ -10,7 +10,7 @@ describe('WerewolfStrategy', () => {
 
   beforeEach(async () => {
     werewolfStrategy = new WerewolfStrategy();
-    
+
     // Create test game data
     mockGameData = {
       game: WerewolfFactories.Game.createActiveGame({
@@ -46,17 +46,14 @@ describe('WerewolfStrategy', () => {
       lastNightResults: {
         deaths: [],
         protections: [],
-        investigations: []
-      }
+        investigations: [],
+      },
     };
   });
 
   describe('canUseNightAbility', () => {
     it('should allow werewolf to use night ability during night phase', () => {
-      const result = werewolfStrategy.canUseNightAbility(
-        mockWerewolfPlayer,
-        mockGameState
-      );
+      const result = werewolfStrategy.canUseNightAbility(mockWerewolfPlayer, mockGameState);
 
       expect(result).toBe(true);
     });
@@ -64,10 +61,7 @@ describe('WerewolfStrategy', () => {
     it('should not allow werewolf to use ability during day phase', () => {
       mockGameState.phase = 'DAY';
 
-      const result = werewolfStrategy.canUseNightAbility(
-        mockWerewolfPlayer,
-        mockGameState
-      );
+      const result = werewolfStrategy.canUseNightAbility(mockWerewolfPlayer, mockGameState);
 
       expect(result).toBe(false);
     });
@@ -76,10 +70,7 @@ describe('WerewolfStrategy', () => {
       mockWerewolfPlayer.is_alive = false;
       mockWerewolfPlayer.isAlive = false; // Also set the camelCase version
 
-      const result = werewolfStrategy.canUseNightAbility(
-        mockWerewolfPlayer,
-        mockGameState
-      );
+      const result = werewolfStrategy.canUseNightAbility(mockWerewolfPlayer, mockGameState);
 
       expect(result).toBe(false);
     });
@@ -99,7 +90,7 @@ describe('WerewolfStrategy', () => {
         phase: 'WEREWOLF_PHASE' as any,
         dayNumber: 1,
         timestamp: new Date(),
-        resolved: false
+        resolved: false,
       };
 
       const result = await werewolfStrategy.executeNightAction(
@@ -129,7 +120,7 @@ describe('WerewolfStrategy', () => {
         phase: 'WEREWOLF_PHASE' as any,
         dayNumber: 1,
         timestamp: new Date(),
-        resolved: false
+        resolved: false,
       };
 
       const result = await werewolfStrategy.executeNightAction(
@@ -156,7 +147,7 @@ describe('WerewolfStrategy', () => {
         phase: 'WEREWOLF_PHASE' as any,
         dayNumber: 1,
         timestamp: new Date(),
-        resolved: false
+        resolved: false,
       };
 
       const result = await werewolfStrategy.executeNightAction(
@@ -181,7 +172,7 @@ describe('WerewolfStrategy', () => {
         phase: 'WEREWOLF_PHASE' as any,
         dayNumber: 1,
         timestamp: new Date(),
-        resolved: false
+        resolved: false,
       };
 
       const result = await werewolfStrategy.executeNightAction(
@@ -215,7 +206,7 @@ describe('WerewolfStrategy', () => {
         phase: 'WEREWOLF_PHASE' as any,
         dayNumber: 1,
         timestamp: new Date(),
-        resolved: false
+        resolved: false,
       };
 
       const isValid = werewolfStrategy.validateTarget(nightAction, mockGameState);
@@ -236,7 +227,7 @@ describe('WerewolfStrategy', () => {
         phase: 'WEREWOLF_PHASE' as any,
         dayNumber: 1,
         timestamp: new Date(),
-        resolved: false
+        resolved: false,
       };
 
       const isValid = werewolfStrategy.validateTarget(nightAction, mockGameState);

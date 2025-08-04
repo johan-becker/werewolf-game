@@ -40,12 +40,10 @@ export class DatabaseService implements IDatabase {
     this.prisma = new PrismaClient({
       datasources: {
         db: {
-          url: this.config.databaseUrl
-        }
+          url: this.config.databaseUrl,
+        },
       },
-      log: this.config.isDevelopment 
-        ? ['query', 'info', 'warn', 'error']
-        : ['error']
+      log: this.config.isDevelopment ? ['query', 'info', 'warn', 'error'] : ['error'],
     });
   }
 
@@ -58,7 +56,7 @@ export class DatabaseService implements IDatabase {
         await this.prisma.$connect();
         this.isConnected = true;
         this.logger.info('Database connected successfully');
-        
+
         // Ensure migrations table exists
         await this.ensureMigrationsTable();
       } catch (error) {
@@ -106,10 +104,10 @@ export class DatabaseService implements IDatabase {
   async runMigrations(): Promise<void> {
     try {
       this.logger.info('Starting database migrations...');
-      
+
       const migrationFiles = await this.loadMigrationFiles();
       const executedMigrations = await this.getExecutedMigrations();
-      
+
       const pendingMigrations = migrationFiles.filter(
         migration => !executedMigrations.some(executed => executed.id === migration.id)
       );
@@ -141,14 +139,14 @@ export class DatabaseService implements IDatabase {
   }> {
     const migrationFiles = await this.loadMigrationFiles();
     const executedMigrations = await this.getExecutedMigrations();
-    
+
     const pending = migrationFiles.filter(
       migration => !executedMigrations.some(executed => executed.id === migration.id)
     );
 
     return {
       executed: executedMigrations,
-      pending
+      pending,
     };
   }
 
@@ -157,38 +155,35 @@ export class DatabaseService implements IDatabase {
    */
   async rollbackLastMigration(): Promise<void> {
     const executedMigrations = await this.getExecutedMigrations();
-    
+
     if (executedMigrations.length === 0) {
       throw new Error('No migrations to rollback');
     }
 
     const lastMigration = executedMigrations[executedMigrations.length - 1];
-    
+
     if (!lastMigration) {
       throw new Error('No valid migration found to rollback');
     }
-    
+
     // Check if rollback file exists
     const rollbackPath = path.join(
-      __dirname, 
-      '../../migrations/rollbacks', 
+      __dirname,
+      '../../migrations/rollbacks',
       `${lastMigration.id}_rollback.sql`
     );
 
     try {
       const rollbackSql = await fs.readFile(rollbackPath, 'utf-8');
-      
+
       this.logger.info(`Rolling back migration: ${lastMigration.name}`);
-      
+
       await this.prisma.$transaction(async (tx: any) => {
         // Execute rollback SQL
         await tx.$executeRawUnsafe(rollbackSql);
-        
+
         // Remove migration record
-        await tx.$executeRawUnsafe(
-          'DELETE FROM _migrations WHERE id = $1',
-          lastMigration.id
-        );
+        await tx.$executeRawUnsafe('DELETE FROM _migrations WHERE id = $1', lastMigration.id);
       });
 
       this.logger.info(`Migration ${lastMigration.name} rolled back successfully`);
@@ -207,7 +202,7 @@ export class DatabaseService implements IDatabase {
     const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0];
     const migrationId = `${timestamp}_${name}`;
     const filename = `${migrationId}.sql`;
-    
+
     const migrationDir = path.join(__dirname, '../../migrations');
     const migrationPath = path.join(migrationDir, filename);
     const rollbackPath = path.join(migrationDir, 'rollbacks', `${migrationId}_rollback.sql`);
@@ -259,8 +254,13 @@ export class DatabaseService implements IDatabase {
     try {
       // Check if all required tables exist
       const requiredTables = [
-        'profiles', 'games', 'players', 'game_logs', 
-        'chat_messages', 'game_role_configs', 'night_actions'
+        'profiles',
+        'games',
+        'players',
+        'game_logs',
+        'chat_messages',
+        'game_role_configs',
+        'night_actions',
       ];
 
       for (const table of requiredTables) {
@@ -299,20 +299,20 @@ export class DatabaseService implements IDatabase {
     };
   }> {
     const startTime = Date.now();
-    
+
     try {
       await this.prisma.$queryRaw`SELECT 1`;
       const latency = Date.now() - startTime;
-      
+
       const migrationStatus = await this.getMigrationStatus();
-      
+
       return {
         connected: true,
         latency,
         migrations: {
           executed: migrationStatus.executed.length,
-          pending: migrationStatus.pending.length
-        }
+          pending: migrationStatus.pending.length,
+        },
       };
     } catch (error) {
       return {
@@ -320,8 +320,8 @@ export class DatabaseService implements IDatabase {
         latency: -1,
         migrations: {
           executed: 0,
-          pending: 0
-        }
+          pending: 0,
+        },
       };
     }
   }
@@ -346,7 +346,7 @@ export class DatabaseService implements IDatabase {
    */
   private async loadMigrationFiles(): Promise<MigrationFile[]> {
     const migrationDir = path.join(__dirname, '../../migrations');
-    
+
     try {
       const files = await fs.readdir(migrationDir);
       const migrationFiles: MigrationFile[] = [];
@@ -356,19 +356,19 @@ export class DatabaseService implements IDatabase {
           const filePath = path.join(migrationDir, file);
           const sql = await fs.readFile(filePath, 'utf-8');
           const checksum = this.calculateChecksum(sql);
-          
+
           // Extract ID and name from filename
           const match = file.match(/^(\d+_\w+)\.sql$/);
           if (match && match[1]) {
             const id = match[1];
             const name = id.split('_').slice(1).join('_');
-            
+
             migrationFiles.push({
               id,
               name,
               filename: file,
               sql,
-              checksum
+              checksum,
             });
           }
         }
@@ -404,14 +404,14 @@ export class DatabaseService implements IDatabase {
    */
   private async executeMigration(migration: MigrationFile): Promise<void> {
     const startTime = Date.now();
-    
+
     this.logger.info(`Executing migration: ${migration.name}`);
-    
+
     try {
       await this.prisma.$transaction(async (tx: any) => {
         // Execute migration SQL
         await tx.$executeRawUnsafe(migration.sql);
-        
+
         // Record migration
         await tx.$executeRawUnsafe(
           `INSERT INTO _migrations (id, name, checksum, execution_time_ms) 

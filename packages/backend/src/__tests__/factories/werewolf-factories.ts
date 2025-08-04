@@ -9,9 +9,16 @@ import { WerewolfRole } from '../../types/werewolf-roles.types';
 export class WerewolfUserFactory {
   static create(overrides: Partial<any> = {}): any {
     const werewolfNames = [
-      'Fenrir_Shadowmane', 'Luna_Bloodfang', 'Remus_Nighthowl', 'Selene_Moonclaw',
-      'Lycaon_Darkheart', 'Artemis_Silverpaw', 'Sirius_Ironjaw', 'Nyx_Ghostwolf',
-      'Orion_Stormfang', 'Diana_Mistwalker'
+      'Fenrir_Shadowmane',
+      'Luna_Bloodfang',
+      'Remus_Nighthowl',
+      'Selene_Moonclaw',
+      'Lycaon_Darkheart',
+      'Artemis_Silverpaw',
+      'Sirius_Ironjaw',
+      'Nyx_Ghostwolf',
+      'Orion_Stormfang',
+      'Diana_Mistwalker',
     ];
 
     return {
@@ -21,13 +28,23 @@ export class WerewolfUserFactory {
       display_name: faker.person.fullName(),
       avatar_url: `https://werewolf-avatars.test/${faker.string.uuid()}.png`,
       pack_affiliation: faker.helpers.arrayElement([
-        'Shadow Pack', 'Blood Moon Clan', 'Silver Fang Alliance', 
-        'Lone Wolves', 'Crimson Howlers', 'Moonlight Hunters'
+        'Shadow Pack',
+        'Blood Moon Clan',
+        'Silver Fang Alliance',
+        'Lone Wolves',
+        'Crimson Howlers',
+        'Moonlight Hunters',
       ]),
       werewolf_level: faker.number.int({ min: 1, max: 100 }),
       moon_phase_preference: faker.helpers.arrayElement([
-        'new_moon', 'waxing_crescent', 'first_quarter', 'waxing_gibbous',
-        'full_moon', 'waning_gibbous', 'third_quarter', 'waning_crescent'
+        'new_moon',
+        'waxing_crescent',
+        'first_quarter',
+        'waxing_gibbous',
+        'full_moon',
+        'waning_gibbous',
+        'third_quarter',
+        'waning_crescent',
       ]),
       territory_claimed: faker.location.city(),
       transformation_count: faker.number.int({ min: 0, max: 50 }),
@@ -66,10 +83,16 @@ export class WerewolfUserFactory {
 export class WerewolfGameFactory {
   static create(overrides: Partial<any> = {}): any {
     const gameNames = [
-      'Moonlit Village Massacre', 'Shadow Forest Hunt', 'Blood Moon Rising',
-      'Silver Lake Settlement', 'Howling Hills Horror', 'Crimson Claw Manor',
-      'Midnight Pack Territory', 'Werewolf\'s Den', 'Full Moon Gathering',
-      'Alpha\'s Domain Challenge'
+      'Moonlit Village Massacre',
+      'Shadow Forest Hunt',
+      'Blood Moon Rising',
+      'Silver Lake Settlement',
+      'Howling Hills Horror',
+      'Crimson Claw Manor',
+      'Midnight Pack Territory',
+      "Werewolf's Den",
+      'Full Moon Gathering',
+      "Alpha's Domain Challenge",
     ];
 
     return {
@@ -93,13 +116,29 @@ export class WerewolfGameFactory {
         transformation_animations: faker.datatype.boolean(0.9),
       },
       moon_phase: faker.helpers.arrayElement([
-        'new_moon', 'waxing_crescent', 'first_quarter', 'waxing_gibbous',
-        'full_moon', 'waning_gibbous', 'third_quarter', 'waning_crescent'
+        'new_moon',
+        'waxing_crescent',
+        'first_quarter',
+        'waxing_gibbous',
+        'full_moon',
+        'waning_gibbous',
+        'third_quarter',
+        'waning_crescent',
       ]),
       territory_type: faker.helpers.arrayElement([
-        'forest', 'village', 'mountain', 'lakeside', 'desert', 'tundra'
+        'forest',
+        'village',
+        'mountain',
+        'lakeside',
+        'desert',
+        'tundra',
       ]),
-      difficulty_level: faker.helpers.arrayElement(['beginner', 'intermediate', 'advanced', 'expert']),
+      difficulty_level: faker.helpers.arrayElement([
+        'beginner',
+        'intermediate',
+        'advanced',
+        'expert',
+      ]),
       created_at: faker.date.past({ years: 1 }),
       ...overrides,
     };
@@ -140,7 +179,7 @@ export class WerewolfGameFactory {
     const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
     const prefixes = ['WOLF', 'MOON', 'PACK', 'HUNT', 'HOWL', 'FANG', 'CLAW'];
     const prefix = faker.helpers.arrayElement(prefixes);
-    const suffix = Array.from({ length: 2 }, () => 
+    const suffix = Array.from({ length: 2 }, () =>
       chars.charAt(faker.number.int({ max: chars.length - 1 }))
     ).join('');
     return `${prefix}${suffix}`;
@@ -150,9 +189,13 @@ export class WerewolfGameFactory {
 export class WerewolfPlayerFactory {
   static create(overrides: Partial<any> = {}): any {
     const werewolfRoles: WerewolfRole[] = [
-      WerewolfRole.VILLAGER, WerewolfRole.WEREWOLF, WerewolfRole.SEER, 
-      WerewolfRole.WITCH, WerewolfRole.HUNTER, WerewolfRole.CUPID, 
-      WerewolfRole.LITTLE_GIRL
+      WerewolfRole.VILLAGER,
+      WerewolfRole.WEREWOLF,
+      WerewolfRole.SEER,
+      WerewolfRole.WITCH,
+      WerewolfRole.HUNTER,
+      WerewolfRole.CUPID,
+      WerewolfRole.LITTLE_GIRL,
     ];
 
     return {
@@ -197,7 +240,7 @@ export class WerewolfPlayerFactory {
       },
       ...overrides,
     });
-    
+
     // Ensure both property formats exist
     player.isAlive = player.is_alive ?? true;
     return player;
@@ -218,7 +261,7 @@ export class WerewolfPlayerFactory {
       },
       ...overrides,
     });
-    
+
     // Ensure both property formats exist
     player.isAlive = player.is_alive ?? true;
     return player;
@@ -242,20 +285,22 @@ export class WerewolfPlayerFactory {
 
   static createGamePlayers(gameId: string, count: number): any[] {
     const players = [];
-    
+
     // Ensure at least one werewolf and one villager
     players.push(this.createWerewolf({ game_id: gameId, position: 0 }));
     players.push(this.createVillager({ game_id: gameId, position: 1, is_host: true }));
-    
+
     // Fill remaining positions
     for (let i = 2; i < count; i++) {
-      players.push(this.create({ 
-        game_id: gameId, 
-        position: i,
-        user_id: faker.string.uuid(),
-      }));
+      players.push(
+        this.create({
+          game_id: gameId,
+          position: i,
+          user_id: faker.string.uuid(),
+        })
+      );
     }
-    
+
     return players;
   }
 }
@@ -263,18 +308,18 @@ export class WerewolfPlayerFactory {
 export class WerewolfChatFactory {
   static create(overrides: Partial<any> = {}): any {
     const werewolfMessages = [
-      "The moon calls to us tonight 🌕",
-      "I can smell fear in the air...",
-      "The pack grows restless",
+      'The moon calls to us tonight 🌕',
+      'I can smell fear in the air...',
+      'The pack grows restless',
       "Silver bullets? You'll need more than that!",
-      "The hunt begins at midnight 🐺",
-      "My werewolf senses are tingling",
+      'The hunt begins at midnight 🐺',
+      'My werewolf senses are tingling',
       "The alpha's howl echoes through the forest",
-      "Blood moon tonight - perfect for the hunt",
-      "Pack loyalty above all else",
-      "The transformation is beginning...",
-      "I see you hiding in the shadows",
-      "The full moon reveals all secrets",
+      'Blood moon tonight - perfect for the hunt',
+      'Pack loyalty above all else',
+      'The transformation is beginning...',
+      'I see you hiding in the shadows',
+      'The full moon reveals all secrets',
     ];
 
     return {
@@ -291,18 +336,18 @@ export class WerewolfChatFactory {
       moon_phase_bonus: faker.datatype.boolean(0.15),
       territory_message: faker.datatype.boolean(0.1),
       created_at: faker.date.recent({ days: 1 }),
-      edited_at: faker.datatype.boolean(0.1) ? faker.date.recent({ days: 1/24 }) : null,
+      edited_at: faker.datatype.boolean(0.1) ? faker.date.recent({ days: 1 / 24 }) : null,
       ...overrides,
     };
   }
 
   static createPackMessage(overrides: Partial<any> = {}): any {
     const packMessages = [
-      "Fellow wolves, the time has come to strike",
-      "Coordinate the attack - target the seer first",
-      "The villagers suspect nothing... yet",
-      "Stay in character during the day phase",
-      "Remember, we hunt as one pack",
+      'Fellow wolves, the time has come to strike',
+      'Coordinate the attack - target the seer first',
+      'The villagers suspect nothing... yet',
+      'Stay in character during the day phase',
+      'Remember, we hunt as one pack',
     ];
 
     return this.create({
@@ -316,14 +361,14 @@ export class WerewolfChatFactory {
 
   static createSystemMessage(gameId: string, overrides: Partial<any> = {}): any {
     const systemMessages = [
-      "The sun sets and darkness falls over the village...",
-      "🌙 Night phase begins. Werewolves, choose your target.",
-      "☀️ Dawn breaks. The village awakens to discover...",
-      "⚰️ The victim has been found. The hunt continues.",
-      "🗳️ Voting phase begins. Discuss and choose wisely.",
-      "🎯 The werewolves have made their choice...",
-      "🔮 The seer peers into the unknown...",
-      "⚗️ The witch prepares her potions...",
+      'The sun sets and darkness falls over the village...',
+      '🌙 Night phase begins. Werewolves, choose your target.',
+      '☀️ Dawn breaks. The village awakens to discover...',
+      '⚰️ The victim has been found. The hunt continues.',
+      '🗳️ Voting phase begins. Discuss and choose wisely.',
+      '🎯 The werewolves have made their choice...',
+      '🔮 The seer peers into the unknown...',
+      '⚗️ The witch prepares her potions...',
     ];
 
     return this.create({
@@ -341,17 +386,17 @@ export class WerewolfChatFactory {
 
   static createChatHistory(gameId: string, messageCount: number = 20): any[] {
     const messages = [];
-    
+
     // Add some system messages
     for (let i = 0; i < Math.floor(messageCount * 0.2); i++) {
       messages.push(this.createSystemMessage(gameId));
     }
-    
+
     // Add player messages
     for (let i = 0; i < Math.floor(messageCount * 0.8); i++) {
       messages.push(this.create({ game_id: gameId }));
     }
-    
+
     // Sort by creation time
     return messages.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
   }
@@ -360,11 +405,24 @@ export class WerewolfChatFactory {
 export class WerewolfGameLogFactory {
   static create(overrides: Partial<any> = {}): any {
     const logActions = [
-      'game_created', 'player_joined', 'player_left', 'game_started',
-      'phase_changed', 'werewolf_kill', 'seer_vision', 'witch_heal',
-      'witch_poison', 'hunter_revenge', 'voting_started', 'player_voted',
-      'player_eliminated', 'game_ended', 'pack_communication',
-      'transformation_triggered', 'moon_phase_bonus', 'territory_claimed'
+      'game_created',
+      'player_joined',
+      'player_left',
+      'game_started',
+      'phase_changed',
+      'werewolf_kill',
+      'seer_vision',
+      'witch_heal',
+      'witch_poison',
+      'hunter_revenge',
+      'voting_started',
+      'player_voted',
+      'player_eliminated',
+      'game_ended',
+      'pack_communication',
+      'transformation_triggered',
+      'moon_phase_bonus',
+      'territory_claimed',
     ];
 
     return {
@@ -386,30 +444,36 @@ export class WerewolfGameLogFactory {
 
   static createGameSequence(gameId: string): any[] {
     const logs = [];
-    
+
     // Game creation
-    logs.push(this.create({
-      game_id: gameId,
-      action: 'game_created',
-      created_at: faker.date.past({ years: 0.1 }),
-    }));
-    
+    logs.push(
+      this.create({
+        game_id: gameId,
+        action: 'game_created',
+        created_at: faker.date.past({ years: 0.1 }),
+      })
+    );
+
     // Players joining
     for (let i = 0; i < faker.number.int({ min: 4, max: 8 }); i++) {
-      logs.push(this.create({
-        game_id: gameId,
-        action: 'player_joined',
-        created_at: faker.date.recent({ days: 1 }),
-      }));
+      logs.push(
+        this.create({
+          game_id: gameId,
+          action: 'player_joined',
+          created_at: faker.date.recent({ days: 1 }),
+        })
+      );
     }
-    
+
     // Game phases
-    logs.push(this.create({
-      game_id: gameId,
-      action: 'game_started',
-      created_at: faker.date.recent({ days: 2/24 }),
-    }));
-    
+    logs.push(
+      this.create({
+        game_id: gameId,
+        action: 'game_started',
+        created_at: faker.date.recent({ days: 2 / 24 }),
+      })
+    );
+
     return logs.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
   }
 }
