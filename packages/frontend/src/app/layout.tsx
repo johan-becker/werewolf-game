@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Cinzel } from 'next/font/google'
 import './globals.css'
 import '@/styles/transformations.css'
@@ -46,11 +46,12 @@ export const metadata: Metadata = {
     description: 'Join the ultimate werewolf experience. Form packs, claim territories, and survive the lunar cycles.',
     creator: '@werewolfgame',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
     { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
