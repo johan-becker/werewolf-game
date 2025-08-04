@@ -5,6 +5,8 @@
  * Command-line interface for managing database migrations
  */
 
+/* eslint-disable no-console */
+
 import { Command } from 'commander';
 import { container } from '../container/container';
 import { TYPES } from '../container/types';

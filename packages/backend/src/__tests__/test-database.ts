@@ -279,7 +279,7 @@ export interface TestGame {
   day_number: number;
   max_players: number;
   current_players: number;
-  game_settings: any;
+  game_settings: Record<string, unknown>;
   winner: string | null;
   creator_id: string;
   created_at: Date;

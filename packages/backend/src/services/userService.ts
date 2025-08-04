@@ -1,10 +1,8 @@
-import bcrypt from 'bcrypt';
 import { prisma } from '@/database';
 import { logger } from '@utils/logger';
 import {
   User,
   UserRegistrationData,
-  UserLoginData,
   UserProfile,
   UserFilters,
   PaginationOptions,
