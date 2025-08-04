@@ -79,7 +79,7 @@ const patrolSchema = z.object({
 router.get(
   '/',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritories.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getTerritories
 );
 
 /**
@@ -103,7 +103,7 @@ router.post(
 router.get(
   '/nearby',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getNearbyTerritories.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getNearbyTerritories
 );
 
 /**
@@ -114,7 +114,7 @@ router.get(
 router.get(
   '/unclaimed',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getUnclaimedTerritories.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getUnclaimedTerritories
 );
 
 /**
@@ -125,7 +125,7 @@ router.get(
 router.get(
   '/disputes',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritoryDisputes.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getTerritoryDisputes
 );
 
 /**
@@ -136,7 +136,7 @@ router.get(
 router.get(
   '/:territoryId',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritoryById.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController))
 );
 
 /**
@@ -149,7 +149,7 @@ router.put(
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
   validationMiddleware.validate(updateTerritorySchema),
-  asyncHandler(territoryController.updateTerritory.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement updateTerritory
 );
 
 /**
@@ -161,7 +161,7 @@ router.delete(
   '/:territoryId',
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
-  asyncHandler(territoryController.abandonTerritory.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement abandonTerritory
 );
 
 /**
@@ -174,7 +174,7 @@ router.post(
   authMiddleware.authenticate(),
   authMiddleware.requirePackLeadership(),
   validationMiddleware.validate(disputeTerritorySchema),
-  asyncHandler(territoryController.fileDispute.bind(territoryController))
+  asyncHandler(territoryController.defendTerritory.bind(territoryController)) // TODO: implement fileDispute
 );
 
 /**
@@ -186,7 +186,7 @@ router.post(
   '/:territoryId/patrol',
   authMiddleware.authenticate(),
   validationMiddleware.validate(patrolSchema),
-  asyncHandler(territoryController.recordPatrol.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement recordPatrol
 );
 
 /**
@@ -197,7 +197,7 @@ router.post(
 router.get(
   '/:territoryId/patrols',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getPatrolHistory.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getPatrolHistory
 );
 
 /**
@@ -208,7 +208,7 @@ router.get(
 router.post(
   '/:territoryId/mark',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.refreshMarkers.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement refreshMarkers
 );
 
 /**
@@ -219,7 +219,7 @@ router.post(
 router.get(
   '/:territoryId/resources',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritoryResources.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryBonuses.bind(territoryController))
 );
 
 /**
@@ -231,7 +231,7 @@ router.post(
   '/:territoryId/expand',
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
-  asyncHandler(territoryController.requestExpansion.bind(territoryController))
+  asyncHandler(territoryController.claimTerritory.bind(territoryController)) // TODO: implement requestExpansion
 );
 
 /**
@@ -242,7 +242,7 @@ router.post(
 router.get(
   '/:territoryId/threats',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getThreatAssessment.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getThreatAssessment
 );
 
 /**
@@ -254,7 +254,7 @@ router.post(
   '/:territoryId/alliance',
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
-  asyncHandler(territoryController.proposeAlliance.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement proposeAlliance
 );
 
 /**
@@ -265,7 +265,7 @@ router.post(
 router.get(
   '/:territoryId/history',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritoryHistory.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController))
 );
 
 /**
@@ -277,7 +277,7 @@ router.post(
   '/:territoryId/contest',
   authMiddleware.authenticate(),
   authMiddleware.requirePackLeadership(),
-  asyncHandler(territoryController.contestClaim.bind(territoryController))
+  asyncHandler(territoryController.defendTerritory.bind(territoryController)) // TODO: implement contestClaim
 );
 
 export default router;

@@ -47,7 +47,9 @@
       "Bash(git stash:*)",
       "Bash(npx eslint:*)",
       "Bash(mv:*)",
-      "Bash(docker buildx build:*)"
+      "Bash(docker buildx build:*)",
+      "Bash(docker:*)",
+      "Bash(git restore:*)"
     ],
     "deny": []
   }

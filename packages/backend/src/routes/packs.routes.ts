@@ -73,7 +73,7 @@ const assignRoleSchema = z.object({
 router.get(
   '/',
   authMiddleware.authenticate(),
-  asyncHandler(packController.getPacks.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement getPacks
 );
 
 /**
@@ -96,7 +96,7 @@ router.post(
 router.get(
   '/my-pack',
   authMiddleware.authenticate(),
-  asyncHandler(packController.getMyPack.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement getMyPack
 );
 
 /**
@@ -107,7 +107,7 @@ router.get(
 router.get(
   '/search',
   authMiddleware.authenticate(),
-  asyncHandler(packController.searchPacks.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement searchPacks
 );
 
 /**
@@ -118,7 +118,7 @@ router.get(
 router.get(
   '/:packId',
   authMiddleware.authenticate(),
-  asyncHandler(packController.getPackById.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController))
 );
 
 /**
@@ -131,7 +131,7 @@ router.put(
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
   validationMiddleware.validate(updatePackSchema),
-  asyncHandler(packController.updatePack.bind(packController))
+  asyncHandler(packController.updatePackHierarchy.bind(packController)) // TODO: implement updatePack
 );
 
 /**
@@ -143,7 +143,7 @@ router.delete(
   '/:packId',
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
-  asyncHandler(packController.disbandPack.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement disbandPack
 );
 
 /**
@@ -155,7 +155,7 @@ router.post(
   '/:packId/join',
   authMiddleware.authenticate(),
   validationMiddleware.validate(joinPackSchema),
-  asyncHandler(packController.requestToJoin.bind(packController))
+  asyncHandler(packController.joinPack.bind(packController))
 );
 
 /**
@@ -166,7 +166,7 @@ router.post(
 router.post(
   '/:packId/leave',
   authMiddleware.authenticate(),
-  asyncHandler(packController.leavePack.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement leavePack
 );
 
 /**
@@ -177,7 +177,7 @@ router.post(
 router.get(
   '/:packId/members',
   authMiddleware.authenticate(),
-  asyncHandler(packController.getPackMembers.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement getPackMembers
 );
 
 /**
@@ -189,7 +189,7 @@ router.post(
   '/:packId/members/:userId/approve',
   authMiddleware.authenticate(),
   authMiddleware.requirePackLeadership(),
-  asyncHandler(packController.approveJoinRequest.bind(packController))
+  asyncHandler(packController.joinPack.bind(packController)) // TODO: implement approveJoinRequest
 );
 
 /**
@@ -201,7 +201,7 @@ router.post(
   '/:packId/members/:userId/reject',
   authMiddleware.authenticate(),
   authMiddleware.requirePackLeadership(),
-  asyncHandler(packController.rejectJoinRequest.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement rejectJoinRequest
 );
 
 /**
@@ -214,7 +214,7 @@ router.put(
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
   validationMiddleware.validate(assignRoleSchema),
-  asyncHandler(packController.assignRole.bind(packController))
+  asyncHandler(packController.updatePackHierarchy.bind(packController))
 );
 
 /**
@@ -226,7 +226,7 @@ router.delete(
   '/:packId/members/:userId',
   authMiddleware.authenticate(),
   authMiddleware.requirePackLeadership(),
-  asyncHandler(packController.removeMember.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement removeMember
 );
 
 /**
@@ -237,7 +237,7 @@ router.delete(
 router.post(
   '/:packId/challenge',
   authMiddleware.authenticate(),
-  asyncHandler(packController.challengeAlpha.bind(packController))
+  asyncHandler(packController.updatePackHierarchy.bind(packController)) // TODO: implement challengeAlpha
 );
 
 /**
@@ -248,7 +248,7 @@ router.post(
 router.get(
   '/:packId/territories',
   authMiddleware.authenticate(),
-  asyncHandler(packController.getPackTerritories.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement getPackTerritories
 );
 
 /**
@@ -259,7 +259,7 @@ router.get(
 router.get(
   '/:packId/activities',
   authMiddleware.authenticate(),
-  asyncHandler(packController.getPackActivity.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement getPackActivity
 );
 
 /**
@@ -271,7 +271,7 @@ router.post(
   '/:packId/hunt',
   authMiddleware.authenticate(),
   authMiddleware.requirePackLeadership(),
-  asyncHandler(packController.organizeHunt.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement organizeHunt
 );
 
 /**
@@ -282,7 +282,7 @@ router.post(
 router.get(
   '/:packId/statistics',
   authMiddleware.authenticate(),
-  asyncHandler(packController.getPackStatistics.bind(packController))
+  asyncHandler(packController.getPackInfo.bind(packController)) // TODO: implement getPackStatistics
 );
 
 export default router;

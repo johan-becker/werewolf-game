@@ -83,7 +83,7 @@ export class UserController {
         return;
       }
 
-      const updatedProfile = await AuthService.updateProfile(req.user.id, updates, accessToken);
+      const updatedProfile = await AuthService.updateProfile(req.user.userId, updates, accessToken);
 
       res.status(200).json({
         success: true,
@@ -117,7 +117,7 @@ export class UserController {
         return;
       }
 
-      const profile = await AuthService.getUserProfile(req.user.id);
+      const profile = await AuthService.getUserProfile(req.user.userId);
 
       res.status(200).json({
         success: true,
