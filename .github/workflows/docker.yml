@@ -30,14 +30,14 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Validate and regenerate package-lock if needed
+      - name: Validate package-lock.json
         run: |
           echo "=== Validating package-lock.json ==="
-          if ! npm ls --depth=0; then
-            echo "=== Package lock validation failed, regenerating ==="
-            rm -f package-lock.json
-            npm install --package-lock-only
+          if [ ! -f package-lock.json ]; then
+            echo "❌ No package-lock.json found!"
+            exit 1
           fi
+          echo "✅ package-lock.json exists"
 
       - name: Debug Environment
         run: |
@@ -94,6 +94,7 @@ jobs:
           build-args: |
             BUILDKIT_INLINE_CACHE=1
             NODE_ENV=production
+          outputs: type=registry,push=${{ github.event_name != 'pull_request' }}
 
       # OPTIONAL: Upload build logs as artifacts
       - name: Upload Docker build logs
