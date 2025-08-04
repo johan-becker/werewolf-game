@@ -6,7 +6,8 @@ import { useAuthStore } from '@/stores/auth-store'
 import { usePackStore } from '@/stores/pack-store'
 
 interface WebSocketContextValue extends UseWebSocketReturn {
-  // Add any additional context-specific methods here
+  // Context-specific methods can be added here when needed
+  isProviderReady: boolean;
 }
 
 const WebSocketContext = createContext<WebSocketContextValue | null>(null)
@@ -29,12 +30,15 @@ export function WebSocketProvider({
     url: url || '',
     autoConnect: autoConnect && isAuthenticated && !!url,
     onConnect: () => {
+      // eslint-disable-next-line no-console
       console.log('🔌 WebSocket connected')
     },
     onDisconnect: () => {
+      // eslint-disable-next-line no-console
       console.log('🔌 WebSocket disconnected')
     },
     onError: (error) => {
+      // eslint-disable-next-line no-console
       console.error('🔌 WebSocket error:', error)
     },
   })
@@ -68,6 +72,7 @@ export function WebSocketProvider({
 
   const contextValue: WebSocketContextValue = {
     ...websocket,
+    isProviderReady: isAuthenticated && !!url,
   }
 
   return (
@@ -139,6 +144,7 @@ export function useTransformationAlerts() {
     
     if (type === 'TRANSFORMATION_START' && payload.userId === user?.id) {
       // User is starting transformation
+      // eslint-disable-next-line no-console
       console.log('🐺 Your transformation is beginning...')
       
       // You could trigger UI changes, sounds, vibrations, etc.
@@ -147,6 +153,7 @@ export function useTransformationAlerts() {
       }
     } else if (type === 'TRANSFORMATION_END' && payload.userId === user?.id) {
       // User transformation ended
+      // eslint-disable-next-line no-console
       console.log('🌅 Your transformation has ended.')
     }
   }, [websocket.lastMessage, user?.id])
