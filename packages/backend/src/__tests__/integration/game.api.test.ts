@@ -261,12 +261,33 @@ describe('Werewolf Game API Integration Tests', () => {
     });
 
     it('should not allow joining already started game', async () => {
-      // Simulate game start
-      await request(app)
+      // Add minimum players required for game start (need 4 total players)
+      for (let i = 0; i < 3; i++) {
+        const player = createUniqueTestUser(`start_test_${i}`);
+        await request(app).post('/api/auth/register').send({
+          username: player.username,
+          email: player.email,
+          password: 'WerewolfPack123!',
+        });
+
+        const loginResponse = await request(app).post('/api/auth/login').send({
+          email: player.email,
+          password: 'WerewolfPack123!',
+        });
+
+        await request(app)
+          .post(`/api/games/${testGame.code}/join`)
+          .set('Authorization', `Bearer ${loginResponse.body.token}`);
+      }
+
+      // Now start the game (should succeed with 4 players)
+      const startResponse = await request(app)
         .patch(`/api/games/${testGame.id}/start`)
         .set('Authorization', `Bearer ${authToken}`);
+      
+      expect(startResponse.status).toBe(200); // Ensure game actually started
 
-      const joinUser = WerewolfFactories.User.create();
+      const joinUser = createUniqueTestUser('late_joiner');
       await request(app).post('/api/auth/register').send({
         username: joinUser.username,
         email: joinUser.email,
@@ -527,7 +548,11 @@ describe('Werewolf Game API Integration Tests', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBeDefined();
+      expect(response.body.success).toBe(false);
+      // The validation middleware returns errors array, not error string
+      expect(response.body.errors).toBeDefined();
+      expect(Array.isArray(response.body.errors)).toBe(true);
+      expect(response.body.errors.length).toBeGreaterThan(0);
     });
 
     it('should handle database connection issues gracefully', async () => {

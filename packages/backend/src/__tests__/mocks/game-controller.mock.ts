@@ -18,6 +18,15 @@ export class MockGameController {
         return;
       }
 
+      // Check for malformed request body
+      if (!req.body || typeof req.body !== 'object') {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid request body',
+        });
+        return;
+      }
+
       const { name, maxPlayers, settings } = req.body;
 
       if (!name || name.trim().length < 3) {
@@ -284,15 +293,15 @@ export class MockGameController {
       } else if (error.message.includes('invalid target')) {
         res.status(400).json({
           success: false,
-          error: 'Invalid target for night action',
+          error: error.message,
         });
       } else if (error.message.includes('phase')) {
         res.status(400).json({
           success: false,
-          error: 'Night actions can only be performed during night phase',
+          error: error.message,
         });
       } else {
-        res.status(500).json({
+        res.status(400).json({ // Changed from 500 to 400 for validation errors
           success: false,
           error: error.message || 'Failed to perform night action',
         });

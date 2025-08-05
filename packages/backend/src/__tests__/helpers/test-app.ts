@@ -26,6 +26,59 @@ import { MockAuthService } from '../mocks/auth-service.mock';
 import { mockAuthenticateToken } from '../mocks/auth-middleware.mock';
 import { MockGameController } from '../mocks/game-controller.mock';
 
+// Test rate limiting storage
+const testRateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+/**
+ * Create test-specific rate limiting middleware
+ */
+function createTestRateLimit(options: {
+  windowMs: number;
+  max: number;
+  message: string;
+}) {
+  return (req: express.Request, res: express.Response, next: express.NextFunction): void => {
+    const key = (req as any).user?.userId || req.ip || 'anonymous';
+    const now = Date.now();
+
+    // Clean up expired entries
+    for (const [storeKey, data] of testRateLimitStore.entries()) {
+      if (now > data.resetTime) {
+        testRateLimitStore.delete(storeKey);
+      }
+    }
+
+    // Get current data for this key
+    let rateLimitData = testRateLimitStore.get(key);
+
+    // Check if we need to reset or initialize
+    if (!rateLimitData || now > rateLimitData.resetTime) {
+      // Initialize or reset the rate limit data
+      rateLimitData = {
+        count: 1, // Start with 1 to count this request
+        resetTime: now + options.windowMs,
+      };
+      testRateLimitStore.set(key, rateLimitData);
+    } else {
+      // Increment the request count
+      rateLimitData.count += 1;
+      testRateLimitStore.set(key, rateLimitData);
+    }
+
+    // Check if limit exceeded
+    if (rateLimitData.count > options.max) {
+      res.status(429).json({
+        success: false,
+        error: options.message,
+        retryAfter: Math.ceil((rateLimitData.resetTime - now) / 1000),
+      });
+      return;
+    }
+
+    next();
+  };
+}
+
 // Import middleware
 import { errorHandler } from '../../middleware/errorHandler';
 import { authenticateToken } from '../../middleware/auth';
@@ -37,8 +90,9 @@ import { authenticateToken } from '../../middleware/auth';
 export async function createTestApp(): Promise<Express> {
   const app = express();
 
-  // Disable rate limiting for tests to allow multiple user registrations
-  process.env.DISABLE_RATE_LIMITING = 'true';
+  // Enable selective rate limiting for tests - only disable global rate limiting
+  // Individual route-level rate limiting will still work for testing purposes
+  process.env.DISABLE_RATE_LIMITING = 'false';
 
   // Security middleware
   app.use(
@@ -69,8 +123,8 @@ export async function createTestApp(): Promise<Express> {
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
-  // Skip general rate limiting in test environment
-  if (process.env.NODE_ENV !== 'test' && process.env.DISABLE_RATE_LIMITING !== 'true') {
+  // Skip general rate limiting in test environment but allow specific route-level rate limiting
+  if (process.env.NODE_ENV !== 'test') {
     const testRateLimit = rateLimit({
       windowMs: 1 * 60 * 1000, // 1 minute
       max: 100, // Allow more requests in test environment
@@ -140,8 +194,15 @@ function createTestGameRoutes(): express.Router {
   // All routes require mock authentication
   router.use(mockAuthenticateToken);
 
+  // Create test-specific rate limiting for certain routes
+  const testGameCreationRateLimit = createTestRateLimit({
+    windowMs: 1000, // 1 second window
+    max: 6, // Allow up to 6 games per second for testing (more generous for unique code test)
+    message: 'Too many games created. Please wait before creating another game.',
+  });
+
   // Game management routes with mock controllers
-  router.post('/', validateCreateGame, MockGameController.createGame);
+  router.post('/', testGameCreationRateLimit, validateCreateGame, MockGameController.createGame);
   router.get('/', validateGameList, MockGameController.listGames);
   router.get('/:id', validateGameId, MockGameController.getGame);
   

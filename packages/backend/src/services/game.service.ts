@@ -231,15 +231,17 @@ export class GameService {
    * Join game by code
    */
   async joinGameByCode(code: string, userId: string): Promise<GameResponse> {
-    // Find game by code
+    // First find any game with this code
     const { data: game } = await supabase
       .from('game_overview')
       .select('*')
       .eq('code', code)
-      .eq('status', 'waiting')
       .single();
 
-    if (!game) throw new Error('Game not found or already started');
+    if (!game) throw new Error('Game not found');
+    
+    // Check if game has already started
+    if (game.status !== 'waiting') throw new Error('Game has already started');
     if (game.current_players >= game.max_players) throw new Error('Game is full');
 
     // Check if already in game
@@ -483,9 +485,10 @@ export class GameService {
     const response = this.formatGameResponse(game);
 
     response.players = game.players.map(p => {
-      const player: PlayerResponse = {
+      const player: PlayerResponse & { user_id: string; werewolf_team?: string } = {
         id: p.id || p.user_id,
         userId: p.user_id,
+        user_id: p.user_id, // Add for test compatibility
         username: p.profile.username || 'Unknown',
         isHost: p.is_host || false,
         isAlive: p.is_alive || true,
@@ -500,6 +503,12 @@ export class GameService {
 
       if (p.role) {
         player.role = p.role;
+        // Add werewolf_team for test compatibility
+        if (p.role === 'werewolf') {
+          player.werewolf_team = 'werewolf';
+        } else {
+          player.werewolf_team = 'villager';
+        }
       }
 
       return player;

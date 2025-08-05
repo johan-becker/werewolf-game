@@ -27,6 +27,9 @@ export function rateLimit(options: RateLimitOptions) {
   } = options;
 
   return (req: Request, res: Response, next: NextFunction): void => {
+    // Note: Rate limiting is now always enabled, including in test environment
+    // This allows proper testing of rate limiting functionality
+
     const key = keyGenerator(req);
     const now = Date.now();
 
@@ -37,20 +40,23 @@ export function rateLimit(options: RateLimitOptions) {
       }
     }
 
-    // Get or create rate limit data for this key
+    // Get current data for this key
     let rateLimitData = rateLimitStore.get(key);
 
+    // Check if we need to reset or initialize
     if (!rateLimitData || now > rateLimitData.resetTime) {
       // Initialize or reset the rate limit data
       rateLimitData = {
-        count: 0,
+        count: 1, // Start with 1 to count this request
         resetTime: now + windowMs,
       };
       rateLimitStore.set(key, rateLimitData);
+    } else {
+      // Increment the request count atomically
+      rateLimitData.count += 1;
+      // Update the store to ensure consistency
+      rateLimitStore.set(key, rateLimitData);
     }
-
-    // Increment the request count
-    rateLimitData.count += 1;
 
     // Set rate limit headers
     res.set({

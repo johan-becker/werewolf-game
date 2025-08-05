@@ -76,8 +76,8 @@ export class MockGameService {
       game: {
         ...game,
         settings: game.game_settings, // Map game_settings to settings for API response
-        players: gamePlayers,
       },
+      players: gamePlayers, // Return players at the top level for easier access
     };
   }
 
@@ -152,6 +152,16 @@ export class MockGameService {
     if (!gameId) {
       throw new Error('Game not found');
     }
+    
+    const game = this.games.get(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    if (game.status !== 'waiting') {
+      throw new Error('Game has already started');
+    }
+    
     return this.joinGame(gameId, userId);
   }
 
@@ -245,6 +255,7 @@ export class MockGameService {
     // Update game status
     game.status = 'in_progress';
     game.current_phase = 'day';
+    game.started_at = new Date().toISOString();
     game.updated_at = new Date().toISOString();
     this.games.set(gameId, game);
 
@@ -340,10 +351,10 @@ export class MockGameService {
       throw new Error('Night actions can only be performed during night phase');
     }
 
-    // Validate target
-    const targetPlayer = gamePlayers.find(p => p.id === actionData.target_id);
+    // Validate target - check both id and user_id
+    const targetPlayer = gamePlayers.find(p => p.id === actionData.target_id || p.user_id === actionData.target_id);
     if (actionData.target_id && !targetPlayer) {
-      throw new Error('Invalid target for night action');
+      throw new Error('invalid target');
     }
 
     // For testing purposes, always allow the action
@@ -356,6 +367,7 @@ export class MockGameService {
         pack_coordination: true,
       },
       can_proceed: true,
+      players: gamePlayers, // Add players to response for API contract compliance
     };
   }
 
