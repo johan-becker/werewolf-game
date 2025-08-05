@@ -761,7 +761,10 @@ export class WerewolfGameManager {
    */
   async checkWinConditions(gameId: string, players: any[], options?: any): Promise<any> {
     // Check special conditions first (like lovers victory)
-    if (options?.special_conditions?.lovers_alive && options?.special_conditions?.others_eliminated) {
+    if (
+      options?.special_conditions?.lovers_alive &&
+      options?.special_conditions?.others_eliminated
+    ) {
       return {
         game_ended: true,
         winning_team: 'lovers',
