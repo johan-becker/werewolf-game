@@ -107,10 +107,13 @@ export class GameController {
       
       const result = await gameService.joinGameByCode(code, userId);
 
+      // Extract player info from the game result
+      const currentPlayer = result.players?.find(p => p.userId === userId);
+      
       res.json({
         success: true,
-        player: result.player,
-        game: result.game,
+        player: currentPlayer,
+        game: result,
       });
     } catch (error: any) {
       // Handle specific error cases that tests expect
@@ -176,13 +179,13 @@ export class GameController {
         return;
       }
 
-      if (game.creator_id !== userId) {
+      if (game.creatorId !== userId) {
         res.status(403).json({ success: false, error: 'Only the host can start the game' });
         return;
       }
 
       // Check minimum players requirement
-      if (game.current_players < 4) {
+      if (game.currentPlayers < 4) {
         res.status(400).json({ success: false, error: 'Minimum 4 players required to start the game' });
         return;
       }
@@ -202,15 +205,14 @@ export class GameController {
         success: true,
         message: 'Game started successfully',
         game: {
-          id: gameId,
+          ...game,
           status: 'in_progress',
           current_phase: 'day',
-          ...game,
         },
         role_distribution: {
-          werewolf_count: result.roleAssignments?.filter(r => r.role === 'werewolf').length || 1,
-          villager_count: result.roleAssignments?.filter(r => r.role !== 'werewolf').length || 3,
-          total_players: game.current_players,
+          werewolf_count: result.roleAssignments?.filter(r => r.role === 'WEREWOLF').length || 1,
+          villager_count: result.roleAssignments?.filter(r => r.role !== 'WEREWOLF').length || 3,
+          total_players: game.currentPlayers,
         },
         moon_phase: moonPhaseEffects.phase || 'full_moon',
         role_assignments: result.roleAssignments,
@@ -287,7 +289,7 @@ export class GameController {
 
       // Check if user is host or has permission to advance phase
       const game = await gameService.getGameDetails(gameId);
-      if (!game || game.creator_id !== userId) {
+      if (!game || game.creatorId !== userId) {
         res.status(403).json({ success: false, error: 'Only the host can advance the game phase' });
         return;
       }
