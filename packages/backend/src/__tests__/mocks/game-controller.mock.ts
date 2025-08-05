@@ -229,13 +229,13 @@ export class MockGameController {
           success: false,
           error: 'Game not found',
         });
-      } else if (error.message.includes('host') || error.message.includes('players')) {
-        res.status(400).json({
+      } else if (error.message.includes('Only the host')) {
+        res.status(403).json({
           success: false,
           error: error.message,
         });
-      } else if (error.message.includes('Only the host')) {
-        res.status(403).json({
+      } else if (error.message.includes('players') || error.message.includes('minimum')) {
+        res.status(400).json({
           success: false,
           error: error.message,
         });
@@ -243,6 +243,123 @@ export class MockGameController {
         res.status(500).json({
           success: false,
           error: error.message || 'Failed to start game',
+        });
+      }
+    }
+  }
+
+  static async performNightAction(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).user?.userId || (req as any).user?.id;
+      const { action, target_id } = req.body;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          error: 'Authentication required',
+        });
+        return;
+      }
+
+      if (!action) {
+        res.status(400).json({
+          success: false,
+          error: 'Action type is required',
+        });
+        return;
+      }
+
+      const result = await MockGameService.performNightAction(id, userId as any, {
+        action,
+        target_id,
+      });
+      res.status(200).json(result);
+    } catch (error: any) {
+      if (error.message === 'Game not found') {
+        res.status(404).json({
+          success: false,
+          error: 'Game not found',
+        });
+      } else if (error.message.includes('invalid target')) {
+        res.status(400).json({
+          success: false,
+          error: 'Invalid target for night action',
+        });
+      } else if (error.message.includes('phase')) {
+        res.status(400).json({
+          success: false,
+          error: 'Night actions can only be performed during night phase',
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: error.message || 'Failed to perform night action',
+        });
+      }
+    }
+  }
+
+  static async advancePhase(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).user?.userId || (req as any).user?.id;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          error: 'Authentication required',
+        });
+        return;
+      }
+
+      const result = await MockGameService.advancePhase(id, userId as any);
+      res.status(200).json(result);
+    } catch (error: any) {
+      if (error.message === 'Game not found') {
+        res.status(404).json({
+          success: false,
+          error: 'Game not found',
+        });
+      } else if (error.message.includes('host')) {
+        res.status(403).json({
+          success: false,
+          error: 'Only the host can advance the game phase',
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: error.message || 'Failed to advance phase',
+        });
+      }
+    }
+  }
+
+  static async getMoonPhase(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).user?.userId || (req as any).user?.id;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          error: 'Authentication required',
+        });
+        return;
+      }
+
+      const result = await MockGameService.getMoonPhase(id);
+      res.status(200).json(result);
+    } catch (error: any) {
+      if (error.message === 'Game not found') {
+        res.status(404).json({
+          success: false,
+          error: 'Game not found',
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: error.message || 'Failed to get moon phase information',
         });
       }
     }

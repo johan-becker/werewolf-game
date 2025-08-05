@@ -144,10 +144,22 @@ function createTestGameRoutes(): express.Router {
   router.post('/', validateCreateGame, MockGameController.createGame);
   router.get('/', validateGameList, MockGameController.listGames);
   router.get('/:id', validateGameId, MockGameController.getGame);
-  router.post('/:id/join', validateGameId, MockGameController.joinGame);
+  
+  // Join routes - both patterns supported
   router.post('/join/:code', validateGameCode, MockGameController.joinByCode);
+  router.post('/:code/join', validateGameCode, MockGameController.joinByCode);
+  router.post('/:id/join', validateGameId, MockGameController.joinGame);
+  
   router.delete('/:id/leave', validateGameId, MockGameController.leaveGame);
   router.post('/:id/start', validateGameId, MockGameController.startGame);
+  router.patch('/:id/start', validateGameId, MockGameController.startGame); // Support both POST and PATCH
+  
+  // Night actions and game progression
+  router.post('/:id/actions/night', validateGameId, MockGameController.performNightAction);
+  router.patch('/:id/phase/advance', validateGameId, MockGameController.advancePhase);
+  
+  // Game state information
+  router.get('/:id/moon-phase', validateGameId, MockGameController.getMoonPhase);
 
   return router;
 }

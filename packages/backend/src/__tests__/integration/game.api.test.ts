@@ -195,25 +195,57 @@ describe('Werewolf Game API Integration Tests', () => {
     });
 
     it('should not allow joining full werewolf game', async () => {
-      // Fill the game to capacity
-      testGame.max_players = 1; // Game creator already in
+      // Create a game with minimum players (4) and fill it to capacity
+      const fullGameResponse = await request(app)
+        .post('/api/games')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          name: 'Full Test Game',
+          maxPlayers: 4, // Will be full with creator + 3 more
+        });
 
-      // Try to join full game
-      const joinUser = WerewolfFactories.User.create();
+      const fullGame = fullGameResponse.body.game;
+
+      // Add 3 players to fill it to capacity
+      const joinPromises = [];
+      for (let i = 0; i < 3; i++) {
+        const joinUser = createUniqueTestUser(`full_${i}`);
+        const registerPromise = request(app).post('/api/auth/register').send({
+          username: joinUser.username,
+          email: joinUser.email,
+          password: 'WerewolfPack123!',
+        }).then(() => 
+          request(app).post('/api/auth/login').send({
+            email: joinUser.email,
+            password: 'WerewolfPack123!',
+          })
+        ).then((loginResponse) =>
+          request(app)
+            .post(`/api/games/${fullGame.code}/join`)
+            .set('Authorization', `Bearer ${loginResponse.body.token}`)
+        );
+        joinPromises.push(registerPromise);
+      }
+
+      // Wait for all joins to complete
+      await Promise.all(joinPromises);
+
+      // Now try to join the full game with another user
+      const lateJoinUser = createUniqueTestUser('late');
       await request(app).post('/api/auth/register').send({
-        username: joinUser.username,
-        email: joinUser.email,
+        username: lateJoinUser.username,
+        email: lateJoinUser.email,
         password: 'WerewolfPack123!',
       });
 
-      const loginResponse = await request(app).post('/api/auth/login').send({
-        email: joinUser.email,
+      const lateLoginResponse = await request(app).post('/api/auth/login').send({
+        email: lateJoinUser.email,
         password: 'WerewolfPack123!',
       });
 
       const response = await request(app)
-        .post(`/api/games/${testGame.code}/join`)
-        .set('Authorization', `Bearer ${loginResponse.body.token}`);
+        .post(`/api/games/${fullGame.code}/join`)
+        .set('Authorization', `Bearer ${lateLoginResponse.body.token}`);
 
       expect(response.status).toBe(400);
       expect(response.body.error).toContain('full');

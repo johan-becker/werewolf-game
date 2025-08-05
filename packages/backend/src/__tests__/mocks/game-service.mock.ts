@@ -239,7 +239,7 @@ export class MockGameService {
     );
 
     if (gamePlayers.length < 4) {
-      throw new Error('Need at least 4 players to start the game');
+      throw new Error('minimum 4 players required to start the game');
     }
 
     // Update game status
@@ -318,5 +318,106 @@ export class MockGameService {
     return Array.from(this.players.values()).filter(
       player => player.game_id === gameId
     );
+  }
+
+  static async performNightAction(gameId: string, userId: string, actionData: any) {
+    const game = this.games.get(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    const gamePlayers = Array.from(this.players.values()).filter(
+      player => player.game_id === gameId
+    );
+
+    const player = gamePlayers.find(p => p.user_id === userId);
+    if (!player) {
+      throw new Error('Player not in this game');
+    }
+
+    // Check if game is in night phase
+    if (game.current_phase !== 'night') {
+      throw new Error('Night actions can only be performed during night phase');
+    }
+
+    // Validate target
+    const targetPlayer = gamePlayers.find(p => p.id === actionData.target_id);
+    if (actionData.target_id && !targetPlayer) {
+      throw new Error('Invalid target for night action');
+    }
+
+    // For testing purposes, always allow the action
+    return {
+      success: true,
+      action_submitted: true,
+      target_id: actionData.target_id,
+      pack_coordination: true,
+      revealed_info: {
+        pack_coordination: true,
+      },
+      can_proceed: true,
+    };
+  }
+
+  static async advancePhase(gameId: string, userId: string) {
+    const game = this.games.get(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    const gamePlayers = Array.from(this.players.values()).filter(
+      player => player.game_id === gameId
+    );
+
+    const player = gamePlayers.find(p => p.user_id === userId);
+    if (!player || !player.is_host) {
+      throw new Error('Only the host can advance the game phase');
+    }
+
+    // Toggle between day and night
+    const newPhase = game.current_phase === 'day' ? 'night' : 'day';
+    game.current_phase = newPhase;
+    game.updated_at = new Date().toISOString();
+
+    this.games.set(gameId, game);
+
+    return {
+      success: true,
+      message: 'Phase advanced successfully',
+      game_state: {
+        phase: newPhase,
+        game_id: gameId,
+        players: gamePlayers,
+      },
+    };
+  }
+
+  static async getMoonPhase(gameId: string) {
+    const game = this.games.get(gameId);
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    return {
+      success: true,
+      current_phase: 'full_moon',
+      werewolf_bonuses: {
+        strength_multiplier: 1.2,
+        stealth_bonus: 0.15,
+      },
+      transformation_effects: {
+        intensity: 'high',
+        duration_bonus: 10,
+      },
+      next_phase_transition: '2024-01-15T02:30:00Z',
+      territory_bonuses: {
+        pack_territory_advantage: true,
+        hunting_efficiency: 1.3,
+      },
+      pack_advantages: {
+        communication_range: 'extended',
+        coordination_bonus: 0.2,
+      },
+    };
   }
 }

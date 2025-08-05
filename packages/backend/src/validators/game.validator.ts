@@ -18,7 +18,8 @@ export const validateGameId = [
 
 export const validateGameCode = [
   param('code')
-    .matches(/^[A-Z0-9]{6}$/)
+    .isLength({ min: 4, max: 10 })
+    .matches(/^[A-Z0-9]+$/i)
     .withMessage('Invalid game code format'),
   handleValidationErrors,
 ];

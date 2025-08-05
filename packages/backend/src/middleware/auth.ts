@@ -222,7 +222,7 @@ export const authRateLimit = rateLimit({
   legacyHeaders: false,
   skipSuccessfulRequests: false,
   skipFailedRequests: false,
-  skip: (req) => {
+  skip: (_req) => {
     // Skip rate limiting entirely in test environment when explicitly disabled
     return process.env.NODE_ENV === 'test' && process.env.DISABLE_RATE_LIMITING === 'true';
   },
