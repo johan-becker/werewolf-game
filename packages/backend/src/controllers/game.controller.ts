@@ -104,12 +104,12 @@ export class GameController {
         res.status(400).json({ success: false, error: 'Game code is required' });
         return;
       }
-      
+
       const result = await gameService.joinGameByCode(code, userId);
 
       // Extract player info from the game result
       const currentPlayer = result.players?.find(p => p.userId === userId);
-      
+
       res.json({
         success: true,
         player: currentPlayer,
@@ -186,7 +186,9 @@ export class GameController {
 
       // Check minimum players requirement
       if (game.currentPlayers < 4) {
-        res.status(400).json({ success: false, error: 'Minimum 4 players required to start the game' });
+        res
+          .status(400)
+          .json({ success: false, error: 'Minimum 4 players required to start the game' });
         return;
       }
 
@@ -224,7 +226,9 @@ export class GameController {
         return;
       }
       if (error.message?.includes('minimum') || error.message?.includes('players')) {
-        res.status(400).json({ success: false, error: 'Minimum 4 players required to start the game' });
+        res
+          .status(400)
+          .json({ success: false, error: 'Minimum 4 players required to start the game' });
         return;
       }
       next(error);
@@ -234,7 +238,11 @@ export class GameController {
   /**
    * POST /api/games/:id/actions/night - Perform night action
    */
-  async performNightAction(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async performNightAction(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const userId = req.user.userId;
       const gameId = req.params.id;

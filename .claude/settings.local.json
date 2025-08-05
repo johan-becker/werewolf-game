@@ -58,7 +58,11 @@
       "Bash(NODE_ENV=test npm run test -- src/__tests__/env-setup.ts)",
       "Bash(NODE_ENV=test npm test -- src/__tests__/helpers/test-app.ts)",
       "Bash(NODE_ENV=test npm test -- --passWithNoTests --maxWorkers=1)",
-      "Bash(npx turbo run:*)"
+      "Bash(npx turbo run:*)",
+      "Bash(sed:*)",
+      "Bash(npx prettier:*)",
+      "Bash(NODE_ENV=test SUPABASE_URL=https://test.supabase.co SUPABASE_ANON_KEY=test-anon-key DISABLE_RATE_LIMITING=true node -e \"\nconst request = require(''supertest'');\nconst { createTestApp } = require(''./dist/__tests__/helpers/test-app'');\n\nasync function testRegistration() {\n  try {\n    console.log(''NODE_ENV:'', process.env.NODE_ENV);\n    console.log(''DISABLE_RATE_LIMITING:'', process.env.DISABLE_RATE_LIMITING);\n    \n    const app = await createTestApp();\n    console.log(''Test app created successfully'');\n    \n    // Try registration\n    const response = await request(app)\n      .post(''/api/auth/register'')\n      .send({\n        username: \\`test_user_${Date.now()}\\`,\n        email: \\`test_${Date.now()}@example.com\\`,\n        password: ''WerewolfPack123!'',\n        display_name: ''Test User''\n      });\n    \n    console.log(''Registration Status:'', response.status);\n    console.log(''Response Body:'', response.body);\n  } catch (error) {\n    console.error(''Error:'', error.message);\n  }\n}\n\ntestRegistration();\n\")",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

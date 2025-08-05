@@ -29,7 +29,7 @@ export function rateLimit(options: RateLimitOptions) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const key = keyGenerator(req);
     const now = Date.now();
-    
+
     // Clean up expired entries
     for (const [storeKey, data] of rateLimitStore.entries()) {
       if (now > data.resetTime) {
@@ -39,7 +39,7 @@ export function rateLimit(options: RateLimitOptions) {
 
     // Get or create rate limit data for this key
     let rateLimitData = rateLimitStore.get(key);
-    
+
     if (!rateLimitData || now > rateLimitData.resetTime) {
       // Initialize or reset the rate limit data
       rateLimitData = {
