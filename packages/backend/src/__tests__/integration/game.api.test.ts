@@ -322,7 +322,7 @@ describe('Werewolf Game API Integration Tests', () => {
 
       // Add more players for a valid game start
       for (let i = 0; i < 4; i++) {
-        const player = WerewolfFactories.User.create();
+        const player = createUniqueTestUser(`start_player_${i}`);
         await request(app).post('/api/auth/register').send({
           username: player.username,
           email: player.email,
@@ -354,7 +354,7 @@ describe('Werewolf Game API Integration Tests', () => {
     });
 
     it('should only allow host to start the game', async () => {
-      const nonHostUser = WerewolfFactories.User.create();
+      const nonHostUser = createUniqueTestUser('non_host');
       await request(app).post('/api/auth/register').send({
         username: nonHostUser.username,
         email: nonHostUser.email,
@@ -410,7 +410,7 @@ describe('Werewolf Game API Integration Tests', () => {
 
       // Add players and start game
       for (let i = 0; i < 4; i++) {
-        const player = WerewolfFactories.User.create();
+        const player = createUniqueTestUser(`night_player_${i}`);
         await request(app).post('/api/auth/register').send({
           username: player.username,
           email: player.email,
