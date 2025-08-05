@@ -13,19 +13,28 @@ export class GameController {
   async createGame(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user.userId;
-      
+
       // Validate required fields
-      if (!req.body.name || typeof req.body.name !== 'string' || req.body.name.trim().length === 0) {
+      if (
+        !req.body.name ||
+        typeof req.body.name !== 'string' ||
+        req.body.name.trim().length === 0
+      ) {
         res.status(400).json({ success: false, error: 'Game name is required' });
         return;
       }
-      
+
       // Validate maxPlayers if provided
-      if (req.body.maxPlayers && (typeof req.body.maxPlayers !== 'number' || req.body.maxPlayers < 4 || req.body.maxPlayers > 20)) {
+      if (
+        req.body.maxPlayers &&
+        (typeof req.body.maxPlayers !== 'number' ||
+          req.body.maxPlayers < 4 ||
+          req.body.maxPlayers > 20)
+      ) {
         res.status(400).json({ success: false, error: 'Max players must be between 4 and 20' });
         return;
       }
-      
+
       const game = await gameService.createGame({
         creatorId: userId,
         maxPlayers: req.body.maxPlayers || 8,
@@ -274,9 +283,13 @@ export class GameController {
       // Validate target exists if target_id is provided
       if (target_id) {
         const gameDetails = await gameService.getGameDetails(gameId);
-        const targetExists = gameDetails.players?.some(p => p.id === target_id || p.userId === target_id);
+        const targetExists = gameDetails.players?.some(
+          p => p.id === target_id || p.userId === target_id
+        );
         if (!targetExists) {
-          res.status(400).json({ success: false, error: 'invalid target - target player not found in game' });
+          res
+            .status(400)
+            .json({ success: false, error: 'invalid target - target player not found in game' });
           return;
         }
       }

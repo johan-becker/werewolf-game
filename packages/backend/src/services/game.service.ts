@@ -239,7 +239,7 @@ export class GameService {
       .single();
 
     if (!game) throw new Error('Game not found');
-    
+
     // Check if game has already started
     if (game.status !== 'waiting') throw new Error('Game has already started');
     if (game.current_players >= game.max_players) throw new Error('Game is full');
