@@ -211,17 +211,21 @@ function getStatusCodeForError(code: AuthErrorCode): number {
 
 // Strict rate limiting for authentication endpoints
 export const authRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts per window per IP
+  windowMs: process.env.NODE_ENV === 'test' ? 1000 : 15 * 60 * 1000, // 1 second in test, 15 minutes in production
+  max: process.env.NODE_ENV === 'test' ? 1000 : 5, // 1000 in test, 5 attempts per window per IP in production
   message: {
     error: 'Too many authentication attempts. Please try again later.',
     code: AuthErrorCode.RATE_LIMITED,
-    retryAfter: 15 * 60, // seconds
+    retryAfter: process.env.NODE_ENV === 'test' ? 1 : 15 * 60, // seconds
   },
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: false,
   skipFailedRequests: false,
+  skip: (req) => {
+    // Skip rate limiting entirely in test environment when explicitly disabled
+    return process.env.NODE_ENV === 'test' && process.env.DISABLE_RATE_LIMITING === 'true';
+  },
   keyGenerator: req => `auth:${getClientIP(req)}`,
   handler: (req, res) => {
     res.status(429).json({

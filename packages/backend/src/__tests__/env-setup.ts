@@ -7,6 +7,7 @@ dotenv.config({ path: path.join(__dirname, '../../.env.test') });
 
 // Set required environment variables if not set
 process.env.NODE_ENV = 'test';
+process.env.DISABLE_RATE_LIMITING = 'true'; // Disable rate limiting for integration tests
 process.env.SUPABASE_URL = process.env.SUPABASE_URL || 'https://test.supabase.co';
 process.env.SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'test-anon-key';
 process.env.SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || 'test-service-key';

@@ -4,6 +4,16 @@ import { createTestApp } from '../helpers/test-app';
 import { WerewolfFactories } from '../factories/werewolf-factories';
 import { testDb } from '../test-database';
 
+// Helper function to create unique test users
+function createUniqueTestUser(prefix = 'test') {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substr(2, 9);
+  return WerewolfFactories.User.create({
+    username: `${prefix}_user_${timestamp}_${random}`,
+    email: `${prefix}_${timestamp}_${random}@example.com`,
+  });
+}
+
 describe('Werewolf Game API Integration Tests', () => {
   let app: Express;
   let authToken: string;
@@ -16,8 +26,12 @@ describe('Werewolf Game API Integration Tests', () => {
   });
 
   beforeEach(async () => {
-    // Create test user and authenticate
-    testUser = WerewolfFactories.User.create();
+    // Clear mock auth data before each test
+    const { MockAuthService } = await import('../mocks/auth-service.mock');
+    MockAuthService.clearAll();
+    
+    // Create test user and authenticate with unique data
+    testUser = createUniqueTestUser('main');
 
     // Register user
     const registerResponse = await request(app).post('/api/auth/register').send({
@@ -37,10 +51,16 @@ describe('Werewolf Game API Integration Tests', () => {
 
     expect(loginResponse.status).toBe(200);
     authToken = loginResponse.body.token;
+    
+    // Update testUser with the actual user ID from the auth system
+    testUser.id = loginResponse.body.user.id;
   });
 
   afterEach(async () => {
     await testDb.cleanup();
+    // Clear mock auth data between tests
+    const { MockAuthService } = await import('../mocks/auth-service.mock');
+    MockAuthService.clearAll();
   });
 
   afterAll(async () => {
@@ -51,7 +71,7 @@ describe('Werewolf Game API Integration Tests', () => {
     it('should create a new werewolf game successfully', async () => {
       const gameData = {
         name: 'Moonlit Village Massacre',
-        max_players: 12,
+        maxPlayers: 12,
         settings: {
           night_length_minutes: 5,
           day_length_minutes: 10,
@@ -78,7 +98,7 @@ describe('Werewolf Game API Integration Tests', () => {
     it('should validate werewolf game settings', async () => {
       const invalidGameData = {
         name: 'Test Game',
-        max_players: 25, // Too many players
+        maxPlayers: 25, // Too many players
         settings: {
           werewolf_ratio: 0.8, // Invalid ratio
         },
@@ -90,8 +110,14 @@ describe('Werewolf Game API Integration Tests', () => {
         .send(invalidGameData);
 
       expect(response.status).toBe(400);
-      expect(response.body.errors).toContain('max_players');
-      expect(response.body.errors).toContain('werewolf_ratio');
+      expect(response.body.errors).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: 'maxPlayers',
+            msg: expect.stringContaining('Max players must be between')
+          })
+        ])
+      );
     });
 
     it('should require authentication for game creation', async () => {
@@ -100,7 +126,7 @@ describe('Werewolf Game API Integration Tests', () => {
       const response = await request(app).post('/api/games').send(gameData);
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toContain('authentication');
+      expect(response.body.error).toContain('Authentication');
     });
 
     it('should generate unique werewolf game codes', async () => {
@@ -112,7 +138,7 @@ describe('Werewolf Game API Integration Tests', () => {
           .set('Authorization', `Bearer ${authToken}`)
           .send({
             name: `Werewolf Game ${i}`,
-            max_players: 8,
+            maxPlayers: 8,
           });
 
         expect(response.status).toBe(201);
@@ -131,15 +157,15 @@ describe('Werewolf Game API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           name: 'Test Werewolf Game',
-          max_players: 8,
+          maxPlayers: 8,
         });
 
       testGame = response.body.game;
     });
 
     it('should allow player to join werewolf game by code', async () => {
-      // Create another user to join
-      const joinUser = WerewolfFactories.User.create();
+      // Create another user to join with unique data
+      const joinUser = createUniqueTestUser('join');
 
       await request(app).post('/api/auth/register').send({
         username: joinUser.username,
@@ -153,9 +179,12 @@ describe('Werewolf Game API Integration Tests', () => {
       });
 
       const joinToken = loginResponse.body.token;
+      
+      // Update joinUser with the actual user ID from the auth system
+      joinUser.id = loginResponse.body.user.id;
 
       const response = await request(app)
-        .post(`/api/games/${testGame.code}/join`)
+        .post(`/api/games/join/${testGame.code}`)
         .set('Authorization', `Bearer ${joinToken}`);
 
       expect(response.status).toBe(200);
@@ -233,7 +262,7 @@ describe('Werewolf Game API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           name: 'Werewolf Start Test Game',
-          max_players: 8,
+          maxPlayers: 8,
         });
 
       testGame = response.body.game;
@@ -299,7 +328,7 @@ describe('Werewolf Game API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           name: 'Small Game',
-          max_players: 8,
+          maxPlayers: 8,
         });
 
       const smallGame = smallGameResponse.body.game;
@@ -321,7 +350,7 @@ describe('Werewolf Game API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           name: 'Night Action Test Game',
-          max_players: 6,
+          maxPlayers: 6,
         });
 
       testGame = gameResponse.body.game;
@@ -424,7 +453,7 @@ describe('Werewolf Game API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           name: 'Moon Phase Test Game',
-          max_players: 8,
+          maxPlayers: 8,
           settings: {
             moon_phase_effects: true,
           },
@@ -479,7 +508,7 @@ describe('Werewolf Game API Integration Tests', () => {
       const promises = Array.from({ length: 10 }, () =>
         request(app).post('/api/games').set('Authorization', `Bearer ${authToken}`).send({
           name: 'Rate Limit Test',
-          max_players: 8,
+          maxPlayers: 8,
         })
       );
 

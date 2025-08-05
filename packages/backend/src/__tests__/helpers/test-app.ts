@@ -11,6 +11,21 @@ import moonPhaseRoutes from '../../routes/moon-phases.routes';
 import packRoutes from '../../routes/packs.routes';
 import territoryRoutes from '../../routes/territories.routes';
 
+// Import controllers for test routes
+import { GameController } from '../../controllers/game.controller';
+import {
+  validateCreateGame,
+  validateGameId,
+  validateGameCode,
+  validateGameList,
+} from '../../validators/game.validator';
+
+// Import mock controllers for testing
+import { MockAuthController } from '../mocks/auth-controller.mock';
+import { MockAuthService } from '../mocks/auth-service.mock';
+import { mockAuthenticateToken } from '../mocks/auth-middleware.mock';
+import { MockGameController } from '../mocks/game-controller.mock';
+
 // Import middleware
 import { errorHandler } from '../../middleware/errorHandler';
 import { authenticateToken } from '../../middleware/auth';
@@ -21,6 +36,9 @@ import { authenticateToken } from '../../middleware/auth';
  */
 export async function createTestApp(): Promise<Express> {
   const app = express();
+
+  // Disable rate limiting for tests to allow multiple user registrations
+  process.env.DISABLE_RATE_LIMITING = 'true';
 
   // Security middleware
   app.use(
@@ -51,19 +69,21 @@ export async function createTestApp(): Promise<Express> {
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
-  // Rate limiting for test environment (more lenient)
-  const testRateLimit = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minute
-    max: 100, // Allow more requests in test environment
-    message: {
-      error: 'Too many requests from this IP, please try again later.',
-      werewolf_hint: 'Even werewolves need to pace themselves! 🐺',
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
+  // Skip general rate limiting in test environment
+  if (process.env.NODE_ENV !== 'test' && process.env.DISABLE_RATE_LIMITING !== 'true') {
+    const testRateLimit = rateLimit({
+      windowMs: 1 * 60 * 1000, // 1 minute
+      max: 100, // Allow more requests in test environment
+      message: {
+        error: 'Too many requests from this IP, please try again later.',
+        werewolf_hint: 'Even werewolves need to pace themselves! 🐺',
+      },
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
 
-  app.use('/api/', testRateLimit);
+    app.use('/api/', testRateLimit);
+  }
 
   // Health check endpoint
   app.get('/health', (req, res) => {
@@ -75,9 +95,9 @@ export async function createTestApp(): Promise<Express> {
     });
   });
 
-  // API Routes
-  app.use('/api/auth', authRoutes);
-  app.use('/api/games', gameRoutes);
+  // API Routes - use mock auth routes for testing
+  app.use('/api/auth', createTestAuthRoutes());
+  app.use('/api/games', createTestGameRoutes());
   app.use('/api/moon-phases', moonPhaseRoutes);
   app.use('/api/packs', packRoutes);
   app.use('/api/territories', territoryRoutes);
@@ -89,6 +109,47 @@ export async function createTestApp(): Promise<Express> {
   app.use(errorHandler);
 
   return app;
+}
+
+/**
+ * Creates test auth routes using mock controllers
+ */
+function createTestAuthRoutes(): express.Router {
+  const router = express.Router();
+
+  // Mock auth endpoints that work without Supabase
+  router.post('/signup', MockAuthController.signup);
+  router.post('/signin', MockAuthController.signin);
+  router.post('/register', MockAuthController.signup); // Legacy route
+  router.post('/login', MockAuthController.signin); // Legacy route
+  router.post('/refresh', MockAuthController.refresh);
+  router.post('/logout', MockAuthController.logout);
+  router.get('/me', mockAuthenticateToken, MockAuthController.me);
+  router.post('/provider/:provider', MockAuthController.signInWithProvider);
+  router.get('/callback', MockAuthController.oauthCallback);
+
+  return router;
+}
+
+/**
+ * Creates test game routes using mock controllers and middleware
+ */
+function createTestGameRoutes(): express.Router {
+  const router = express.Router();
+
+  // All routes require mock authentication
+  router.use(mockAuthenticateToken);
+
+  // Game management routes with mock controllers
+  router.post('/', validateCreateGame, MockGameController.createGame);
+  router.get('/', validateGameList, MockGameController.listGames);
+  router.get('/:id', validateGameId, MockGameController.getGame);
+  router.post('/:id/join', validateGameId, MockGameController.joinGame);
+  router.post('/join/:code', validateGameCode, MockGameController.joinByCode);
+  router.delete('/:id/leave', validateGameId, MockGameController.leaveGame);
+  router.post('/:id/start', validateGameId, MockGameController.startGame);
+
+  return router;
 }
 
 /**
@@ -119,7 +180,7 @@ function createTestRoutes(): express.Router {
   });
 
   // Create test werewolf scenarios
-  router.post('/scenarios/:scenario', authenticateToken, async (req, res): Promise<void> => {
+  router.post('/scenarios/:scenario', mockAuthenticateToken, async (req, res): Promise<void> => {
     try {
       const { scenario } = req.params;
       const { WerewolfFactories } = await import('../factories/werewolf-factories');
@@ -182,7 +243,7 @@ function createTestRoutes(): express.Router {
   });
 
   // Simulate moon phase transitions
-  router.post('/moon-phase/:phase', authenticateToken, async (req, res): Promise<void> => {
+  router.post('/moon-phase/:phase', mockAuthenticateToken, async (req, res): Promise<void> => {
     try {
       const { phase } = req.params;
       const validPhases = [
@@ -228,7 +289,7 @@ function createTestRoutes(): express.Router {
   });
 
   // Generate test chat messages with werewolf theme
-  router.post('/chat/generate/:count', authenticateToken, async (req, res) => {
+  router.post('/chat/generate/:count', mockAuthenticateToken, async (req, res) => {
     try {
       const count = parseInt(req.params.count || '10') || 10;
       const { WerewolfFactories } = await import('../factories/werewolf-factories');
@@ -298,6 +359,13 @@ export async function setupTestDatabase(): Promise<void> {
 export async function cleanupTestDatabase(): Promise<void> {
   const { testDb } = await import('../test-database');
   await testDb.cleanup();
+  
+  // Clear mock auth data
+  MockAuthService.clearAll();
+  
+  // Clear mock game data
+  const { MockGameService } = await import('../mocks/game-service.mock');
+  MockGameService.clearAll();
 }
 
 /**

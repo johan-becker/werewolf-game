@@ -4,6 +4,7 @@ import 'reflect-metadata';
 beforeAll(async () => {
   // Set test environment variables
   process.env.NODE_ENV = 'test';
+  process.env.DISABLE_RATE_LIMITING = 'true'; // Disable rate limiting for integration tests
   process.env.JWT_SECRET = 'test-secret-for-werewolf-game';
   process.env.DATABASE_URL =
     process.env.TEST_DATABASE_URL || 'postgresql://test:test@localhost:5432/werewolf_test';
