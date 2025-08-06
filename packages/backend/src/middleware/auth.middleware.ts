@@ -7,7 +7,6 @@ import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
 import { IJwtService } from '../interfaces/auth/jwt-service.interface';
 import { TYPES } from '../container/types';
-import { WerewolfRole } from '../types/werewolf-roles.types';
 
 // Extend Express Request to include user
 declare global {
@@ -37,7 +36,7 @@ export class AuthMiddleware {
       try {
         const token = this.extractToken(req);
 
-        if (!token) {
+        if (\!token) {
           return res.status(401).json({
             success: false,
             error: 'Authentication required',
@@ -48,7 +47,7 @@ export class AuthMiddleware {
 
         const validation = await this.jwtService.validateAccessToken(token);
 
-        if (!validation.isValid) {
+        if (\!validation.isValid) {
           if (validation.expired) {
             return res.status(401).json({
               success: false,
@@ -67,7 +66,7 @@ export class AuthMiddleware {
         }
 
         // Attach user to request
-        if (!validation.payload) {
+        if (\!validation.payload) {
           return res.status(401).json({
             success: false,
             error: 'Invalid token payload',
@@ -97,7 +96,7 @@ export class AuthMiddleware {
       try {
         const token = this.extractToken(req);
 
-        if (!token) {
+        if (\!token) {
           return next();
         }
 
@@ -117,11 +116,11 @@ export class AuthMiddleware {
   }
 
   /**
-   * Require specific werewolf role
+   * Require specific role (string-based for flexibility)
    */
-  requireRole(...roles: WerewolfRole[]) {
+  requireRole(...roles: string[]) {
     return (req: Request, res: Response, next: NextFunction) => {
-      if (!req.user) {
+      if (\!req.user) {
         return res.status(401).json({
           success: false,
           error: 'Authentication required',
@@ -130,9 +129,9 @@ export class AuthMiddleware {
         });
       }
 
-      const userRole = req.user.role as WerewolfRole;
-
-      if (!roles.includes(userRole)) {
+      const userRole = req.user.role;
+      
+      if (\!roles.includes(userRole)) {
         return res.status(403).json({
           success: false,
           error: 'Insufficient permissions',
@@ -152,7 +151,7 @@ export class AuthMiddleware {
    */
   requirePermissions(...permissions: string[]) {
     return (req: Request, res: Response, next: NextFunction) => {
-      if (!req.user) {
+      if (\!req.user) {
         return res.status(401).json({
           success: false,
           error: 'Authentication required',
@@ -166,9 +165,9 @@ export class AuthMiddleware {
         userPermissions.includes(permission)
       );
 
-      if (!hasAllPermissions) {
+      if (\!hasAllPermissions) {
         const missingPermissions = permissions.filter(
-          permission => !userPermissions.includes(permission)
+          permission => \!userPermissions.includes(permission)
         );
 
         return res.status(403).json({
@@ -186,21 +185,17 @@ export class AuthMiddleware {
   }
 
   /**
-   * Require Alpha or Beta role (pack leadership)
-   * TODO: Define pack hierarchy roles in WerewolfRole enum
+   * Require pack leadership roles (Alpha or Beta werewolf roles)
    */
   requirePackLeadership() {
-    // Temporarily disabled - ALPHA/BETA roles not defined in current enum
-    return this.requireRole(WerewolfRole.WEREWOLF);
+    return this.requireRole('ALPHA', 'BETA');
   }
 
   /**
-   * Require Alpha role only
-   * TODO: Define pack hierarchy roles in WerewolfRole enum
+   * Require Alpha role only (highest werewolf rank)
    */
   requireAlpha() {
-    // Temporarily disabled - ALPHA role not defined in current enum
-    return this.requireRole(WerewolfRole.WEREWOLF);
+    return this.requireRole('ALPHA');
   }
 
   /**
@@ -208,7 +203,7 @@ export class AuthMiddleware {
    */
   requireOwnershipOrLeadership(userIdField: string = 'userId') {
     return (req: Request, res: Response, next: NextFunction) => {
-      if (!req.user) {
+      if (\!req.user) {
         return res.status(401).json({
           success: false,
           error: 'Authentication required',
@@ -219,16 +214,15 @@ export class AuthMiddleware {
 
       const resourceUserId = req.params[userIdField] || req.body[userIdField];
       const currentUserId = req.user.userId;
-      const userRole = req.user.role as WerewolfRole;
+      const userRole = req.user.role;
 
       // Allow if user owns the resource
       if (resourceUserId === currentUserId) {
         return next();
       }
 
-      // Allow if user is pack leadership (temporarily using WEREWOLF role)
-      // TODO: Define pack hierarchy roles in WerewolfRole enum
-      if ([WerewolfRole.WEREWOLF].includes(userRole)) {
+      // Allow if user is pack leadership
+      if (['ALPHA', 'BETA'].includes(userRole)) {
         return next();
       }
 
@@ -291,3 +285,4 @@ export class AuthMiddleware {
     });
   }
 }
+EOF < /dev/null

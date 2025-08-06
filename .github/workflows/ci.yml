@@ -73,10 +73,17 @@ jobs:
       - name: Install dependencies
         run: npm ci --workspaces --include-workspace-root
 
+      - name: Build shared package
+        working-directory: packages/shared
+        run: npm run build
+
+      - name: Generate Prisma client
+        working-directory: packages/backend
+        run: npm run db:generate
+
       - name: Run Prisma migrations
-        run: |
-          npm run db:generate --workspace=packages/backend
-          npx prisma migrate deploy --schema=packages/backend/prisma/schema.prisma
+        working-directory: packages/backend
+        run: npx prisma migrate deploy
         env:
           DATABASE_URL: postgresql://werewolf_user:werewolf_password@localhost:5432/werewolf_game_test
 
@@ -130,6 +137,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --workspaces --include-workspace-root
+
+      - name: Generate Prisma client for build
+        working-directory: packages/backend
+        run: npm run db:generate
 
       - name: Build all packages
         run: turbo run build
@@ -202,3 +213,4 @@ jobs:
         run: |
           echo "Deploying to production environment..."
           # Add your production deployment commands here
+EOF < /dev/null
