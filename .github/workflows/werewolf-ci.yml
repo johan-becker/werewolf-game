@@ -2,9 +2,9 @@ name: 🐺 Werewolf Game CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop, 'fix/**', 'feat/**', 'feature/**', 'hotfix/**']
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   workflow_dispatch:
 
 env:
@@ -31,17 +31,17 @@ jobs:
       - name: 🔍 Run ESLint on werewolf code
         run: |
           echo "🐺 Running werewolf code linting..."
-          npm run lint || echo "⚠️  Linting configuration incomplete - this is expected for new projects"
+          turbo run lint || echo "⚠️  Linting configuration incomplete - this is expected for new projects"
 
       - name: 🎨 Check Prettier formatting  
         run: |
           echo "🌙 Checking werewolf code formatting..."
-          npm run format -- --check || echo "⚠️  Prettier configuration incomplete - this is expected for new projects"
+          turbo run format -- --check || echo "⚠️  Prettier configuration incomplete - this is expected for new projects"
 
       - name: 📝 TypeScript type checking
         run: |
           echo "📝 Checking werewolf TypeScript..."
-          npm run typecheck || echo "⚠️  TypeScript configuration incomplete - this is expected for new projects"
+          turbo run typecheck || echo "⚠️  TypeScript configuration incomplete - this is expected for new projects"
 
   # Unit and integration tests
   test:
@@ -127,7 +127,7 @@ jobs:
         run: npm ci --workspaces --include-workspace-root
 
       - name: 🏗️ Build werewolf applications
-        run: npm run build
+        run: turbo run build
 
       - name: 📦 Archive werewolf build artifacts
         uses: actions/upload-artifact@v4

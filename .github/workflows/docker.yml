@@ -2,9 +2,9 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, 'fix/**', 'feat/**', 'feature/**', 'hotfix/**']
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 env:
   REGISTRY: ghcr.io
@@ -30,14 +30,10 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Validate and regenerate package-lock if needed
+      - name: Validate and install dependencies
         run: |
-          echo "=== Validating package-lock.json ==="
-          if ! npm ls --depth=0; then
-            echo "=== Package lock validation failed, regenerating ==="
-            rm -f package-lock.json
-            npm install --package-lock-only
-          fi
+          echo "=== Installing dependencies ==="
+          npm ci
 
       - name: Debug Environment
         run: |

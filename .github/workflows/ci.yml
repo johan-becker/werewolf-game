@@ -2,7 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, 'fix/**', 'feat/**', 'feature/**', 'hotfix/**']
   pull_request:
     branches: [main, develop]
 
@@ -24,13 +24,13 @@ jobs:
         run: npm ci
 
       - name: Lint code
-        run: npm run lint
+        run: turbo run lint
 
       - name: Type check
-        run: npm run typecheck
+        run: turbo run typecheck
 
       - name: Format check
-        run: npm run format -- --check
+        run: turbo run format -- --check
 
   test-backend:
     name: Backend Tests
@@ -74,16 +74,14 @@ jobs:
         run: npm ci
 
       - name: Run Prisma migrations
-        working-directory: packages/backend
         run: |
-          npm run db:generate
-          npx prisma migrate deploy
+          npm run db:generate --workspace=packages/backend
+          npx prisma migrate deploy --schema=packages/backend/prisma/schema.prisma
         env:
           DATABASE_URL: postgresql://werewolf_user:werewolf_password@localhost:5432/werewolf_game_test
 
       - name: Run backend tests
-        working-directory: packages/backend
-        run: npm test
+        run: npm run test --workspace=packages/backend
         env:
           NODE_ENV: test
           DATABASE_URL: postgresql://werewolf_user:werewolf_password@localhost:5432/werewolf_game_test
@@ -110,8 +108,7 @@ jobs:
         run: npm ci
 
       - name: Run frontend tests
-        working-directory: packages/frontend
-        run: npm test
+        run: npm run test --workspace=packages/frontend
         env:
           NODE_ENV: test
 
@@ -133,7 +130,7 @@ jobs:
         run: npm ci
 
       - name: Build all packages
-        run: npm run build
+        run: turbo run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
