@@ -37,7 +37,7 @@ export default function DashboardLoading() {
             </div>
           </div>
         </div>
-        
+
         <div className="space-y-6">
           <div className="card-werewolf p-6">
             <div className="space-y-4">
@@ -48,5 +48,5 @@ export default function DashboardLoading() {
         </div>
       </div>
     </div>
-  )
+  );
 }

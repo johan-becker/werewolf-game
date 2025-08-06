@@ -10,7 +10,6 @@ import { AuthMiddleware } from '../middleware/auth.middleware';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
 import { EnhancedErrorMiddleware } from '../middleware/enhanced-error.middleware';
 import { TerritoryController } from '../controllers/territory.controller';
-import { WerewolfRole } from '../types/werewolf-user.types';
 import { z } from 'zod';
 
 const router = Router();
@@ -29,47 +28,65 @@ const claimTerritorySchema = z.object({
   body: z.object({
     name: z.string().min(3).max(100),
     description: z.string().max(500).optional(),
-    boundaries: z.array(z.object({
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180)
-    })).min(3),
+    boundaries: z
+      .array(
+        z.object({
+          latitude: z.number().min(-90).max(90),
+          longitude: z.number().min(-180).max(180),
+        })
+      )
+      .min(3),
     markerType: z.enum(['scent', 'physical', 'spiritual']).default('scent'),
-    isPublic: z.boolean().default(false)
-  })
+    isPublic: z.boolean().default(false),
+  }),
 });
 
 const updateTerritorySchema = z.object({
   body: z.object({
     name: z.string().min(3).max(100).optional(),
     description: z.string().max(500).optional(),
-    boundaries: z.array(z.object({
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180)
-    })).min(3).optional(),
+    boundaries: z
+      .array(
+        z.object({
+          latitude: z.number().min(-90).max(90),
+          longitude: z.number().min(-180).max(180),
+        })
+      )
+      .min(3)
+      .optional(),
     markerType: z.enum(['scent', 'physical', 'spiritual']).optional(),
-    isPublic: z.boolean().optional()
-  })
+    isPublic: z.boolean().optional(),
+  }),
 });
 
 const disputeTerritorySchema = z.object({
   body: z.object({
     reason: z.string().min(10).max(1000),
-    evidenceType: z.enum(['historical_claim', 'boundary_violation', 'resource_rights', 'pack_expansion']),
-    proposedResolution: z.string().max(500).optional()
-  })
+    evidenceType: z.enum([
+      'historical_claim',
+      'boundary_violation',
+      'resource_rights',
+      'pack_expansion',
+    ]),
+    proposedResolution: z.string().max(500).optional(),
+  }),
 });
 
 const patrolSchema = z.object({
   body: z.object({
-    route: z.array(z.object({
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180),
-      timestamp: z.string().datetime()
-    })).min(2),
+    route: z
+      .array(
+        z.object({
+          latitude: z.number().min(-90).max(90),
+          longitude: z.number().min(-180).max(180),
+          timestamp: z.string().datetime(),
+        })
+      )
+      .min(2),
     observations: z.string().max(1000).optional(),
     threats: z.array(z.string()).optional(),
-    scent_markers_refreshed: z.boolean().default(false)
-  })
+    scent_markers_refreshed: z.boolean().default(false),
+  }),
 });
 
 /**
@@ -80,7 +97,7 @@ const patrolSchema = z.object({
 router.get(
   '/',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritories.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getTerritories
 );
 
 /**
@@ -104,7 +121,7 @@ router.post(
 router.get(
   '/nearby',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getNearbyTerritories.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getNearbyTerritories
 );
 
 /**
@@ -115,7 +132,7 @@ router.get(
 router.get(
   '/unclaimed',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getUnclaimedTerritories.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getUnclaimedTerritories
 );
 
 /**
@@ -126,7 +143,7 @@ router.get(
 router.get(
   '/disputes',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritoryDisputes.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getTerritoryDisputes
 );
 
 /**
@@ -137,7 +154,7 @@ router.get(
 router.get(
   '/:territoryId',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritoryById.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController))
 );
 
 /**
@@ -150,7 +167,7 @@ router.put(
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
   validationMiddleware.validate(updateTerritorySchema),
-  asyncHandler(territoryController.updateTerritory.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement updateTerritory
 );
 
 /**
@@ -162,7 +179,7 @@ router.delete(
   '/:territoryId',
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
-  asyncHandler(territoryController.abandonTerritory.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement abandonTerritory
 );
 
 /**
@@ -175,7 +192,7 @@ router.post(
   authMiddleware.authenticate(),
   authMiddleware.requirePackLeadership(),
   validationMiddleware.validate(disputeTerritorySchema),
-  asyncHandler(territoryController.fileDispute.bind(territoryController))
+  asyncHandler(territoryController.defendTerritory.bind(territoryController)) // TODO: implement fileDispute
 );
 
 /**
@@ -187,7 +204,7 @@ router.post(
   '/:territoryId/patrol',
   authMiddleware.authenticate(),
   validationMiddleware.validate(patrolSchema),
-  asyncHandler(territoryController.recordPatrol.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement recordPatrol
 );
 
 /**
@@ -198,7 +215,7 @@ router.post(
 router.get(
   '/:territoryId/patrols',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getPatrolHistory.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getPatrolHistory
 );
 
 /**
@@ -209,18 +226,18 @@ router.get(
 router.post(
   '/:territoryId/mark',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.refreshMarkers.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement refreshMarkers
 );
 
 /**
  * @route   GET /api/territories/:territoryId/resources
  * @desc    Get territory resources
- * @access  Private (Pack members only)  
+ * @access  Private (Pack members only)
  */
 router.get(
   '/:territoryId/resources',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritoryResources.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryBonuses.bind(territoryController))
 );
 
 /**
@@ -232,7 +249,7 @@ router.post(
   '/:territoryId/expand',
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
-  asyncHandler(territoryController.requestExpansion.bind(territoryController))
+  asyncHandler(territoryController.claimTerritory.bind(territoryController)) // TODO: implement requestExpansion
 );
 
 /**
@@ -243,7 +260,7 @@ router.post(
 router.get(
   '/:territoryId/threats',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getThreatAssessment.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement getThreatAssessment
 );
 
 /**
@@ -255,7 +272,7 @@ router.post(
   '/:territoryId/alliance',
   authMiddleware.authenticate(),
   authMiddleware.requireAlpha(),
-  asyncHandler(territoryController.proposeAlliance.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController)) // TODO: implement proposeAlliance
 );
 
 /**
@@ -266,7 +283,7 @@ router.post(
 router.get(
   '/:territoryId/history',
   authMiddleware.authenticate(),
-  asyncHandler(territoryController.getTerritoryHistory.bind(territoryController))
+  asyncHandler(territoryController.getTerritoryInfo.bind(territoryController))
 );
 
 /**
@@ -278,7 +295,7 @@ router.post(
   '/:territoryId/contest',
   authMiddleware.authenticate(),
   authMiddleware.requirePackLeadership(),
-  asyncHandler(territoryController.contestClaim.bind(territoryController))
+  asyncHandler(territoryController.defendTerritory.bind(territoryController)) // TODO: implement contestClaim
 );
 
 export default router;

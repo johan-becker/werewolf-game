@@ -11,34 +11,30 @@ ENV npm_config_force=true
 ENV npm_config_legacy_peer_deps=true
 
 # Install global packages with specific versions
-RUN npm install -g npm@10.2.4 turbo@1.12.4
+RUN npm install -g npm@10.2.4
 
-# Copy root package files first
-COPY package.json package-lock.json ./
-COPY turbo.json ./
-COPY tsconfig.base.json ./
-
-# Create package directories
-RUN mkdir -p packages/frontend packages/shared
-
-# Copy package.json files
+# Copy only frontend and shared package files (avoid workspace complexity)
 COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/shared/package.json ./packages/shared/
+COPY tsconfig.base.json ./
+
+# Copy root package-lock.json (essential for npm ci in monorepo)
+COPY package-lock.json ./
+
+# Create a temporary package.json for just frontend and shared
+RUN echo '{"name": "werewolf-frontend-build", "private": true, "workspaces": ["packages/frontend", "packages/shared"]}' > package.json
 
 # Debug: Print package structure
 RUN echo "=== Package Structure ===" && \
     ls -la && \
-    echo "=== Root package.json ===" && \
-    cat package.json | grep -A5 '"workspaces"' && \
+    echo "=== Temp package.json ===" && \
+    cat package.json && \
     echo "=== NPM Version ===" && \
-    npm --version && \
-    echo "=== Node Version ===" && \
-    node --version
+    npm --version
 
-# Install with detailed logging
-RUN npm ci --workspaces --include-workspace-root --omit=dev --loglevel=verbose || \
-    (echo "=== NPM CI Failed, trying alternative approach ===" && \
-     npm install --workspaces --include-workspace-root --omit=dev --legacy-peer-deps)
+# Install production dependencies only
+RUN npm ci --workspaces --omit=dev --loglevel=verbose || \
+    npm install --workspaces --omit=dev --legacy-peer-deps
 
 # Clean cache after successful install
 RUN npm cache clean --force
@@ -46,14 +42,18 @@ RUN npm cache clean --force
 # Builder stage
 FROM base AS builder
 
-# Install all dependencies for building
-RUN npm ci --workspaces --include-workspace-root --loglevel=verbose
+# Install all dependencies for building (including dev dependencies)
+RUN npm ci --workspaces --loglevel=verbose || \
+    npm install --workspaces --legacy-peer-deps
 
 # Copy source code
 COPY packages/frontend ./packages/frontend
 COPY packages/shared ./packages/shared
 
-# Build shared package
+# Ensure public directory exists for Next.js
+RUN mkdir -p /app/packages/frontend/public
+
+# Build shared package first
 WORKDIR /app/packages/shared
 RUN npm run build || echo "Shared build skipped"
 
@@ -72,12 +72,14 @@ WORKDIR /app
 # Only copy necessary files
 COPY --from=builder --chown=nodejs:nodejs /app/packages/frontend/.next/standalone ./
 COPY --from=builder --chown=nodejs:nodejs /app/packages/frontend/.next/static ./packages/frontend/.next/static
+# Copy public directory
 COPY --from=builder --chown=nodejs:nodejs /app/packages/frontend/public ./packages/frontend/public
 
 USER nodejs
 EXPOSE 3000
 
+# Simple health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node healthcheck.js || exit 1
+  CMD node -e "const http = require('http'); http.get('http://localhost:3000/', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
-CMD ["node", "packages/frontend/server.js"]
+CMD ["node", "server.js"]

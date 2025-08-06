@@ -74,7 +74,7 @@ const ConfigSchema = z.object({
   TRANSFORMATION_COOLDOWN_HOURS: z.coerce.number().default(24),
   TERRITORY_CLAIM_RADIUS_KM: z.coerce.number().default(5),
   PACK_MAX_SIZE: z.coerce.number().default(12),
-  ALPHA_CHALLENGE_COOLDOWN_DAYS: z.coerce.number().default(7)
+  ALPHA_CHALLENGE_COOLDOWN_DAYS: z.coerce.number().default(7),
 });
 
 export type ConfigType = z.infer<typeof ConfigSchema>;
@@ -85,7 +85,26 @@ export class AppConfig implements IAppConfig {
 
   constructor() {
     try {
-      this.config = ConfigSchema.parse(process.env);
+      // Apply test environment defaults if in test mode and missing values
+      const envVars = { ...process.env };
+      if (process.env.NODE_ENV === 'test') {
+        envVars.JWT_SECRET =
+          envVars.JWT_SECRET || 'test-jwt-secret-that-is-at-least-32-characters-long-for-testing';
+        envVars.JWT_REFRESH_SECRET =
+          envVars.JWT_REFRESH_SECRET ||
+          'test-jwt-refresh-secret-that-is-at-least-32-characters-long-for-testing';
+        envVars.SESSION_SECRET =
+          envVars.SESSION_SECRET ||
+          'test-session-secret-that-is-at-least-32-characters-long-for-testing';
+        envVars.DATABASE_URL =
+          envVars.DATABASE_URL || 'postgresql://test:test@localhost:5432/werewolf_game_test';
+        envVars.REDIS_URL = envVars.REDIS_URL || 'redis://localhost:6379';
+        envVars.SUPABASE_URL = envVars.SUPABASE_URL || 'https://test.supabase.co';
+        envVars.SUPABASE_ANON_KEY = envVars.SUPABASE_ANON_KEY || 'test-anon-key';
+        envVars.SUPABASE_SERVICE_ROLE_KEY = envVars.SUPABASE_SERVICE_ROLE_KEY || 'test-service-key';
+      }
+
+      this.config = ConfigSchema.parse(envVars);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errorMessages = error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
@@ -96,77 +115,167 @@ export class AppConfig implements IAppConfig {
   }
 
   // Server Configuration
-  get nodeEnv(): string { return this.config.NODE_ENV; }
-  get port(): number { return this.config.PORT; }
-  get host(): string { return this.config.HOST; }
-  get wsPort(): number { return this.config.WS_PORT; }
+  get nodeEnv(): string {
+    return this.config.NODE_ENV;
+  }
+  get port(): number {
+    return this.config.PORT;
+  }
+  get host(): string {
+    return this.config.HOST;
+  }
+  get wsPort(): number {
+    return this.config.WS_PORT;
+  }
 
   // Database Configuration
-  get databaseUrl(): string { return this.config.DATABASE_URL; }
-  get redisUrl(): string { return this.config.REDIS_URL; }
+  get databaseUrl(): string {
+    return this.config.DATABASE_URL;
+  }
+  get redisUrl(): string {
+    return this.config.REDIS_URL;
+  }
 
   // Supabase Configuration
-  get supabaseUrl(): string | undefined { return this.config.SUPABASE_URL; }
-  get supabaseAnonKey(): string | undefined { return this.config.SUPABASE_ANON_KEY; }
-  get supabaseServiceRoleKey(): string | undefined { return this.config.SUPABASE_SERVICE_ROLE_KEY; }
+  get supabaseUrl(): string | undefined {
+    return this.config.SUPABASE_URL;
+  }
+  get supabaseAnonKey(): string | undefined {
+    return this.config.SUPABASE_ANON_KEY;
+  }
+  get supabaseServiceRoleKey(): string | undefined {
+    return this.config.SUPABASE_SERVICE_ROLE_KEY;
+  }
 
   // JWT Configuration
-  get jwtSecret(): string { return this.config.JWT_SECRET; }
-  get jwtExpiresIn(): string { return this.config.JWT_EXPIRES_IN; }
-  get jwtRefreshSecret(): string { return this.config.JWT_REFRESH_SECRET; }
-  get jwtRefreshExpiresIn(): string { return this.config.JWT_REFRESH_EXPIRES_IN; }
+  get jwtSecret(): string {
+    return this.config.JWT_SECRET;
+  }
+  get jwtExpiresIn(): string {
+    return this.config.JWT_EXPIRES_IN;
+  }
+  get jwtRefreshSecret(): string {
+    return this.config.JWT_REFRESH_SECRET;
+  }
+  get jwtRefreshExpiresIn(): string {
+    return this.config.JWT_REFRESH_EXPIRES_IN;
+  }
 
   // Security Configuration
-  get bcryptRounds(): number { return this.config.BCRYPT_ROUNDS; }
-  get argon2Memory(): number { return this.config.ARGON2_MEMORY; }
-  get argon2Time(): number { return this.config.ARGON2_TIME; }
-  get argon2Parallelism(): number { return this.config.ARGON2_PARALLELISM; }
+  get bcryptRounds(): number {
+    return this.config.BCRYPT_ROUNDS;
+  }
+  get argon2Memory(): number {
+    return this.config.ARGON2_MEMORY;
+  }
+  get argon2Time(): number {
+    return this.config.ARGON2_TIME;
+  }
+  get argon2Parallelism(): number {
+    return this.config.ARGON2_PARALLELISM;
+  }
 
   // Rate Limiting Configuration
-  get rateLimitWindowMs(): number { return this.config.RATE_LIMIT_WINDOW_MS; }
-  get rateLimitMaxRequests(): number { return this.config.RATE_LIMIT_MAX_REQUESTS; }
+  get rateLimitWindowMs(): number {
+    return this.config.RATE_LIMIT_WINDOW_MS;
+  }
+  get rateLimitMaxRequests(): number {
+    return this.config.RATE_LIMIT_MAX_REQUESTS;
+  }
 
   // Game Configuration
-  get gameCodeLength(): number { return this.config.GAME_CODE_LENGTH; }
-  get maxPlayersPerGame(): number { return this.config.MAX_PLAYERS_PER_GAME; }
-  get minPlayersPerGame(): number { return this.config.MIN_PLAYERS_PER_GAME; }
-  get gameTimeoutMinutes(): number { return this.config.GAME_TIMEOUT_MINUTES; }
-  get chatMessageRateLimit(): number { return this.config.CHAT_MESSAGE_RATE_LIMIT; }
+  get gameCodeLength(): number {
+    return this.config.GAME_CODE_LENGTH;
+  }
+  get maxPlayersPerGame(): number {
+    return this.config.MAX_PLAYERS_PER_GAME;
+  }
+  get minPlayersPerGame(): number {
+    return this.config.MIN_PLAYERS_PER_GAME;
+  }
+  get gameTimeoutMinutes(): number {
+    return this.config.GAME_TIMEOUT_MINUTES;
+  }
+  get chatMessageRateLimit(): number {
+    return this.config.CHAT_MESSAGE_RATE_LIMIT;
+  }
 
   // Socket Authentication Configuration
-  get socketAuthTimeout(): number { return this.config.SOCKET_AUTH_TIMEOUT; }
-  get maxConnectionsPerIp(): number { return this.config.MAX_CONNECTIONS_PER_IP; }
-  get maxConnectionsPerUser(): number { return this.config.MAX_CONNECTIONS_PER_USER; }
+  get socketAuthTimeout(): number {
+    return this.config.SOCKET_AUTH_TIMEOUT;
+  }
+  get maxConnectionsPerIp(): number {
+    return this.config.MAX_CONNECTIONS_PER_IP;
+  }
+  get maxConnectionsPerUser(): number {
+    return this.config.MAX_CONNECTIONS_PER_USER;
+  }
 
   // CORS Configuration
-  get corsOrigin(): string { return this.config.CORS_ORIGIN; }
+  get corsOrigin(): string {
+    return this.config.CORS_ORIGIN;
+  }
 
   // Logging Configuration
-  get logLevel(): string { return this.config.LOG_LEVEL; }
-  get logFile(): string { return this.config.LOG_FILE; }
-  get logToFile(): boolean { return this.config.LOG_TO_FILE; }
+  get logLevel(): string {
+    return this.config.LOG_LEVEL;
+  }
+  get logFile(): string {
+    return this.config.LOG_FILE;
+  }
+  get logToFile(): boolean {
+    return this.config.LOG_TO_FILE;
+  }
 
   // Session Configuration
-  get sessionSecret(): string { return this.config.SESSION_SECRET; }
+  get sessionSecret(): string {
+    return this.config.SESSION_SECRET;
+  }
 
   // Email Configuration
-  get mailHost(): string | undefined { return this.config.MAIL_HOST; }
-  get mailPort(): number | undefined { return this.config.MAIL_PORT; }
-  get mailUser(): string | undefined { return this.config.MAIL_USER; }
-  get mailPassword(): string | undefined { return this.config.MAIL_PASSWORD; }
+  get mailHost(): string | undefined {
+    return this.config.MAIL_HOST;
+  }
+  get mailPort(): number | undefined {
+    return this.config.MAIL_PORT;
+  }
+  get mailUser(): string | undefined {
+    return this.config.MAIL_USER;
+  }
+  get mailPassword(): string | undefined {
+    return this.config.MAIL_PASSWORD;
+  }
 
   // Werewolf-specific Configuration
-  get moonCycleDays(): number { return this.config.MOON_CYCLE_DAYS; }
-  get transformationCooldownHours(): number { return this.config.TRANSFORMATION_COOLDOWN_HOURS; }
-  get territoryClaimRadiusKm(): number { return this.config.TERRITORY_CLAIM_RADIUS_KM; }
-  get packMaxSize(): number { return this.config.PACK_MAX_SIZE; }
-  get alphaChallengeeCooldownDays(): number { return this.config.ALPHA_CHALLENGE_COOLDOWN_DAYS; }
+  get moonCycleDays(): number {
+    return this.config.MOON_CYCLE_DAYS;
+  }
+  get transformationCooldownHours(): number {
+    return this.config.TRANSFORMATION_COOLDOWN_HOURS;
+  }
+  get territoryClaimRadiusKm(): number {
+    return this.config.TERRITORY_CLAIM_RADIUS_KM;
+  }
+  get packMaxSize(): number {
+    return this.config.PACK_MAX_SIZE;
+  }
+  get alphaChallengeeCooldownDays(): number {
+    return this.config.ALPHA_CHALLENGE_COOLDOWN_DAYS;
+  }
 
   // Utility methods
-  get isDevelopment(): boolean { return this.config.NODE_ENV === 'development'; }
-  get isProduction(): boolean { return this.config.NODE_ENV === 'production'; }
-  get isTest(): boolean { return this.config.NODE_ENV === 'test'; }
+  get isDevelopment(): boolean {
+    return this.config.NODE_ENV === 'development';
+  }
+  get isProduction(): boolean {
+    return this.config.NODE_ENV === 'production';
+  }
+  get isTest(): boolean {
+    return this.config.NODE_ENV === 'test';
+  }
 
   // Get all configuration (for debugging)
-  getAll(): ConfigType { return { ...this.config }; }
+  getAll(): ConfigType {
+    return { ...this.config };
+  }
 }

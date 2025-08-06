@@ -7,7 +7,7 @@ import {
   WerewolfGameState,
   ActionType,
   Team,
-  NightPhase
+  NightPhase,
 } from '../../types/werewolf-roles.types';
 
 /**
@@ -22,22 +22,21 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
   /**
    * Mädchen kann während Werwolf-Phase spionieren
    */
-  getAvailableActions(
-    player: WerewolfPlayer,
-    gameState: WerewolfGameState
-  ): ActionType[] {
+  getAvailableActions(player: WerewolfPlayer, gameState: WerewolfGameState): ActionType[] {
     if (!player.isAlive) return [];
-    
+
     const actions: ActionType[] = [];
-    
+
     if (gameState.phase === 'DAY') {
       actions.push(ActionType.VILLAGE_VOTE);
-    } else if (gameState.phase === 'NIGHT' && 
-               gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE) {
+    } else if (
+      gameState.phase === 'NIGHT' &&
+      gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE
+    ) {
       actions.push(ActionType.LITTLE_GIRL_SPY);
       actions.push(ActionType.NO_ACTION); // Kann auch nicht spionieren
     }
-    
+
     return actions;
   }
 
@@ -53,17 +52,17 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
     switch (action.actionType) {
       case ActionType.LITTLE_GIRL_SPY:
         return this.executeSpy(player, action, allPlayers, gameState);
-      
+
       case ActionType.NO_ACTION:
         return {
           success: true,
-          message: 'Du hast dich entschieden, nicht zu spionieren'
+          message: 'Du hast dich entschieden, nicht zu spionieren',
         };
-      
+
       default:
         return {
           success: false,
-          message: 'Mädchen kann nur spionieren'
+          message: 'Mädchen kann nur spionieren',
         };
     }
   }
@@ -75,15 +74,15 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     // Risiko berechnen
     const spyCount = player.specialStates.hasSpied ? 1 : 0;
-    const currentRisk = this.SPY_RISK_BASE + (spyCount * this.SPY_RISK_INCREMENT);
-    
+    const currentRisk = this.SPY_RISK_BASE + spyCount * this.SPY_RISK_INCREMENT;
+
     // Zufällige Entdeckung prüfen
     const isDiscovered = Math.random() < currentRisk;
-    
+
     // Spionage-Status aktualisieren
     player.specialStates.hasSpied = true;
     player.specialStates.spyRisk = currentRisk;
@@ -96,14 +95,14 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
         effects: {
           deaths: [player.id],
           protections: [],
-          lovers: []
-        }
+          lovers: [],
+        },
       };
     }
 
     // Erfolgreiche Spionage - Werwolf-Identitäten erfahren
     const werewolves = this.getWerewolves(allPlayers);
-    const werewolfNames = werewolves.map(w => w.username).join(', ');
+    // const werewolfNames = werewolves.map(w => w.username).join(', ');
 
     return {
       success: true,
@@ -111,17 +110,17 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
       revealedInfo: {
         werewolves: werewolves.map(w => ({
           playerId: w.id,
-          username: w.username
+          username: w.username,
         })),
-        spyRisk: currentRisk
-      }
+        spyRisk: currentRisk,
+      },
     };
   }
 
   /**
    * Initialisiert Mädchen
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.LITTLE_GIRL,
       team: Team.VILLAGE,
@@ -131,8 +130,8 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
         canShoot: false,
         hasSpied: false,
         spyRisk: this.SPY_RISK_BASE,
-        isProtected: false
-      }
+        isProtected: false,
+      },
     };
   }
 
@@ -146,14 +145,18 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
   ): boolean {
     switch (action) {
       case ActionType.LITTLE_GIRL_SPY:
-        return gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE;
-      
+        return (
+          gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE
+        );
+
       case ActionType.VILLAGE_VOTE:
         return gameState.phase === 'DAY';
-      
+
       case ActionType.NO_ACTION:
-        return gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE;
-      
+        return (
+          gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE
+        );
+
       default:
         return false;
     }
@@ -163,9 +166,7 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
    * Hilfsmethode: Ermittelt alle lebenden Werwölfe
    */
   private getWerewolves(allPlayers: WerewolfPlayer[]): WerewolfPlayer[] {
-    return allPlayers.filter(p => 
-      p.role === WerewolfRole.WEREWOLF && p.isAlive
-    );
+    return allPlayers.filter(p => p.role === WerewolfRole.WEREWOLF && p.isAlive);
   }
 
   /**
@@ -173,6 +174,6 @@ export class LittleGirlStrategy extends BaseRoleStrategy {
    */
   getCurrentSpyRisk(player: WerewolfPlayer): number {
     const spyCount = player.specialStates.hasSpied ? 1 : 0;
-    return this.SPY_RISK_BASE + (spyCount * this.SPY_RISK_INCREMENT);
+    return this.SPY_RISK_BASE + spyCount * this.SPY_RISK_INCREMENT;
   }
 }

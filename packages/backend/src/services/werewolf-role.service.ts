@@ -1,13 +1,13 @@
-import { 
-  WerewolfRole, 
-  Team, 
-  RoleInfo, 
-  WinCondition, 
+import {
+  WerewolfRole,
+  Team,
+  RoleInfo,
+  WinCondition,
   ActionType,
   GameRoleConfig,
   ConfigValidationResult,
   WerewolfPlayer,
-  RoleStrategy
+  RoleStrategy,
 } from '../types/werewolf-roles.types';
 
 // Role Strategy Imports
@@ -24,7 +24,7 @@ import { WerewolfStrategy } from './role-strategies/werewolf-strategy';
  */
 export class WerewolfRoleService {
   private roleStrategies: Map<WerewolfRole, RoleStrategy> = new Map();
-  
+
   constructor() {
     this.initializeRoleStrategies();
   }
@@ -50,17 +50,18 @@ export class WerewolfRoleService {
       [WerewolfRole.VILLAGER]: {
         role: WerewolfRole.VILLAGER,
         name: 'Dorfbewohner',
-        description: 'Ein einfacher Dorfbewohner ohne besondere Fähigkeiten. Gewinnt, wenn alle Werwölfe eliminiert sind.',
+        description:
+          'Ein einfacher Dorfbewohner ohne besondere Fähigkeiten. Gewinnt, wenn alle Werwölfe eliminiert sind.',
         team: Team.VILLAGE,
         nightActions: [],
         dayActions: [ActionType.VILLAGE_VOTE],
         winConditions: [WinCondition.VILLAGE_WINS],
         specialRules: [
           'Keine besonderen Fähigkeiten',
-          'Kann nur bei der Tagesabstimmung teilnehmen'
-        ]
+          'Kann nur bei der Tagesabstimmung teilnehmen',
+        ],
       },
-      
+
       [WerewolfRole.SEER]: {
         role: WerewolfRole.SEER,
         name: 'Seherin',
@@ -72,10 +73,10 @@ export class WerewolfRoleService {
         specialRules: [
           'Erwacht als erste in der Nacht',
           'Erfährt die exakte Rolle des untersuchten Spielers',
-          'Information wird nur ihr mitgeteilt'
-        ]
+          'Information wird nur ihr mitgeteilt',
+        ],
       },
-      
+
       [WerewolfRole.WITCH]: {
         role: WerewolfRole.WITCH,
         name: 'Hexe',
@@ -89,10 +90,10 @@ export class WerewolfRoleService {
           'Kann das Opfer mit dem Heiltrank retten',
           'Kann mit dem Gifttrank zusätzlich jemanden töten',
           'Kann nicht sich selbst heilen',
-          'Jeder Trank nur einmal pro Spiel verwendbar'
-        ]
+          'Jeder Trank nur einmal pro Spiel verwendbar',
+        ],
       },
-      
+
       [WerewolfRole.HUNTER]: {
         role: WerewolfRole.HUNTER,
         name: 'Jäger',
@@ -104,10 +105,10 @@ export class WerewolfRoleService {
         specialRules: [
           'Schießt sofort nach seinem Tod',
           'Kann jeden lebenden Spieler als Ziel wählen',
-          'Schuss wird sofort ausgeführt (Tag oder Nacht)'
-        ]
+          'Schuss wird sofort ausgeführt (Tag oder Nacht)',
+        ],
       },
-      
+
       [WerewolfRole.CUPID]: {
         role: WerewolfRole.CUPID,
         name: 'Amor',
@@ -120,10 +121,10 @@ export class WerewolfRoleService {
           'Handelt nur in der ersten Nacht',
           'Wählt zwei Spieler als Verliebte',
           'Wenn ein Verliebter stirbt, stirbt der andere sofort mit',
-          'Verliebte können ein eigenes Gewinnerteam bilden'
-        ]
+          'Verliebte können ein eigenes Gewinnerteam bilden',
+        ],
       },
-      
+
       [WerewolfRole.LITTLE_GIRL]: {
         role: WerewolfRole.LITTLE_GIRL,
         name: 'Mädchen',
@@ -136,10 +137,10 @@ export class WerewolfRoleService {
           'Kann während der Werwolf-Phase spionieren',
           'Risiko entdeckt zu werden steigt mit jeder Spionage',
           'Wenn entdeckt, wird sie sofort von den Werwölfen getötet',
-          'Erfährt die Identitäten der aktiven Werwölfe'
-        ]
+          'Erfährt die Identitäten der aktiven Werwölfe',
+        ],
       },
-      
+
       [WerewolfRole.WEREWOLF]: {
         role: WerewolfRole.WEREWOLF,
         name: 'Werwolf',
@@ -151,9 +152,9 @@ export class WerewolfRoleService {
         specialRules: [
           'Kennt alle anderen Werwölfe',
           'Entscheidet gemeinsam über das nächtliche Opfer',
-          'Muss sich tagsüber als Dorfbewohner tarnen'
-        ]
-      }
+          'Muss sich tagsüber als Dorfbewohner tarnen',
+        ],
+      },
     };
 
     return roleInfoMap[role];
@@ -178,9 +179,11 @@ export class WerewolfRoleService {
 
     // Berechne Gesamtzahl
     const configuredPlayers = this.getTotalPlayersFromConfig(config);
-    
+
     if (configuredPlayers !== totalPlayers) {
-      errors.push(`Konfiguration für ${configuredPlayers} Spieler, aber ${totalPlayers} Spieler im Spiel`);
+      errors.push(
+        `Konfiguration für ${configuredPlayers} Spieler, aber ${totalPlayers} Spieler im Spiel`
+      );
     }
 
     if (totalPlayers < 4) {
@@ -193,14 +196,18 @@ export class WerewolfRoleService {
 
     // Balance-Prüfung
     const werewolfPercentage = (config.werewolves / totalPlayers) * 100;
-    
+
     if (werewolfPercentage < 15) {
-      warnings.push(`Nur ${werewolfPercentage.toFixed(1)}% Werwölfe - könnte zu einfach für Dorfbewohner sein`);
+      warnings.push(
+        `Nur ${werewolfPercentage.toFixed(1)}% Werwölfe - könnte zu einfach für Dorfbewohner sein`
+      );
       suggestions.push('Empfohlen: 20-30% Werwölfe für ausgewogenes Spiel');
     }
-    
+
     if (werewolfPercentage > 40) {
-      warnings.push(`${werewolfPercentage.toFixed(1)}% Werwölfe - könnte zu schwer für Dorfbewohner sein`);
+      warnings.push(
+        `${werewolfPercentage.toFixed(1)}% Werwölfe - könnte zu schwer für Dorfbewohner sein`
+      );
       suggestions.push('Empfohlen: 20-30% Werwölfe für ausgewogenes Spiel');
     }
 
@@ -223,7 +230,7 @@ export class WerewolfRoleService {
       warnings,
       suggestions,
       totalPlayers: configuredPlayers,
-      werewolfPercentage
+      werewolfPercentage,
     };
   }
 
@@ -233,7 +240,7 @@ export class WerewolfRoleService {
   generateDefaultConfig(totalPlayers: number): GameRoleConfig {
     // Empfohlene Werwolf-Anzahl (25% der Spieler, minimum 1)
     const werewolves = Math.max(1, Math.floor(totalPlayers * 0.25));
-    
+
     // Basis-Rollen
     const config: GameRoleConfig = {
       werewolves,
@@ -242,7 +249,7 @@ export class WerewolfRoleService {
       witch: false,
       hunter: false,
       cupid: false,
-      littleGirl: false
+      littleGirl: false,
     };
 
     // Spezialrollen basierend auf Spieleranzahl hinzufügen
@@ -277,7 +284,10 @@ export class WerewolfRoleService {
   /**
    * Verteilt Rollen basierend auf Konfiguration
    */
-  assignRoles(playerIds: string[], config: GameRoleConfig): Array<{ playerId: string; role: WerewolfRole }> {
+  assignRoles(
+    playerIds: string[],
+    config: GameRoleConfig
+  ): Array<{ playerId: string; role: WerewolfRole }> {
     const assignments: Array<{ playerId: string; role: WerewolfRole }> = [];
     const availablePlayerIds = [...playerIds];
 
@@ -295,7 +305,7 @@ export class WerewolfRoleService {
     for (let i = 0; i < config.werewolves; i++) {
       assignments.push({
         playerId: selectRandomPlayer(),
-        role: WerewolfRole.WEREWOLF
+        role: WerewolfRole.WEREWOLF,
       });
     }
 
@@ -303,35 +313,35 @@ export class WerewolfRoleService {
     if (config.seer) {
       assignments.push({
         playerId: selectRandomPlayer(),
-        role: WerewolfRole.SEER
+        role: WerewolfRole.SEER,
       });
     }
 
     if (config.witch) {
       assignments.push({
         playerId: selectRandomPlayer(),
-        role: WerewolfRole.WITCH
+        role: WerewolfRole.WITCH,
       });
     }
 
     if (config.hunter) {
       assignments.push({
         playerId: selectRandomPlayer(),
-        role: WerewolfRole.HUNTER
+        role: WerewolfRole.HUNTER,
       });
     }
 
     if (config.cupid) {
       assignments.push({
         playerId: selectRandomPlayer(),
-        role: WerewolfRole.CUPID
+        role: WerewolfRole.CUPID,
       });
     }
 
     if (config.littleGirl) {
       assignments.push({
         playerId: selectRandomPlayer(),
-        role: WerewolfRole.LITTLE_GIRL
+        role: WerewolfRole.LITTLE_GIRL,
       });
     }
 
@@ -339,7 +349,7 @@ export class WerewolfRoleService {
     while (availablePlayerIds.length > 0) {
       assignments.push({
         playerId: selectRandomPlayer(),
-        role: WerewolfRole.VILLAGER
+        role: WerewolfRole.VILLAGER,
       });
     }
 
@@ -350,10 +360,10 @@ export class WerewolfRoleService {
    * Erstellt einen neuen Spieler mit Rolle
    */
   createPlayer(
-    playerId: string, 
-    gameId: string, 
-    userId: string, 
-    username: string, 
+    playerId: string,
+    gameId: string,
+    userId: string,
+    username: string,
     role: WerewolfRole,
     isHost: boolean = false
   ): WerewolfPlayer {
@@ -372,9 +382,9 @@ export class WerewolfRoleService {
         canShoot: role === WerewolfRole.HUNTER,
         hasSpied: false,
         spyRisk: 10, // Basis-Risiko für Mädchen
-        isProtected: false
+        isProtected: false,
       },
-      joinedAt: new Date()
+      joinedAt: new Date(),
     };
 
     // Rolle-spezifische Initialisierung über Strategy Pattern
@@ -407,19 +417,20 @@ export class WerewolfRoleService {
     if (aliveLovers.length === 2 && alivePlayers.length === 2) {
       const lover1 = aliveLovers[0];
       const lover2 = aliveLovers[1];
-      
+
       if (!lover1 || !lover2) {
         return null;
       }
-      
+
       // Prüfe ob sie tatsächlich ein Paar sind
-      if (lover1.specialStates.loverId === lover2.id && 
-          lover2.specialStates.loverId === lover1.id) {
-        
+      if (
+        lover1.specialStates.loverId === lover2.id &&
+        lover2.specialStates.loverId === lover1.id
+      ) {
         // Liebespaar gewinnt nur wenn ein Dorfbewohner und ein Werwolf verliebt sind
         const hasWerewolf = aliveLovers.some(p => p.role === WerewolfRole.WEREWOLF);
         const hasVillager = aliveLovers.some(p => p.team === Team.VILLAGE);
-        
+
         if (hasWerewolf && hasVillager) {
           return WinCondition.LOVERS_WIN;
         }
@@ -444,9 +455,9 @@ export class WerewolfRoleService {
    */
   getNightPhaseOrder(): WerewolfRole[] {
     return [
-      WerewolfRole.SEER,        // 1. Seherin erwacht
-      WerewolfRole.WEREWOLF,    // 2. Werwölfe erwachen (Mädchen kann spionieren)
-      WerewolfRole.WITCH        // 3. Hexe erwacht
+      WerewolfRole.SEER, // 1. Seherin erwacht
+      WerewolfRole.WEREWOLF, // 2. Werwölfe erwachen (Mädchen kann spionieren)
+      WerewolfRole.WITCH, // 3. Hexe erwacht
     ];
   }
 
@@ -454,13 +465,15 @@ export class WerewolfRoleService {
    * Berechnet Gesamtspieleranzahl aus Konfiguration
    */
   private getTotalPlayersFromConfig(config: GameRoleConfig): number {
-    return config.villagers + 
-           config.werewolves + 
-           (config.seer ? 1 : 0) +
-           (config.witch ? 1 : 0) +
-           (config.hunter ? 1 : 0) +
-           (config.cupid ? 1 : 0) +
-           (config.littleGirl ? 1 : 0);
+    return (
+      config.villagers +
+      config.werewolves +
+      (config.seer ? 1 : 0) +
+      (config.witch ? 1 : 0) +
+      (config.hunter ? 1 : 0) +
+      (config.cupid ? 1 : 0) +
+      (config.littleGirl ? 1 : 0)
+    );
   }
 
   /**
@@ -489,8 +502,8 @@ export class WerewolfRoleService {
    * Führt eine Aktion aus
    */
   async executeAction(
-    player: WerewolfPlayer, 
-    action: any, 
+    player: WerewolfPlayer,
+    action: any,
     allPlayers: WerewolfPlayer[]
   ): Promise<any> {
     const strategy = this.roleStrategies.get(player.role);

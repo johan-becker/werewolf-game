@@ -13,14 +13,12 @@ export class RedisService implements IRedis {
   private client: Redis;
   private isConnected = false;
 
-  constructor(
-    @inject(TYPES.AppConfig) private readonly config: IAppConfig
-  ) {
+  constructor(@inject(TYPES.AppConfig) private readonly config: IAppConfig) {
     this.client = new Redis(this.config.redisUrl, {
       enableReadyCheck: false,
       maxRetriesPerRequest: 3,
       lazyConnect: true,
-      connectTimeout: 10000
+      connectTimeout: 10000,
     });
 
     this.setupEventHandlers();
@@ -78,7 +76,7 @@ export class RedisService implements IRedis {
       this.isConnected = true;
     });
 
-    this.client.on('error', (error) => {
+    this.client.on('error', error => {
       console.error('Redis error:', error);
       this.isConnected = false;
     });

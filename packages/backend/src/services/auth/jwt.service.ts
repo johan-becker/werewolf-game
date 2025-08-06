@@ -25,7 +25,7 @@ export interface JwtPayload {
 export interface RefreshTokenPayload {
   userId: string;
   tokenFamily: string; // Token family for refresh token detection
-  version: number;     // Token version for rotation
+  version: number; // Token version for rotation
   iat?: number;
   exp?: number;
   jti?: string;
@@ -67,49 +67,41 @@ export class JwtService implements IJwtService {
     // Create access token
     const accessTokenPayload: JwtPayload = {
       ...payload,
-      jti
+      jti,
     };
 
-    const accessToken = jwt.sign(
-      accessTokenPayload,
-      this.config.jwtSecret,
-      {
-        expiresIn: this.config.jwtExpiresIn as string,
-        issuer: 'werewolf-game',
-        audience: 'werewolf-players'
-      }
-    );
+    const accessToken = (jwt.sign as any)(accessTokenPayload, this.config.jwtSecret!, {
+      expiresIn: this.config.jwtExpiresIn!,
+      issuer: 'werewolf-game',
+      audience: 'werewolf-players',
+    });
 
     // Create refresh token
     const refreshTokenPayload: RefreshTokenPayload = {
       userId: payload.userId,
       tokenFamily,
       version: 1,
-      jti: refreshJti
+      jti: refreshJti,
     };
 
-    const refreshToken = jwt.sign(
-      refreshTokenPayload,
-      this.config.jwtRefreshSecret,
-      {
-        expiresIn: this.config.jwtRefreshExpiresIn as string,
-        issuer: 'werewolf-game',
-        audience: 'werewolf-players'
-      }
-    );
+    const refreshToken = (jwt.sign as any)(refreshTokenPayload, this.config.jwtRefreshSecret!, {
+      expiresIn: this.config.jwtRefreshExpiresIn!,
+      issuer: 'werewolf-game',
+      audience: 'werewolf-players',
+    });
 
     // Store refresh token family information
     await this.storeRefreshTokenFamily(tokenFamily, payload.userId, 1);
 
     // Calculate expiration times
-    const expiresIn = this.parseExpirationTime(this.config.jwtExpiresIn);
-    const refreshExpiresIn = this.parseExpirationTime(this.config.jwtRefreshExpiresIn);
+    const expiresIn = this.parseExpirationTime(this.config.jwtExpiresIn!);
+    const refreshExpiresIn = this.parseExpirationTime(this.config.jwtRefreshExpiresIn!);
 
     return {
       accessToken,
       refreshToken,
       expiresIn,
-      refreshExpiresIn
+      refreshExpiresIn,
     };
   }
 
@@ -124,27 +116,27 @@ export class JwtService implements IJwtService {
         return {
           isValid: false,
           error: 'Token is blacklisted',
-          expired: false
+          expired: false,
         };
       }
 
       // Verify token
-      const payload = jwt.verify(token, this.config.jwtSecret, {
+      const payload = jwt.verify(token, this.config.jwtSecret!, {
         issuer: 'werewolf-game',
-        audience: 'werewolf-players'
+        audience: 'werewolf-players',
       }) as JwtPayload;
 
       return {
         isValid: true,
         payload,
-        expired: false
+        expired: false,
       };
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
         return {
           isValid: false,
           error: 'Token expired',
-          expired: true
+          expired: true,
         };
       }
 
@@ -152,14 +144,14 @@ export class JwtService implements IJwtService {
         return {
           isValid: false,
           error: error.message,
-          expired: false
+          expired: false,
         };
       }
 
       return {
         isValid: false,
         error: 'Token validation failed',
-        expired: false
+        expired: false,
       };
     }
   }
@@ -167,12 +159,15 @@ export class JwtService implements IJwtService {
   /**
    * Refresh tokens with rotation
    */
-  async refreshTokens(refreshToken: string, userPayload: Omit<JwtPayload, 'iat' | 'exp' | 'jti'>): Promise<TokenPair> {
+  async refreshTokens(
+    refreshToken: string,
+    userPayload: Omit<JwtPayload, 'iat' | 'exp' | 'jti'>
+  ): Promise<TokenPair> {
     try {
       // Verify refresh token
-      const payload = jwt.verify(refreshToken, this.config.jwtRefreshSecret, {
+      const payload = jwt.verify(refreshToken, this.config.jwtRefreshSecret!, {
         issuer: 'werewolf-game',
-        audience: 'werewolf-players'
+        audience: 'werewolf-players',
       }) as RefreshTokenPayload;
 
       // Check if refresh token family is valid
@@ -202,51 +197,49 @@ export class JwtService implements IJwtService {
       // Create new access token
       const accessTokenPayload: JwtPayload = {
         ...userPayload,
-        jti: newJti
+        jti: newJti,
       };
 
-      const accessToken = jwt.sign(
-        accessTokenPayload,
-        this.config.jwtSecret,
-        {
-          expiresIn: this.config.jwtExpiresIn as string,
-          issuer: 'werewolf-game',
-          audience: 'werewolf-players'
-        }
-      );
+      const accessToken = (jwt.sign as any)(accessTokenPayload, this.config.jwtSecret!, {
+        expiresIn: this.config.jwtExpiresIn!,
+        issuer: 'werewolf-game',
+        audience: 'werewolf-players',
+      });
 
       // Create new refresh token
       const newRefreshTokenPayload: RefreshTokenPayload = {
         userId: payload.userId,
         tokenFamily: payload.tokenFamily,
         version: newVersion,
-        jti: newRefreshJti
+        jti: newRefreshJti,
       };
 
-      const newRefreshToken = jwt.sign(
+      const newRefreshToken = (jwt.sign as any)(
         newRefreshTokenPayload,
-        this.config.jwtRefreshSecret,
+        this.config.jwtRefreshSecret!,
         {
-          expiresIn: this.config.jwtRefreshExpiresIn as string,
+          expiresIn: this.config.jwtRefreshExpiresIn!,
           issuer: 'werewolf-game',
-          audience: 'werewolf-players'
+          audience: 'werewolf-players',
         }
       );
 
       // Update token family version
       await this.updateRefreshTokenFamilyVersion(payload.tokenFamily, newVersion);
 
-      const expiresIn = this.parseExpirationTime(this.config.jwtExpiresIn);
-      const refreshExpiresIn = this.parseExpirationTime(this.config.jwtRefreshExpiresIn);
+      const expiresIn = this.parseExpirationTime(this.config.jwtExpiresIn!);
+      const refreshExpiresIn = this.parseExpirationTime(this.config.jwtRefreshExpiresIn!);
 
       return {
         accessToken,
         refreshToken: newRefreshToken,
         expiresIn,
-        refreshExpiresIn
+        refreshExpiresIn,
       };
     } catch (error) {
-      throw new Error(`Token refresh failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Token refresh failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -262,12 +255,14 @@ export class JwtService implements IJwtService {
 
       const tokenHash = this.hashToken(token);
       const ttl = decoded.exp - Math.floor(Date.now() / 1000);
-      
+
       if (ttl > 0) {
         await this.redis.setex(`${this.TOKEN_BLACKLIST_PREFIX}${tokenHash}`, ttl, '1');
       }
     } catch (error) {
-      throw new Error(`Failed to blacklist token: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to blacklist token: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -278,7 +273,7 @@ export class JwtService implements IJwtService {
     try {
       // Get all token families for this user
       const familyKeys = await this.redis.keys(`${this.TOKEN_FAMILY_PREFIX}*`);
-      
+
       for (const key of familyKeys) {
         const familyData = await this.redis.get(key);
         if (familyData) {
@@ -289,7 +284,9 @@ export class JwtService implements IJwtService {
         }
       }
     } catch (error) {
-      throw new Error(`Failed to invalidate user tokens: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to invalidate user tokens: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -310,16 +307,20 @@ export class JwtService implements IJwtService {
   /**
    * Store refresh token family information
    */
-  private async storeRefreshTokenFamily(tokenFamily: string, userId: string, version: number): Promise<void> {
+  private async storeRefreshTokenFamily(
+    tokenFamily: string,
+    userId: string,
+    version: number
+  ): Promise<void> {
     const familyData = {
       userId,
       version,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     await this.redis.setex(
       `${this.TOKEN_FAMILY_PREFIX}${tokenFamily}`,
-      this.parseExpirationTime(this.config.jwtRefreshExpiresIn),
+      this.parseExpirationTime(this.config.jwtRefreshExpiresIn!),
       JSON.stringify(familyData)
     );
   }
@@ -342,7 +343,10 @@ export class JwtService implements IJwtService {
   /**
    * Update refresh token family version
    */
-  private async updateRefreshTokenFamilyVersion(tokenFamily: string, version: number): Promise<void> {
+  private async updateRefreshTokenFamilyVersion(
+    tokenFamily: string,
+    version: number
+  ): Promise<void> {
     const familyData = await this.redis.get(`${this.TOKEN_FAMILY_PREFIX}${tokenFamily}`);
     if (familyData) {
       const data = JSON.parse(familyData);
@@ -351,7 +355,7 @@ export class JwtService implements IJwtService {
 
       await this.redis.setex(
         `${this.TOKEN_FAMILY_PREFIX}${tokenFamily}`,
-        this.parseExpirationTime(this.config.jwtRefreshExpiresIn),
+        this.parseExpirationTime(this.config.jwtRefreshExpiresIn!),
         JSON.stringify(data)
       );
     }
@@ -379,7 +383,7 @@ export class JwtService implements IJwtService {
     // Store for the duration of the refresh token expiry
     await this.redis.setex(
       `${this.REFRESH_TOKEN_PREFIX}used:${jti}`,
-      this.parseExpirationTime(this.config.jwtRefreshExpiresIn),
+      this.parseExpirationTime(this.config.jwtRefreshExpiresIn!),
       '1'
     );
   }
@@ -410,7 +414,8 @@ export class JwtService implements IJwtService {
    */
   private parseExpirationTime(expiresIn: string): number {
     const match = expiresIn.match(/^(\d+)([smhd])$/);
-    if (!match || !match[1] || !match[2]) throw new Error(`Invalid expiration format: ${expiresIn}`);
+    if (!match || !match[1] || !match[2])
+      throw new Error(`Invalid expiration format: ${expiresIn}`);
 
     const value = parseInt(match[1]);
     const unit = match[2];
@@ -419,7 +424,7 @@ export class JwtService implements IJwtService {
       s: 1,
       m: 60,
       h: 3600,
-      d: 86400
+      d: 86400,
     };
 
     return value * multipliers[unit as keyof typeof multipliers];

@@ -9,15 +9,16 @@ WORKDIR /app
 # Install turbo globally
 RUN npm install -g turbo
 
-# Copy package files for workspace setup
+# Copy root package files (package-lock.json is essential for monorepo npm ci)
 COPY package*.json ./
 COPY turbo.json ./
 COPY tsconfig.base.json ./
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/shared/package.json ./packages/shared/
+COPY scripts/ ./scripts/
 
-# Install dependencies with workspace support
-RUN npm ci --workspaces --include-workspace-root --omit=dev && npm cache clean --force
+# Install ALL dependencies first (including dev) for workspace setup
+RUN npm ci --workspaces --include-workspace-root && npm cache clean --force
 
 # Builder stage
 FROM base AS builder
@@ -47,19 +48,23 @@ RUN adduser -S nodejs -u 1001
 
 WORKDIR /app
 
-# Copy package files and install production dependencies
+# Copy root package files (package-lock.json is essential for monorepo npm ci)
 COPY package*.json ./
 COPY turbo.json ./
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/shared/package.json ./packages/shared/
+COPY scripts/ ./scripts/
 
-# Install production dependencies only
+# Copy built shared package FIRST (needed for workspace resolution)
+COPY --from=builder --chown=nodejs:nodejs /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder --chown=nodejs:nodejs /app/packages/shared/package.json ./packages/shared/
+
+# Install production dependencies (after shared package is available)
 RUN npm ci --workspaces --include-workspace-root --omit=dev && npm cache clean --force
 
-# Copy built application
+# Copy built backend application
 COPY --from=builder --chown=nodejs:nodejs /app/packages/backend/dist ./packages/backend/dist
 COPY --from=builder --chown=nodejs:nodejs /app/packages/backend/prisma ./packages/backend/prisma
-COPY --from=builder --chown=nodejs:nodejs /app/packages/shared/dist ./packages/shared/dist
 
 # Copy necessary files
 COPY --chown=nodejs:nodejs packages/backend/package.json ./packages/backend/

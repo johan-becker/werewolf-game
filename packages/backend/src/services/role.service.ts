@@ -1,22 +1,21 @@
-import { 
-  PlayerRole, 
-  BaseRole, 
-  VillagerRole, 
-  WerewolfRole, 
-  SeerRole, 
-  WitchRole, 
-  HunterRole, 
+import {
+  PlayerRole,
+  BaseRole,
+  VillagerRole,
+  WerewolfRole,
+  SeerRole,
+  WitchRole,
+  HunterRole,
   CupidRole,
   RoleAbility,
   WinCondition,
   PlayerState,
   ActionResult,
   NightAction,
-  ActionType
+  ActionType,
 } from '../types/roles.types';
 
 export class RoleService {
-  
   /**
    * Erstellt eine Rolle basierend auf dem PlayerRole Enum
    */
@@ -49,7 +48,7 @@ export class RoleService {
       abilities: [],
       winConditions: [WinCondition.VILLAGERS_WIN],
       canVote: true,
-      isRevealed: false
+      isRevealed: false,
     };
   }
 
@@ -61,7 +60,7 @@ export class RoleService {
       name: 'Nächtliche Jagd',
       description: 'Tötet gemeinsam mit anderen Werwölfen nachts ein Opfer',
       canUseAtNight: true,
-      canUseAtDay: false
+      canUseAtDay: false,
     };
 
     return {
@@ -70,7 +69,7 @@ export class RoleService {
       abilities: [killAbility],
       winConditions: [WinCondition.WEREWOLVES_WIN],
       canVote: true,
-      isRevealed: false
+      isRevealed: false,
     };
   }
 
@@ -82,7 +81,7 @@ export class RoleService {
       name: 'Hellsehen',
       description: 'Darf jede Nacht die Rolle eines Spielers sehen',
       canUseAtNight: true,
-      canUseAtDay: false
+      canUseAtDay: false,
     };
 
     return {
@@ -91,7 +90,7 @@ export class RoleService {
       abilities: [investigateAbility],
       winConditions: [WinCondition.VILLAGERS_WIN],
       canVote: true,
-      isRevealed: false
+      isRevealed: false,
     };
   }
 
@@ -105,7 +104,7 @@ export class RoleService {
       canUseAtNight: true,
       canUseAtDay: false,
       usesPerGame: 1,
-      usesRemaining: 1
+      usesRemaining: 1,
     };
 
     const poisonAbility: RoleAbility = {
@@ -114,7 +113,7 @@ export class RoleService {
       canUseAtNight: true,
       canUseAtDay: false,
       usesPerGame: 1,
-      usesRemaining: 1
+      usesRemaining: 1,
     };
 
     return {
@@ -123,7 +122,7 @@ export class RoleService {
       abilities: [healAbility, poisonAbility],
       winConditions: [WinCondition.VILLAGERS_WIN],
       canVote: true,
-      isRevealed: false
+      isRevealed: false,
     };
   }
 
@@ -137,7 +136,7 @@ export class RoleService {
       canUseAtNight: false,
       canUseAtDay: true,
       usesPerGame: 1,
-      usesRemaining: 1
+      usesRemaining: 1,
     };
 
     return {
@@ -146,7 +145,7 @@ export class RoleService {
       abilities: [revengeAbility],
       winConditions: [WinCondition.VILLAGERS_WIN],
       canVote: true,
-      isRevealed: false
+      isRevealed: false,
     };
   }
 
@@ -160,7 +159,7 @@ export class RoleService {
       canUseAtNight: true,
       canUseAtDay: false,
       usesPerGame: 1,
-      usesRemaining: 1
+      usesRemaining: 1,
     };
 
     return {
@@ -169,7 +168,7 @@ export class RoleService {
       abilities: [cupidAbility],
       winConditions: [WinCondition.VILLAGERS_WIN, WinCondition.LOVERS_WIN],
       canVote: true,
-      isRevealed: false
+      isRevealed: false,
     };
   }
 
@@ -178,9 +177,9 @@ export class RoleService {
    */
   initializePlayerState(userId: string, role: PlayerRole, isHost: boolean = false): PlayerState {
     const roleDefinition = this.createRole(role);
-    
+
     const specialStates: PlayerState['specialStates'] = {};
-    
+
     // Rollen-spezifische Initialisierung
     switch (role) {
       case PlayerRole.WITCH:
@@ -200,10 +199,10 @@ export class RoleService {
       isHost,
       abilities: roleDefinition.abilities.map(ability => ({
         ...ability,
-        usesRemaining: ability.usesRemaining ?? 0
+        usesRemaining: ability.usesRemaining ?? 0,
       })),
       specialStates,
-      actionHistory: []
+      actionHistory: [],
     };
   }
 
@@ -233,7 +232,9 @@ export class RoleService {
         return !!playerState.specialStates.canRevenge;
       case ActionType.CUPID_LINK:
         // Nur in der ersten Nacht
-        return playerState.actionHistory.filter(a => a.actionType === ActionType.CUPID_LINK).length === 0;
+        return (
+          playerState.actionHistory.filter(a => a.actionType === ActionType.CUPID_LINK).length === 0
+        );
     }
 
     return true;
@@ -243,7 +244,7 @@ export class RoleService {
    * Führt eine Aktion aus und gibt das Ergebnis zurück
    */
   async performAction(
-    playerState: PlayerState, 
+    playerState: PlayerState,
     action: NightAction,
     allPlayers: PlayerState[],
     gamePhase: { phase: 'DAY' | 'NIGHT'; dayNumber: number }
@@ -251,33 +252,33 @@ export class RoleService {
     if (!this.canPerformAction(playerState, action.actionType, gamePhase.phase === 'NIGHT')) {
       return {
         success: false,
-        message: 'Aktion nicht verfügbar'
+        message: 'Aktion nicht verfügbar',
       };
     }
 
     switch (action.actionType) {
       case ActionType.SEER_INVESTIGATE:
         return this.performSeerInvestigation(action, allPlayers);
-      
+
       case ActionType.WITCH_HEAL:
         return this.performWitchHeal(playerState, action, allPlayers);
-      
+
       case ActionType.WITCH_POISON:
         return this.performWitchPoison(playerState, action, allPlayers);
-      
+
       case ActionType.HUNTER_REVENGE:
         return this.performHunterRevenge(playerState, action, allPlayers);
-      
+
       case ActionType.CUPID_LINK:
         return this.performCupidLink(action, allPlayers);
-      
+
       case ActionType.WEREWOLF_KILL:
         return this.performWerewolfKill(action, allPlayers);
-      
+
       default:
         return {
           success: false,
-          message: 'Unbekannte Aktion'
+          message: 'Unbekannte Aktion',
         };
     }
   }
@@ -290,7 +291,7 @@ export class RoleService {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
@@ -300,19 +301,23 @@ export class RoleService {
       revealedInfo: {
         targetId: target.userId,
         role: target.role,
-        isWerewolf: target.role === PlayerRole.WEREWOLF
-      }
+        isWerewolf: target.role === PlayerRole.WEREWOLF,
+      },
     };
   }
 
   /**
    * Hexe Heilung: Rettet ein Opfer der Werwölfe
    */
-  private performWitchHeal(playerState: PlayerState, action: NightAction, allPlayers: PlayerState[]): ActionResult {
+  private performWitchHeal(
+    playerState: PlayerState,
+    action: NightAction,
+    allPlayers: PlayerState[]
+  ): ActionResult {
     if (!playerState.specialStates.hasHealPotion) {
       return {
         success: false,
-        message: 'Heiltrank bereits verwendet'
+        message: 'Heiltrank bereits verwendet',
       };
     }
 
@@ -320,30 +325,34 @@ export class RoleService {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
     // Heiltrank verbrauchen
     playerState.specialStates.hasHealPotion = false;
-    
+
     return {
       success: true,
       message: `Du hast ${target.userId} geheilt`,
       effects: {
-        protections: [target.userId]
-      }
+        protections: [target.userId],
+      },
     };
   }
 
   /**
    * Hexe Gift: Tötet einen Spieler
    */
-  private performWitchPoison(playerState: PlayerState, action: NightAction, allPlayers: PlayerState[]): ActionResult {
+  private performWitchPoison(
+    playerState: PlayerState,
+    action: NightAction,
+    allPlayers: PlayerState[]
+  ): ActionResult {
     if (!playerState.specialStates.hasPoisonPotion) {
       return {
         success: false,
-        message: 'Gifttrank bereits verwendet'
+        message: 'Gifttrank bereits verwendet',
       };
     }
 
@@ -351,7 +360,7 @@ export class RoleService {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
@@ -362,19 +371,23 @@ export class RoleService {
       success: true,
       message: `Du hast ${target.userId} vergiftet`,
       effects: {
-        deaths: [target.userId]
-      }
+        deaths: [target.userId],
+      },
     };
   }
 
   /**
    * Jäger Rache: Tötet einen Spieler beim eigenen Tod
    */
-  private performHunterRevenge(playerState: PlayerState, action: NightAction, allPlayers: PlayerState[]): ActionResult {
+  private performHunterRevenge(
+    playerState: PlayerState,
+    action: NightAction,
+    allPlayers: PlayerState[]
+  ): ActionResult {
     if (!playerState.specialStates.canRevenge) {
       return {
         success: false,
-        message: 'Rache bereits verwendet'
+        message: 'Rache bereits verwendet',
       };
     }
 
@@ -382,7 +395,7 @@ export class RoleService {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
@@ -393,8 +406,8 @@ export class RoleService {
       success: true,
       message: `Du nimmst ${target.userId} mit in den Tod`,
       effects: {
-        deaths: [target.userId]
-      }
+        deaths: [target.userId],
+      },
     };
   }
 
@@ -405,7 +418,7 @@ export class RoleService {
     if (!action.targetId || !action.secondTargetId) {
       return {
         success: false,
-        message: 'Zwei Ziele erforderlich'
+        message: 'Zwei Ziele erforderlich',
       };
     }
 
@@ -415,14 +428,14 @@ export class RoleService {
     if (!target1 || !target2) {
       return {
         success: false,
-        message: 'Ein oder beide Ziele nicht gefunden'
+        message: 'Ein oder beide Ziele nicht gefunden',
       };
     }
 
     // Liebespaar verbinden
     target1.specialStates.loverId = target2.userId;
     target2.specialStates.loverId = target1.userId;
-    
+
     // Bei Liebespaar kann das Team sich ändern
     target1.team = 'LOVERS';
     target2.team = 'LOVERS';
@@ -434,14 +447,14 @@ export class RoleService {
         revelations: [
           {
             playerId: target1.userId,
-            info: 'Du bist nun Teil eines Liebespaares'
+            info: 'Du bist nun Teil eines Liebespaares',
           },
           {
             playerId: target2.userId,
-            info: 'Du bist nun Teil eines Liebespaares'
-          }
-        ]
-      }
+            info: 'Du bist nun Teil eines Liebespaares',
+          },
+        ],
+      },
     };
   }
 
@@ -453,7 +466,7 @@ export class RoleService {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
@@ -461,15 +474,18 @@ export class RoleService {
       success: true,
       message: `Die Werwölfe haben ${target.userId} angegriffen`,
       effects: {
-        deaths: [target.userId]
-      }
+        deaths: [target.userId],
+      },
     };
   }
 
   /**
    * Hilfsfunktion: Findet die entsprechende Fähigkeit für eine Aktion
    */
-  private getAbilityForAction(playerState: PlayerState, actionType: ActionType): RoleAbility | undefined {
+  private getAbilityForAction(
+    playerState: PlayerState,
+    actionType: ActionType
+  ): RoleAbility | undefined {
     const abilityMap: Record<ActionType, string> = {
       [ActionType.WEREWOLF_KILL]: 'Nächtliche Jagd',
       [ActionType.SEER_INVESTIGATE]: 'Hellsehen',
@@ -479,7 +495,7 @@ export class RoleService {
       [ActionType.CUPID_LINK]: 'Liebespfeil',
       [ActionType.VILLAGE_VOTE]: '', // Voting ist keine Rollen-Fähigkeit
       [ActionType.LITTLE_GIRL_SPY]: 'Spionage',
-      [ActionType.NO_ACTION]: 'Keine Aktion'
+      [ActionType.NO_ACTION]: 'Keine Aktion',
     };
 
     const abilityName = abilityMap[actionType];
@@ -518,16 +534,16 @@ export class RoleService {
   }
 
   /**
-   * Generiert eine ausgewogene Rollenvergabe für eine gegebene Spieleranzahl  
+   * Generiert eine ausgewogene Rollenvergabe für eine gegebene Spieleranzahl
    */
   generateRoleDistribution(playerCount: number): PlayerRole[] {
     if (playerCount < 4) throw new Error('Mindestens 4 Spieler erforderlich');
 
     const roles: PlayerRole[] = [];
-    
+
     // Basis: 1 Werwolf pro 3-4 Spieler
     const werewolfCount = Math.floor(playerCount / 3);
-    
+
     for (let i = 0; i < werewolfCount; i++) {
       roles.push(PlayerRole.WEREWOLF);
     }
@@ -554,7 +570,9 @@ export class RoleService {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      const temp = shuffled[i]!;
+      shuffled[i] = shuffled[j]!;
+      shuffled[j] = temp;
     }
     return shuffled;
   }

@@ -15,7 +15,7 @@ export interface ErrorResponse {
   code: string;
   timestamp: string;
   requestId?: string;
-  details?: any;
+  details?: Record<string, unknown> | unknown[];
   stack?: string;
 }
 
@@ -23,14 +23,14 @@ export class AppError extends Error {
   public readonly statusCode: number;
   public readonly code: string;
   public readonly isOperational: boolean;
-  public readonly details?: any;
+  public readonly details?: Record<string, unknown> | unknown[] | undefined;
 
   constructor(
     message: string,
     statusCode: number = 500,
     code: string = 'INTERNAL_ERROR',
     isOperational: boolean = true,
-    details?: any
+    details?: Record<string, unknown> | unknown[]
   ) {
     super(message);
     this.statusCode = statusCode;
@@ -44,17 +44,15 @@ export class AppError extends Error {
 
 @injectable()
 export class EnhancedErrorMiddleware {
-  constructor(
-    @inject(TYPES.Logger) private readonly logger: ILogger
-  ) {}
+  constructor(@inject(TYPES.Logger) private readonly logger: ILogger) {}
 
   /**
    * Global error handler
    */
   handleError() {
-    return (error: Error, req: Request, res: Response, next: NextFunction) => {
-      const requestId = req.headers['x-request-id'] as string || this.generateRequestId();
-      
+    return (error: Error, req: Request, res: Response, _next: NextFunction) => {
+      const requestId = (req.headers['x-request-id'] as string) || this.generateRequestId();
+
       // Log the error
       this.logError(error, req, requestId);
 
@@ -111,7 +109,7 @@ export class EnhancedErrorMiddleware {
   /**
    * Async error wrapper
    */
-  asyncHandler(fn: Function) {
+  asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) {
     return (req: Request, res: Response, next: NextFunction) => {
       Promise.resolve(fn(req, res, next)).catch(next);
     };
@@ -126,7 +124,7 @@ export class EnhancedErrorMiddleware {
       error: error.message,
       code: error.code,
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     if (error.details) {
@@ -134,7 +132,7 @@ export class EnhancedErrorMiddleware {
     }
 
     // Include stack trace in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' && error.stack) {
       response.stack = error.stack;
     }
 
@@ -148,7 +146,7 @@ export class EnhancedErrorMiddleware {
     const validationErrors = error.errors.map(err => ({
       field: err.path.join('.'),
       message: err.message,
-      value: err.input
+      value: (err as { received?: unknown }).received || 'invalid',
     }));
 
     const response: ErrorResponse = {
@@ -157,7 +155,7 @@ export class EnhancedErrorMiddleware {
       code: 'VALIDATION_ERROR',
       timestamp: new Date().toISOString(),
       requestId,
-      details: validationErrors
+      details: validationErrors,
     };
 
     res.status(400).json(response);
@@ -172,7 +170,7 @@ export class EnhancedErrorMiddleware {
       error: 'Invalid authentication token',
       code: 'INVALID_TOKEN',
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(401).json(response);
@@ -187,7 +185,7 @@ export class EnhancedErrorMiddleware {
       error: 'Authentication token expired',
       code: 'TOKEN_EXPIRED',
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(401).json(response);
@@ -196,11 +194,12 @@ export class EnhancedErrorMiddleware {
   /**
    * Handle file upload errors
    */
-  private handleFileUploadError(error: any, res: Response, requestId: string): void {
+  private handleFileUploadError(error: unknown, res: Response, requestId: string): void {
     let message = 'File upload error';
     let code = 'FILE_UPLOAD_ERROR';
 
-    switch (error.code) {
+    const errorCode = (error as { code?: string }).code;
+    switch (errorCode) {
       case 'LIMIT_FILE_SIZE':
         message = 'File too large';
         code = 'FILE_TOO_LARGE';
@@ -220,7 +219,7 @@ export class EnhancedErrorMiddleware {
       error: message,
       code,
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(400).json(response);
@@ -229,21 +228,23 @@ export class EnhancedErrorMiddleware {
   /**
    * Handle database errors
    */
-  private handleDatabaseError(error: any, res: Response, requestId: string): void {
+  private handleDatabaseError(error: unknown, res: Response, requestId: string): void {
     let message = 'Database error';
     let code = 'DATABASE_ERROR';
     let statusCode = 500;
 
     // Handle common database errors
-    if (error.code === '23505' || error.message.includes('unique constraint')) {
+    const errorCode = (error as { code?: string }).code;
+    const errorMessage = (error as { message?: string }).message || '';
+    if (errorCode === '23505' || errorMessage.includes('unique constraint')) {
       message = 'Resource already exists';
       code = 'DUPLICATE_RESOURCE';
       statusCode = 409;
-    } else if (error.code === '23503' || error.message.includes('foreign key')) {
+    } else if (errorCode === '23503' || errorMessage.includes('foreign key')) {
       message = 'Referenced resource not found';
       code = 'FOREIGN_KEY_ERROR';
       statusCode = 400;
-    } else if (error.code === '23502' || error.message.includes('null value')) {
+    } else if (errorCode === '23502' || errorMessage.includes('null value')) {
       message = 'Required field is missing';
       code = 'NULL_CONSTRAINT_ERROR';
       statusCode = 400;
@@ -254,7 +255,7 @@ export class EnhancedErrorMiddleware {
       error: message,
       code,
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(statusCode).json(response);
@@ -263,13 +264,13 @@ export class EnhancedErrorMiddleware {
   /**
    * Handle network errors
    */
-  private handleNetworkError(error: any, res: Response, requestId: string): void {
+  private handleNetworkError(error: unknown, res: Response, requestId: string): void {
     const response: ErrorResponse = {
       success: false,
       error: 'Service temporarily unavailable',
       code: 'NETWORK_ERROR',
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     res.status(503).json(response);
@@ -284,14 +285,14 @@ export class EnhancedErrorMiddleware {
       error: 'Internal server error',
       code: 'INTERNAL_ERROR',
       timestamp: new Date().toISOString(),
-      requestId
+      requestId,
     };
 
     // Include error details in development
     if (process.env.NODE_ENV === 'development') {
       response.details = {
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
       };
     }
 
@@ -312,8 +313,8 @@ export class EnhancedErrorMiddleware {
       error: {
         name: error.name,
         message: error.message,
-        stack: error.stack
-      }
+        stack: error.stack,
+      },
     };
 
     if (error instanceof AppError && !error.isOperational) {
@@ -330,25 +331,30 @@ export class EnhancedErrorMiddleware {
   /**
    * Check if error is database-related
    */
-  private isDatabaseError(error: any): boolean {
-    return error.code && (
-      error.code.startsWith('23') || // Integrity constraint violation
-      error.code.startsWith('42') || // Syntax error or access rule violation
-      error.name === 'SequelizeError' ||
-      error.name === 'PrismaClientKnownRequestError' ||
-      error.name === 'QueryFailedError'
+  private isDatabaseError(error: unknown): boolean {
+    const errorCode = (error as { code?: string }).code;
+    return Boolean(
+      errorCode &&
+        (errorCode.startsWith('23') || // Integrity constraint violation
+          errorCode.startsWith('42') || // Syntax error or access rule violation
+          (error as { name?: string }).name === 'SequelizeError' ||
+          (error as { name?: string }).name === 'PrismaClientKnownRequestError' ||
+          (error as { name?: string }).name === 'QueryFailedError')
     );
   }
 
   /**
    * Check if error is network-related
    */
-  private isNetworkError(error: any): boolean {
-    return error.code === 'ECONNREFUSED' ||
-           error.code === 'ECONNRESET' ||
-           error.code === 'ETIMEDOUT' ||
-           error.code === 'ENOTFOUND' ||
-           error.name === 'TimeoutError';
+  private isNetworkError(error: unknown): boolean {
+    const errorCode = (error as { code?: string }).code;
+    return (
+      errorCode === 'ECONNREFUSED' ||
+      errorCode === 'ECONNRESET' ||
+      errorCode === 'ETIMEDOUT' ||
+      errorCode === 'ENOTFOUND' ||
+      (error as { name?: string }).name === 'TimeoutError'
+    );
   }
 
   /**
@@ -359,5 +365,4 @@ export class EnhancedErrorMiddleware {
   }
 }
 
-// Export the AppError class for use in other modules
-export { AppError };
+// AppError class is already exported above

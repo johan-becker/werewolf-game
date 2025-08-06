@@ -7,7 +7,7 @@ import {
   WerewolfGameState,
   ActionType,
   Team,
-  NightPhase
+  NightPhase,
 } from '../../types/werewolf-roles.types';
 
 /**
@@ -19,20 +19,20 @@ export class SeerStrategy extends BaseRoleStrategy {
   /**
    * Seherin kann nachts untersuchen und tagsüber abstimmen
    */
-  getAvailableActions(
-    player: WerewolfPlayer,
-    gameState: WerewolfGameState
-  ): ActionType[] {
+  getAvailableActions(player: WerewolfPlayer, gameState: WerewolfGameState): ActionType[] {
     if (!player.isAlive) return [];
-    
+
     const actions: ActionType[] = [];
-    
+
     if (gameState.phase === 'DAY') {
       actions.push(ActionType.VILLAGE_VOTE);
-    } else if (gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.SEER_PHASE) {
+    } else if (
+      gameState.phase === 'NIGHT' &&
+      gameState.currentNightPhase === NightPhase.SEER_PHASE
+    ) {
       actions.push(ActionType.SEER_INVESTIGATE);
     }
-    
+
     return actions;
   }
 
@@ -43,19 +43,19 @@ export class SeerStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     if (action.actionType !== ActionType.SEER_INVESTIGATE) {
       return {
         success: false,
-        message: 'Seherin kann nur untersuchen'
+        message: 'Seherin kann nur untersuchen',
       };
     }
 
     if (!action.targetId) {
       return {
         success: false,
-        message: 'Ziel erforderlich für Untersuchung'
+        message: 'Ziel erforderlich für Untersuchung',
       };
     }
 
@@ -63,21 +63,21 @@ export class SeerStrategy extends BaseRoleStrategy {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
     if (!target.isAlive) {
       return {
         success: false,
-        message: 'Kann keine toten Spieler untersuchen'
+        message: 'Kann keine toten Spieler untersuchen',
       };
     }
 
     if (target.id === player.id) {
       return {
         success: false,
-        message: 'Du kannst dich nicht selbst untersuchen'
+        message: 'Du kannst dich nicht selbst untersuchen',
       };
     }
 
@@ -88,15 +88,15 @@ export class SeerStrategy extends BaseRoleStrategy {
       revealedInfo: {
         targetId: target.id,
         role: target.role,
-        team: target.team
-      }
+        team: target.team,
+      },
     };
   }
 
   /**
    * Initialisiert Seherin
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.SEER,
       team: Team.VILLAGE,
@@ -106,8 +106,8 @@ export class SeerStrategy extends BaseRoleStrategy {
         canShoot: false,
         hasSpied: false,
         spyRisk: 0,
-        isProtected: false
-      }
+        isProtected: false,
+      },
     };
   }
 
@@ -122,10 +122,10 @@ export class SeerStrategy extends BaseRoleStrategy {
     switch (action) {
       case ActionType.SEER_INVESTIGATE:
         return gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.SEER_PHASE;
-      
+
       case ActionType.VILLAGE_VOTE:
         return gameState.phase === 'DAY';
-      
+
       default:
         return false;
     }

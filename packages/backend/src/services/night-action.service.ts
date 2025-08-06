@@ -1,9 +1,9 @@
-import { 
-  NightAction, 
-  ActionType, 
-  PlayerState, 
+import {
+  NightAction,
+  ActionType,
+  PlayerState,
   ActionResult,
-  GamePhaseState 
+  GamePhaseState,
 } from '../types/roles.types';
 import { RoleService } from './role.service';
 
@@ -27,7 +27,7 @@ export class NightActionService {
     if (!actor) {
       return {
         success: false,
-        message: 'Spieler nicht gefunden'
+        message: 'Spieler nicht gefunden',
       };
     }
 
@@ -35,7 +35,7 @@ export class NightActionService {
     if (!this.roleService.canPerformAction(actor, action.actionType, true)) {
       return {
         success: false,
-        message: 'Aktion nicht verfügbar'
+        message: 'Aktion nicht verfügbar',
       };
     }
 
@@ -45,12 +45,12 @@ export class NightActionService {
     }
 
     const gameActions = this.pendingActions.get(gameId)!;
-    
+
     // Entferne vorherige Aktion desselben Spielers (falls vorhanden)
-    const existingIndex = gameActions.findIndex(a => 
-      a.actorId === action.actorId && a.actionType === action.actionType
+    const existingIndex = gameActions.findIndex(
+      a => a.actorId === action.actorId && a.actionType === action.actionType
     );
-    
+
     if (existingIndex >= 0) {
       gameActions.splice(existingIndex, 1);
     }
@@ -59,7 +59,7 @@ export class NightActionService {
 
     return {
       success: true,
-      message: 'Aktion eingereicht'
+      message: 'Aktion eingereicht',
     };
   }
 
@@ -89,12 +89,10 @@ export class NightActionService {
       const actor = playerStates.find(p => p.userId === action.actorId);
       if (!actor || !actor.isAlive) continue;
 
-      const result = await this.roleService.performAction(
-        actor,
-        action,
-        playerStates,
-        { phase: 'NIGHT', dayNumber: gamePhase.dayNumber }
-      );
+      const result = await this.roleService.performAction(actor, action, playerStates, {
+        phase: 'NIGHT',
+        dayNumber: gamePhase.dayNumber,
+      });
 
       results.push(result);
 
@@ -130,7 +128,7 @@ export class NightActionService {
       results,
       updatedPlayers,
       deaths: finalDeaths,
-      protections: Array.from(protections)
+      protections: Array.from(protections),
     };
   }
 
@@ -139,11 +137,11 @@ export class NightActionService {
    */
   private sortActionsByPriority(actions: NightAction[]): NightAction[] {
     const priorityOrder: ActionType[] = [
-      ActionType.CUPID_LINK,      // Muss zuerst ausgeführt werden
+      ActionType.CUPID_LINK, // Muss zuerst ausgeführt werden
       ActionType.SEER_INVESTIGATE, // Information sammeln
-      ActionType.WEREWOLF_KILL,   // Werwolf-Angriff
-      ActionType.WITCH_HEAL,      // Schutz vor Werwolf-Angriff
-      ActionType.WITCH_POISON     // Zusätzlicher Tod
+      ActionType.WEREWOLF_KILL, // Werwolf-Angriff
+      ActionType.WITCH_HEAL, // Schutz vor Werwolf-Angriff
+      ActionType.WITCH_POISON, // Zusätzlicher Tod
     ];
 
     return actions.sort((a, b) => {
@@ -167,7 +165,7 @@ export class NightActionService {
       // Todesfälle anwenden
       if (deaths.includes(player.userId)) {
         updatedPlayer.isAlive = false;
-        
+
         // Liebespaar-Mechanik: Partner stirbt mit
         if (player.specialStates.loverId) {
           const lover = playerStates.find(p => p.userId === player.specialStates.loverId);
@@ -189,18 +187,18 @@ export class NightActionService {
    */
   areAllNightActionsSubmitted(gameId: string, playerStates: PlayerState[]): boolean {
     const actions = this.pendingActions.get(gameId) || [];
-    
+
     // Prüfe für jeden lebenden Spieler mit Nacht-Fähigkeiten
     for (const player of playerStates) {
       if (!player.isAlive) continue;
 
       const requiredActions = this.getRequiredNightActions(player);
-      
+
       for (const actionType of requiredActions) {
-        const hasSubmitted = actions.some(a => 
-          a.actorId === player.userId && a.actionType === actionType
+        const hasSubmitted = actions.some(
+          a => a.actorId === player.userId && a.actionType === actionType
         );
-        
+
         if (!hasSubmitted) {
           return false;
         }
@@ -220,20 +218,21 @@ export class NightActionService {
       case 'WEREWOLF':
         required.push(ActionType.WEREWOLF_KILL);
         break;
-      
+
       case 'SEER':
         required.push(ActionType.SEER_INVESTIGATE);
         break;
-      
+
       // Hexe und andere Rollen sind optional - können wählen ob sie handeln
-      
-      case 'CUPID':
+
+      case 'CUPID': {
         // Nur in der ersten Nacht erforderlich
         const hasUsedCupid = player.actionHistory.some(a => a.actionType === ActionType.CUPID_LINK);
         if (!hasUsedCupid) {
           required.push(ActionType.CUPID_LINK);
         }
         break;
+      }
     }
 
     return required;
@@ -290,7 +289,7 @@ export class NightActionService {
       actionType,
       actorId: playerId,
       timestamp: new Date(),
-      resolved: false
+      resolved: false,
     };
 
     if (!this.pendingActions.has(gameId)) {
@@ -302,14 +301,17 @@ export class NightActionService {
 
     return {
       success: true,
-      message: 'Keine Aktion gewählt'
+      message: 'Keine Aktion gewählt',
     };
   }
 
   /**
    * Holt Zusammenfassung der Nacht-Aktionen für den Spielleiter
    */
-  getNightActionsSummary(gameId: string, playerStates: PlayerState[]): {
+  getNightActionsSummary(
+    gameId: string,
+    playerStates: PlayerState[]
+  ): {
     submitted: Array<{
       playerId: string;
       playerName: string;
@@ -332,7 +334,7 @@ export class NightActionService {
         playerName: player?.userId || 'Unknown', // In einer echten Implementierung wäre hier der Username
         role: player?.role || 'Unknown',
         actionType: action.actionType,
-        hasTarget: !!action.targetId
+        hasTarget: !!action.targetId,
       };
     });
 
@@ -343,14 +345,14 @@ export class NightActionService {
         const submittedActions = actions
           .filter(a => a.actorId === player.userId)
           .map(a => a.actionType);
-        
+
         const missingActions = requiredActions.filter(a => !submittedActions.includes(a));
-        
+
         return {
           playerId: player.userId,
           playerName: player.userId, // In einer echten Implementierung wäre hier der Username
           role: player.role,
-          requiredActions: missingActions
+          requiredActions: missingActions,
         };
       })
       .filter(p => p.requiredActions.length > 0);

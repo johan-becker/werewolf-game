@@ -10,24 +10,24 @@ import { ActionType as CanonicalActionType } from './werewolf-roles.types';
 export { ActionType } from './werewolf-roles.types';
 
 // Re-export other commonly used types
-export { 
-  WerewolfRole, 
-  Team, 
-  WinCondition, 
+export {
+  WerewolfRole,
+  Team,
+  WinCondition,
   NightPhase,
   NightAction,
   ActionResult,
   WerewolfPlayer,
   WerewolfGameState,
-  GameRoleConfig
+  GameRoleConfig,
 } from './werewolf-roles.types';
 
-export { 
-  PlayerRole, 
+export {
+  PlayerRole,
   WinCondition as LegacyWinCondition,
   NightAction as LegacyNightAction,
   RoleAbility,
-  BaseRole
+  BaseRole,
 } from './roles.types';
 
 // Legacy types for backward compatibility
@@ -136,11 +136,11 @@ export type RoleActionType = CanonicalActionType;
 
 /**
  * IMPORTANT: Always import ActionType from this centralized index or directly from werewolf-roles.types.ts
- * 
+ *
  * ✅ Correct imports:
  * import { ActionType } from '../types';
  * import { ActionType } from '../types/werewolf-roles.types';
- * 
+ *
  * ❌ Avoid these imports:
  * import { ActionType } from '../types/roles.types'; // ActionType removed from this file
  */

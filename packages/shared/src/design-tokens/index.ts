@@ -9,7 +9,14 @@ export * from './spacing';
 
 import { colors, cssVariables as colorCssVariables } from './colors';
 import { typography, typographyCssVariables } from './typography';
-import { spacing, semanticSpacing, containers, borderRadius, zIndex, spacingCssVariables } from './spacing';
+import {
+  spacing,
+  semanticSpacing,
+  containers,
+  borderRadius,
+  zIndex,
+  spacingCssVariables,
+} from './spacing';
 
 // Combined design tokens
 export const designTokens = {
@@ -19,14 +26,14 @@ export const designTokens = {
   semanticSpacing,
   containers,
   borderRadius,
-  zIndex
+  zIndex,
 } as const;
 
 // All CSS custom properties for easy integration
 export const allCssVariables = {
   ...colorCssVariables,
   ...typographyCssVariables,
-  ...spacingCssVariables
+  ...spacingCssVariables,
 } as const;
 
 // Helper function to generate CSS custom properties string

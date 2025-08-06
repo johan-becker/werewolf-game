@@ -5,13 +5,13 @@
 
 import { Socket } from 'socket.io';
 import { AuthenticatedUser } from './auth.types';
-import { ActionType, NightAction } from './werewolf-roles.types';
+import { ActionType } from './werewolf-roles.types';
 
 // Socket Authentication State Machine
 export enum SocketAuthenticationState {
-  PENDING = 'PENDING',       // Initial state - awaiting authentication
+  PENDING = 'PENDING', // Initial state - awaiting authentication
   AUTHENTICATED = 'AUTHENTICATED', // Successfully authenticated
-  REJECTED = 'REJECTED'      // Authentication failed or timeout
+  REJECTED = 'REJECTED', // Authentication failed or timeout
 }
 
 // Enhanced socket interface with authentication state
@@ -21,19 +21,19 @@ export interface AuthenticatedSocket extends Socket {
     authState: SocketAuthenticationState;
     user?: AuthenticatedUser;
     sessionId?: string;
-    
+
     // Connection metadata
     connectedAt: Date;
     lastActivityAt: Date;
     authenticatedAt?: Date;
-    
+
     // Game context
     currentGame?: string;
     roomId?: string;
-    
+
     // Message queue for pending authentication
     messageQueue: QueuedMessage[];
-    
+
     // Timeout handling
     authTimeoutId?: NodeJS.Timeout;
   };
@@ -73,7 +73,7 @@ export enum SocketAuthErrorCode {
   USER_SUSPENDED = 'USER_SUSPENDED',
   AUTHENTICATION_TIMEOUT = 'AUTHENTICATION_TIMEOUT',
   RATE_LIMITED = 'RATE_LIMITED',
-  SERVER_ERROR = 'SERVER_ERROR'
+  SERVER_ERROR = 'SERVER_ERROR',
 }
 
 // Typed socket event interfaces that require authenticated user context
@@ -84,12 +84,12 @@ export interface AuthenticatedSocketEvents {
   'game:leave': (data: GameLeaveData, callback: (response: GameResponse) => void) => void;
   'game:start': (data: GameStartData, callback: (response: GameResponse) => void) => void;
   'game:getState': (callback: (response: GameStateResponse) => void) => void;
-  
+
   // Game action events
   'game:nightAction': (data: NightActionData, callback: (response: ActionResponse) => void) => void;
   'game:vote': (data: VoteData, callback: (response: VoteResponse) => void) => void;
   'game:chat': (data: ChatData, callback: (response: ChatResponse) => void) => void;
-  
+
   // Real-time game events (server-to-client)
   'game:playerJoined': (data: PlayerJoinedData) => void;
   'game:playerLeft': (data: PlayerLeftData) => void;
@@ -98,19 +98,22 @@ export interface AuthenticatedSocketEvents {
   'game:actionRequired': (data: ActionRequiredData) => void;
   'game:actionResult': (data: ActionResultData) => void;
   'game:chatMessage': (data: ChatMessageData) => void;
-  
+
   // Authentication events
   'auth:challenge': (callback: (response: AuthChallengeResponse) => void) => void;
-  'auth:authenticate': (data: AuthenticateData, callback: (response: SocketAuthResult) => void) => void;
+  'auth:authenticate': (
+    data: AuthenticateData,
+    callback: (response: SocketAuthResult) => void
+  ) => void;
   'auth:refresh': (data: RefreshTokenData, callback: (response: SocketAuthResult) => void) => void;
   'auth:logout': (callback: (response: { success: boolean }) => void) => void;
-  
+
   // Connection management
   'connection:heartbeat': (callback: (response: HeartbeatResponse) => void) => void;
   'connection:status': (callback: (response: ConnectionStatusResponse) => void) => void;
-  
+
   // Error handling
-  'error': (data: SocketErrorData) => void;
+  error: (data: SocketErrorData) => void;
   'auth:error': (data: AuthErrorData) => void;
   'auth:timeout': (data: AuthTimeoutData) => void;
 }
@@ -422,7 +425,7 @@ export interface ClientInfo {
 export enum AuthMethod {
   JWT_TOKEN = 'JWT_TOKEN',
   REFRESH_TOKEN = 'REFRESH_TOKEN',
-  SESSION_COOKIE = 'SESSION_COOKIE'
+  SESSION_COOKIE = 'SESSION_COOKIE',
 }
 
 export enum ChatChannel {
@@ -431,7 +434,7 @@ export enum ChatChannel {
   NIGHT = 'NIGHT',
   WEREWOLF = 'WEREWOLF',
   DEAD = 'DEAD',
-  SYSTEM = 'SYSTEM'
+  SYSTEM = 'SYSTEM',
 }
 
 // State machine transition validation
@@ -449,7 +452,7 @@ export enum SocketStateTrigger {
   AUTHENTICATION_FAILURE = 'AUTHENTICATION_FAILURE',
   AUTHENTICATION_TIMEOUT = 'AUTHENTICATION_TIMEOUT',
   MANUAL_DISCONNECT = 'MANUAL_DISCONNECT',
-  CONNECTION_ERROR = 'CONNECTION_ERROR'
+  CONNECTION_ERROR = 'CONNECTION_ERROR',
 }
 
 export interface StateTransitionCondition {

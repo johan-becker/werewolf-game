@@ -15,7 +15,7 @@ import {
   SocketStateTransition,
   SocketStateTrigger,
   MessageQueueConfig,
-  SocketSecurityConfig
+  SocketSecurityConfig,
 } from '../types/socket-auth.types';
 
 export class SocketAuthenticationStateMachine {
@@ -34,7 +34,7 @@ export class SocketAuthenticationStateMachine {
     rateLimitMaxRequests: 100,
     enableHeartbeat: true,
     heartbeatInterval: 30000, // 30 seconds
-    heartbeatTimeout: 10000 // 10 seconds
+    heartbeatTimeout: 10000, // 10 seconds
   };
 
   private readonly messageQueueConfig: MessageQueueConfig = {
@@ -48,8 +48,8 @@ export class SocketAuthenticationStateMachine {
       'game:getState',
       'game:chat',
       'game:nightAction',
-      'game:vote'
-    ]
+      'game:vote',
+    ],
   };
 
   // Valid state transitions
@@ -57,23 +57,23 @@ export class SocketAuthenticationStateMachine {
     {
       from: SocketAuthenticationState.PENDING,
       to: SocketAuthenticationState.AUTHENTICATED,
-      trigger: SocketStateTrigger.AUTHENTICATION_SUCCESS
+      trigger: SocketStateTrigger.AUTHENTICATION_SUCCESS,
     },
     {
       from: SocketAuthenticationState.PENDING,
       to: SocketAuthenticationState.REJECTED,
-      trigger: SocketStateTrigger.AUTHENTICATION_FAILURE
+      trigger: SocketStateTrigger.AUTHENTICATION_FAILURE,
     },
     {
       from: SocketAuthenticationState.PENDING,
       to: SocketAuthenticationState.REJECTED,
-      trigger: SocketStateTrigger.AUTHENTICATION_TIMEOUT
+      trigger: SocketStateTrigger.AUTHENTICATION_TIMEOUT,
     },
     {
       from: SocketAuthenticationState.AUTHENTICATED,
       to: SocketAuthenticationState.REJECTED,
-      trigger: SocketStateTrigger.CONNECTION_ERROR
-    }
+      trigger: SocketStateTrigger.CONNECTION_ERROR,
+    },
   ];
 
   private constructor() {
@@ -101,7 +101,7 @@ export class SocketAuthenticationStateMachine {
         message: 'Too many connections from this IP address',
         canRetry: true,
         retryAfter: 60,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       socket.disconnect(true);
       return;
@@ -112,7 +112,7 @@ export class SocketAuthenticationStateMachine {
       authState: SocketAuthenticationState.PENDING,
       connectedAt: new Date(),
       lastActivityAt: new Date(),
-      messageQueue: []
+      messageQueue: [],
     };
 
     // Track connection
@@ -148,8 +148,8 @@ export class SocketAuthenticationStateMachine {
         error: {
           code: SocketAuthErrorCode.INVALID_TOKEN,
           message: 'Authentication already processed',
-          canRetry: false
-        }
+          canRetry: false,
+        },
       };
     }
 
@@ -157,7 +157,7 @@ export class SocketAuthenticationStateMachine {
       const context = {
         ip: this.getClientIP(socket),
         userAgent: socket.handshake.headers['user-agent'] || 'unknown',
-        deviceId: deviceId || socket.handshake.headers['x-device-id'] as string
+        deviceId: deviceId || (socket.handshake.headers['x-device-id'] as string),
       };
 
       const authResult = await this.authService.authenticateUser(token, context);
@@ -171,8 +171,8 @@ export class SocketAuthenticationStateMachine {
             error: {
               code: SocketAuthErrorCode.RATE_LIMITED,
               message: 'Too many active connections for this user',
-              canRetry: true
-            }
+              canRetry: true,
+            },
           };
         }
 
@@ -208,8 +208,8 @@ export class SocketAuthenticationStateMachine {
           metadata: {
             sessionId: socket.data.sessionId,
             authenticatedAt: socket.data.authenticatedAt,
-            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-          }
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+          },
         };
       } else {
         // Authentication failed
@@ -222,17 +222,18 @@ export class SocketAuthenticationStateMachine {
         return {
           success: false,
           error: {
-            code: authResult.error?.code === 'EXPIRED_TOKEN' 
-              ? SocketAuthErrorCode.EXPIRED_TOKEN 
-              : SocketAuthErrorCode.INVALID_TOKEN,
+            code:
+              authResult.error?.code === 'EXPIRED_TOKEN'
+                ? SocketAuthErrorCode.EXPIRED_TOKEN
+                : SocketAuthErrorCode.INVALID_TOKEN,
             message: authResult.error?.message || 'Authentication failed',
-            canRetry: true
-          }
+            canRetry: true,
+          },
         };
       }
     } catch (error) {
       console.error('Socket authentication error:', error);
-      
+
       await this.transitionState(
         socket,
         SocketAuthenticationState.REJECTED,
@@ -244,8 +245,8 @@ export class SocketAuthenticationStateMachine {
         error: {
           code: SocketAuthErrorCode.SERVER_ERROR,
           message: 'Authentication service error',
-          canRetry: true
-        }
+          canRetry: true,
+        },
       };
     }
   }
@@ -266,7 +267,7 @@ export class SocketAuthenticationStateMachine {
         code: SocketAuthErrorCode.AUTHENTICATION_TIMEOUT,
         message: 'Authentication required for this action',
         canRetry: true,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       return false;
     }
@@ -291,7 +292,7 @@ export class SocketAuthenticationStateMachine {
    */
   public async cleanupSocket(socket: AuthenticatedSocket): Promise<void> {
     const clientIP = this.getClientIP(socket);
-    
+
     // Clear timeouts
     if (socket.data.authTimeoutId) {
       clearTimeout(socket.data.authTimeoutId);
@@ -299,7 +300,7 @@ export class SocketAuthenticationStateMachine {
 
     // Update connection counts
     this.decrementConnectionCount(clientIP);
-    
+
     if (socket.data.user) {
       this.decrementUserConnectionCount(socket.data.user.id);
     }
@@ -316,12 +317,12 @@ export class SocketAuthenticationStateMachine {
     socket.data.authTimeoutId = setTimeout(async () => {
       if (socket.data.authState === SocketAuthenticationState.PENDING) {
         console.log(`Socket ${socket.id} authentication timeout`);
-        
+
         socket.emit('auth:timeout', {
           message: 'Authentication timeout - connection will be closed',
           timeoutDuration: this.config.authenticationTimeout,
           canReconnect: true,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
 
         await this.transitionState(
@@ -343,27 +344,28 @@ export class SocketAuthenticationStateMachine {
   private setupMessageQueuing(socket: AuthenticatedSocket): void {
     // Override socket.on to queue messages during pending authentication
     const originalOn = socket.on.bind(socket);
-    
-    socket.on = ((event: string, listener: (...args: any[]) => void) => {
-      if (socket.data.authState === SocketAuthenticationState.PENDING && 
-          !event.startsWith('auth:') && 
-          !event.startsWith('connection:')) {
-        
+
+    socket.on = ((event: string, listener: (...args: unknown[]) => void) => {
+      if (
+        socket.data.authState === SocketAuthenticationState.PENDING &&
+        !event.startsWith('auth:') &&
+        !event.startsWith('connection:')
+      ) {
         // Queue the message instead of processing immediately
-        return originalOn(event, (...args: any[]) => {
+        return originalOn(event, (...args: unknown[]) => {
           this.queueMessage(socket, event, args, listener);
         });
       }
-      
+
       return originalOn(event, listener);
-    }) as any;
+    }) as typeof socket.on;
   }
 
   private queueMessage(
     socket: AuthenticatedSocket,
     event: string,
-    args: any[],
-    originalListener: (...args: any[]) => void
+    args: unknown[],
+    _originalListener: (...args: unknown[]) => void
   ): void {
     if (socket.data.messageQueue.length >= this.messageQueueConfig.maxQueueSize) {
       socket.emit('error', {
@@ -371,7 +373,7 @@ export class SocketAuthenticationStateMachine {
         message: 'Message queue full - authenticate to process messages',
         event,
         timestamp: new Date(),
-        canRetry: true
+        canRetry: true,
       });
       return;
     }
@@ -381,14 +383,18 @@ export class SocketAuthenticationStateMachine {
       event,
       data: args,
       timestamp: new Date(),
-      callback: args[args.length - 1] && typeof args[args.length - 1] === 'function' 
-        ? args[args.length - 1] 
-        : undefined
     };
 
+    // Add callback if the last argument is a function
+    if (args[args.length - 1] && typeof args[args.length - 1] === 'function') {
+      queuedMessage.callback = args[args.length - 1] as (response: any) => void;
+    }
+
     socket.data.messageQueue.push(queuedMessage);
-    
-    console.log(`Queued message ${event} for socket ${socket.id} (queue size: ${socket.data.messageQueue.length})`);
+
+    console.log(
+      `Queued message ${event} for socket ${socket.id} (queue size: ${socket.data.messageQueue.length})`
+    );
   }
 
   private async processMessageQueue(socket: AuthenticatedSocket): Promise<void> {
@@ -404,12 +410,12 @@ export class SocketAuthenticationStateMachine {
     validMessages.sort((a, b) => {
       const priorityA = this.messageQueueConfig.priorityOrder.indexOf(a.event);
       const priorityB = this.messageQueueConfig.priorityOrder.indexOf(b.event);
-      
+
       // Higher priority (lower index) comes first
       if (priorityA !== -1 && priorityB !== -1) return priorityA - priorityB;
       if (priorityA !== -1) return -1;
       if (priorityB !== -1) return 1;
-      
+
       // Same priority, process by timestamp
       return a.timestamp.getTime() - b.timestamp.getTime();
     });
@@ -431,29 +437,29 @@ export class SocketAuthenticationStateMachine {
   }
 
   private setupConnectionHandlers(socket: AuthenticatedSocket): void {
-    socket.on('disconnect', async (reason) => {
+    socket.on('disconnect', async reason => {
       console.log(`Socket ${socket.id} disconnected: ${reason}`);
       await this.cleanupSocket(socket);
     });
 
-    socket.on('error', (error) => {
+    socket.on('error', error => {
       console.error(`Socket ${socket.id} error:`, error);
     });
 
     // Heartbeat handling
     if (this.config.enableHeartbeat) {
-      socket.on('connection:heartbeat', (callback) => {
+      socket.on('connection:heartbeat', callback => {
         callback({
           timestamp: new Date(),
           serverTime: new Date(),
-          latency: Date.now() - socket.data.lastActivityAt.getTime()
+          latency: Date.now() - socket.data.lastActivityAt.getTime(),
         });
       });
     }
   }
 
   private challengeAuthentication(socket: AuthenticatedSocket): void {
-    socket.emit('auth:challenge', (response) => {
+    socket.emit('auth:challenge', (_response: any) => {
       // Client should respond with authentication token
     });
   }
@@ -464,14 +470,16 @@ export class SocketAuthenticationStateMachine {
     trigger: SocketStateTrigger
   ): Promise<void> {
     const currentState = socket.data.authState;
-    
+
     // Validate transition
     const validTransition = this.validTransitions.find(
       t => t.from === currentState && t.to === newState && t.trigger === trigger
     );
 
     if (!validTransition) {
-      console.warn(`Invalid state transition: ${currentState} -> ${newState} (trigger: ${trigger})`);
+      console.warn(
+        `Invalid state transition: ${currentState} -> ${newState} (trigger: ${trigger})`
+      );
       return;
     }
 
@@ -529,9 +537,12 @@ export class SocketAuthenticationStateMachine {
     const socketIP = socket.handshake.address;
 
     if (forwarded && typeof forwarded === 'string') {
-      return forwarded.split(',')[0].trim();
+      const firstIP = forwarded.split(',')[0];
+      if (firstIP) {
+        return firstIP.trim();
+      }
     }
-    
+
     if (realIP && typeof realIP === 'string') {
       return realIP;
     }
@@ -560,9 +571,9 @@ export async function initializeSocketAuth(
     next();
   } catch (error) {
     const socketError = new Error('Failed to initialize socket authentication') as ExtendedError;
-    socketError.data = { 
+    socketError.data = {
       code: SocketAuthErrorCode.SERVER_ERROR,
-      originalError: error instanceof Error ? error.message : 'Unknown error'
+      originalError: error instanceof Error ? error.message : 'Unknown error',
     };
     next(socketError);
   }
@@ -572,7 +583,7 @@ export async function initializeSocketAuth(
 export function requireSocketAuth(eventName: string) {
   return (socket: Socket, next: (err?: Error) => void) => {
     const authSocket = socket as AuthenticatedSocket;
-    
+
     if (socketAuthStateMachine.validateAuthentication(authSocket, eventName)) {
       next();
     } else {

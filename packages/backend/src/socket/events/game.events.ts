@@ -10,7 +10,7 @@ export function handleGameEvents(
   gameService: GameService
 ) {
   // Get current game state
-  socket.on('game:getState', async (callback) => {
+  socket.on('game:getState', async callback => {
     try {
       const gameId = socket.data.currentGame;
       if (!gameId) {
@@ -36,7 +36,7 @@ export function handleGameEvents(
       // Validate game state and user permissions
       const game = await gameService.getGameDetails(gameId);
       const player = game.players?.find(p => p.userId === socket.data.userId);
-      
+
       if (!player) {
         socket.emit('error', { code: 'NOT_PLAYER', message: 'Not a player in this game' });
         return;
@@ -60,7 +60,7 @@ export function handleGameEvents(
         timestamp: new Date().toISOString(),
         channel: data.channel || 'general',
         playerRole: player.role,
-        isAlive: player.isAlive
+        isAlive: player.isAlive,
       };
 
       // Broadcast based on game phase and channel
@@ -80,7 +80,7 @@ export function handleGameEvents(
               deadSockets.forEach(s => s.emit('game:message', messageData));
             }
             break;
-          
+
           case 'werewolf':
             // Werewolves can talk to each other during night phase
             if (player.role === 'werewolf' && player.isAlive) {
@@ -91,7 +91,7 @@ export function handleGameEvents(
               werewolfSockets.forEach(s => s.emit('game:message', messageData));
             }
             break;
-          
+
           default:
             // General chat: all alive players during day phase
             if (player.isAlive) {
@@ -109,7 +109,7 @@ export function handleGameEvents(
   });
 
   // Player ready state
-  socket.on('game:ready', async (callback) => {
+  socket.on('game:ready', async callback => {
     try {
       const gameId = socket.data.currentGame;
       if (!gameId) {
@@ -121,7 +121,7 @@ export function handleGameEvents(
       roomManager.broadcastToRoom(io, gameId, 'game:playerReady', {
         userId: socket.data.userId,
         username: socket.data.username,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       callback({ success: true });
@@ -131,75 +131,78 @@ export function handleGameEvents(
   });
 
   // Game action (voting, special abilities, etc.)
-  socket.on('game:action', async (data: { type: string; target?: string; extra?: any }, callback) => {
-    try {
-      const gameId = socket.data.currentGame;
-      if (!gameId) {
-        return callback({ success: false, error: 'Not in a game' });
+  socket.on(
+    'game:action',
+    async (data: { type: string; target?: string; extra?: any }, callback) => {
+      try {
+        const gameId = socket.data.currentGame;
+        if (!gameId) {
+          return callback({ success: false, error: 'Not in a game' });
+        }
+
+        const game = await gameService.getGameDetails(gameId);
+        const player = game.players?.find(p => p.userId === socket.data.userId);
+
+        if (!player) {
+          return callback({ success: false, error: 'Not a player in this game' });
+        }
+
+        if (!player.isAlive && data.type !== 'spectate') {
+          return callback({ success: false, error: 'Dead players cannot perform actions' });
+        }
+
+        // Validate action based on game phase and player role
+        const actionResult = {
+          userId: socket.data.userId,
+          username: socket.data.username,
+          action: data.type,
+          target: data.target,
+          timestamp: new Date().toISOString(),
+        };
+
+        // Broadcast action to appropriate players
+        switch (data.type) {
+          case 'vote':
+            // Public voting action
+            roomManager.broadcastToRoom(io, gameId, 'game:actionPerformed', actionResult);
+            break;
+
+          case 'werewolf_kill':
+            // Private werewolf action - only to werewolves
+            if (player.role === 'werewolf') {
+              const werewolfSockets = roomManager.getSocketsInRoom(gameId).filter(s => {
+                const p = game.players?.find(pl => pl.userId === s.data.userId);
+                return p && p.role === 'werewolf' && p.isAlive;
+              });
+              werewolfSockets.forEach(s => s.emit('game:actionPerformed', actionResult));
+            }
+            break;
+
+          case 'seer_investigate':
+            // Private seer action - only to seer
+            if (player.role === 'seer') {
+              socket.emit('game:investigationResult', {
+                target: data.target,
+                result: 'werewolf', // This would come from actual game logic
+                timestamp: new Date().toISOString(),
+              });
+            }
+            break;
+
+          default:
+            // Generic action
+            roomManager.broadcastToRoom(io, gameId, 'game:actionPerformed', actionResult);
+        }
+
+        callback({ success: true });
+      } catch (error: any) {
+        callback({ success: false, error: error.message });
       }
-
-      const game = await gameService.getGameDetails(gameId);
-      const player = game.players?.find(p => p.userId === socket.data.userId);
-      
-      if (!player) {
-        return callback({ success: false, error: 'Not a player in this game' });
-      }
-
-      if (!player.isAlive && data.type !== 'spectate') {
-        return callback({ success: false, error: 'Dead players cannot perform actions' });
-      }
-
-      // Validate action based on game phase and player role
-      const actionResult = {
-        userId: socket.data.userId,
-        username: socket.data.username,
-        action: data.type,
-        target: data.target,
-        timestamp: new Date().toISOString()
-      };
-
-      // Broadcast action to appropriate players
-      switch (data.type) {
-        case 'vote':
-          // Public voting action
-          roomManager.broadcastToRoom(io, gameId, 'game:actionPerformed', actionResult);
-          break;
-        
-        case 'werewolf_kill':
-          // Private werewolf action - only to werewolves
-          if (player.role === 'werewolf') {
-            const werewolfSockets = roomManager.getSocketsInRoom(gameId).filter(s => {
-              const p = game.players?.find(pl => pl.userId === s.data.userId);
-              return p && p.role === 'werewolf' && p.isAlive;
-            });
-            werewolfSockets.forEach(s => s.emit('game:actionPerformed', actionResult));
-          }
-          break;
-        
-        case 'seer_investigate':
-          // Private seer action - only to seer
-          if (player.role === 'seer') {
-            socket.emit('game:investigationResult', {
-              target: data.target,
-              result: 'werewolf', // This would come from actual game logic
-              timestamp: new Date().toISOString()
-            });
-          }
-          break;
-        
-        default:
-          // Generic action
-          roomManager.broadcastToRoom(io, gameId, 'game:actionPerformed', actionResult);
-      }
-
-      callback({ success: true });
-    } catch (error: any) {
-      callback({ success: false, error: error.message });
     }
-  });
+  );
 
   // Pause/Resume game (host only)
-  socket.on('game:pause', async (callback) => {
+  socket.on('game:pause', async callback => {
     try {
       const gameId = socket.data.currentGame;
       if (!gameId) {
@@ -213,7 +216,7 @@ export function handleGameEvents(
 
       roomManager.broadcastToRoom(io, gameId, 'game:paused', {
         pausedBy: socket.data.username,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       callback({ success: true });
@@ -222,7 +225,7 @@ export function handleGameEvents(
     }
   });
 
-  socket.on('game:resume', async (callback) => {
+  socket.on('game:resume', async callback => {
     try {
       const gameId = socket.data.currentGame;
       if (!gameId) {
@@ -236,7 +239,7 @@ export function handleGameEvents(
 
       roomManager.broadcastToRoom(io, gameId, 'game:resumed', {
         resumedBy: socket.data.username,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       callback({ success: true });
@@ -246,7 +249,7 @@ export function handleGameEvents(
   });
 
   // End game (host only)
-  socket.on('game:end', async (callback) => {
+  socket.on('game:end', async callback => {
     try {
       const gameId = socket.data.currentGame;
       if (!gameId) {
@@ -263,7 +266,7 @@ export function handleGameEvents(
 
       roomManager.broadcastToRoom(io, gameId, 'game:ended', {
         endedBy: socket.data.username,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       // Update lobby
@@ -283,14 +286,14 @@ export function handleGameEvents(
     socket.to(`game:${gameId}`).emit('game:userTyping', {
       userId: socket.data.userId,
       username: socket.data.username,
-      isTyping: data.isTyping
+      isTyping: data.isTyping,
     });
   });
 
   // =================== ROLE SYSTEM EVENTS ===================
 
   // Get player's role
-  socket.on('game:getRole', async (callback) => {
+  socket.on('game:getRole', async callback => {
     try {
       const gameId = socket.data.currentGame;
       if (!gameId) {
@@ -309,7 +312,7 @@ export function handleGameEvents(
   });
 
   // Get available actions for player
-  socket.on('game:getAvailableActions', async (callback) => {
+  socket.on('game:getAvailableActions', async callback => {
     try {
       const gameId = socket.data.currentGame;
       if (!gameId) {
@@ -324,47 +327,53 @@ export function handleGameEvents(
   });
 
   // Perform night action
-  socket.on('game:nightAction', async (data: { 
-    actionType: string;
-    targetId?: string; 
-    secondTargetId?: string;
-  }, callback) => {
-    try {
-      const gameId = socket.data.currentGame;
-      if (!gameId) {
-        return callback({ success: false, error: 'Not in a game' });
+  socket.on(
+    'game:nightAction',
+    async (
+      data: {
+        actionType: string;
+        targetId?: string;
+        secondTargetId?: string;
+      },
+      callback
+    ) => {
+      try {
+        const gameId = socket.data.currentGame;
+        if (!gameId) {
+          return callback({ success: false, error: 'Not in a game' });
+        }
+
+        const action: NightAction = {
+          id: `action_${Date.now()}_${Math.random()}`,
+          gameId: gameId,
+          playerId: socket.data.userId,
+          actorId: socket.data.userId,
+          actionType: data.actionType as ActionType,
+          targetId: data.targetId || '',
+          secondTargetId: data.secondTargetId ?? '',
+          phase: NightPhase.SEER_PHASE, // This should be determined by current game phase
+          dayNumber: 1, // This should come from game state
+          timestamp: new Date(),
+          resolved: false,
+        };
+
+        const result = await gameService.performNightAction(gameId, action);
+
+        // Wenn Seher-Untersuchung, sende nur dem Seher das Ergebnis
+        if (result.revealedInfo && data.actionType === 'SEER_INVESTIGATE') {
+          socket.emit('game:investigationResult', {
+            target: data.targetId,
+            result: result.revealedInfo,
+            timestamp: new Date().toISOString(),
+          });
+        }
+
+        callback(result);
+      } catch (error: any) {
+        callback({ success: false, error: error.message });
       }
-
-      const action: NightAction = {
-        id: `action_${Date.now()}_${Math.random()}`,
-        gameId: gameId,
-        playerId: socket.data.userId,
-        actorId: socket.data.userId,
-        actionType: data.actionType as ActionType,
-        targetId: data.targetId || '',
-        secondTargetId: data.secondTargetId ?? '',
-        phase: NightPhase.SEER_PHASE, // This should be determined by current game phase
-        dayNumber: 1, // This should come from game state
-        timestamp: new Date(),
-        resolved: false
-      };
-
-      const result = await gameService.performNightAction(gameId, action);
-      
-      // Wenn Seher-Untersuchung, sende nur dem Seher das Ergebnis
-      if (result.revealedInfo && data.actionType === 'SEER_INVESTIGATE') {
-        socket.emit('game:investigationResult', {
-          target: data.targetId,
-          result: result.revealedInfo,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      callback(result);
-    } catch (error: any) {
-      callback({ success: false, error: error.message });
     }
-  });
+  );
 
   // Village vote
   socket.on('game:vote', async (data: { targetId: string }, callback) => {
@@ -387,7 +396,7 @@ export function handleGameEvents(
     try {
       const gameId = data.gameId;
       const result = await gameService.startGameWithRoles(gameId, socket.data.userId);
-      
+
       if (result.success && result.roleAssignments) {
         // Sende jedem Spieler seine Rolle privat
         for (const assignment of result.roleAssignments) {
@@ -397,7 +406,7 @@ export function handleGameEvents(
             playerId: assignment.userId,
             role: assignment.role,
             // Client will check if this role assignment is for them
-            isForCurrentPlayer: true
+            isForCurrentPlayer: true,
           });
         }
 
@@ -405,13 +414,13 @@ export function handleGameEvents(
         roomManager.broadcastToRoom(io, gameId, 'game:started', {
           gameId,
           phase: 'NIGHT',
-          dayNumber: 1
+          dayNumber: 1,
         });
 
         // Broadcast phase change
         roomManager.broadcastToRoom(io, gameId, 'game:phaseChanged', {
           phase: 'NIGHT' as const,
-          dayNumber: 1
+          dayNumber: 1,
         });
       }
 
@@ -422,7 +431,7 @@ export function handleGameEvents(
   });
 
   // Resolve night phase (könnte automatisch oder durch Host ausgelöst werden)
-  socket.on('game:resolveNight', async (callback) => {
+  socket.on('game:resolveNight', async callback => {
     try {
       const gameId = socket.data.currentGame;
       if (!gameId) {
@@ -435,7 +444,10 @@ export function handleGameEvents(
       const allActionsSubmitted = gameService.areAllNightActionsSubmitted(gameId);
 
       if (!isHost && !allActionsSubmitted) {
-        return callback({ success: false, error: 'Nicht berechtigt oder nicht alle Aktionen eingereicht' });
+        return callback({
+          success: false,
+          error: 'Nicht berechtigt oder nicht alle Aktionen eingereicht',
+        });
       }
 
       const result = await gameService.resolveNightPhase(gameId);
@@ -444,14 +456,14 @@ export function handleGameEvents(
       if (result.success) {
         roomManager.broadcastToRoom(io, gameId, 'game:nightResolved', {
           deaths: result.deaths,
-          phase: 'DAY'
+          phase: 'DAY',
         });
 
         // Benachrichtige über Eliminierte
         for (const deadPlayerId of result.deaths) {
           roomManager.broadcastToRoom(io, gameId, 'game:playerEliminated', {
             playerId: deadPlayerId,
-            playerName: deadPlayerId // In echter Implementierung den Username
+            playerName: deadPlayerId, // In echter Implementierung den Username
           });
         }
 
@@ -460,13 +472,13 @@ export function handleGameEvents(
           roomManager.broadcastToRoom(io, gameId, 'game:ended', {
             winner: result.winner,
             endedBy: 'system',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         } else {
           // Phase change to DAY
           roomManager.broadcastToRoom(io, gameId, 'game:phaseChanged', {
             phase: 'DAY' as const,
-            dayNumber: 1 // Sollte aus dem GameState kommen
+            dayNumber: 1, // Sollte aus dem GameState kommen
           });
         }
       }

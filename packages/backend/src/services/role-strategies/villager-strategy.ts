@@ -6,7 +6,7 @@ import {
   ActionResult,
   WerewolfGameState,
   ActionType,
-  Team
+  Team,
 } from '../../types/werewolf-roles.types';
 
 /**
@@ -18,16 +18,13 @@ export class VillagerStrategy extends BaseRoleStrategy {
   /**
    * Dorfbewohner können nur abstimmen
    */
-  getAvailableActions(
-    player: WerewolfPlayer,
-    gameState: WerewolfGameState
-  ): ActionType[] {
+  getAvailableActions(player: WerewolfPlayer, gameState: WerewolfGameState): ActionType[] {
     if (!player.isAlive) return [];
-    
+
     if (gameState.phase === 'DAY') {
       return [ActionType.VILLAGE_VOTE];
     }
-    
+
     return []; // Nachts keine Aktionen
   }
 
@@ -35,21 +32,21 @@ export class VillagerStrategy extends BaseRoleStrategy {
    * Dorfbewohner haben keine Nacht-Aktionen
    */
   async executeAction(
-    player: WerewolfPlayer,
-    action: NightAction,
-    allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _player: WerewolfPlayer,
+    _action: NightAction,
+    _allPlayers: WerewolfPlayer[],
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     return {
       success: false,
-      message: 'Dorfbewohner haben keine speziellen Aktionen'
+      message: 'Dorfbewohner haben keine speziellen Aktionen',
     };
   }
 
   /**
    * Initialisiert Dorfbewohner
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.VILLAGER,
       team: Team.VILLAGE,
@@ -59,8 +56,8 @@ export class VillagerStrategy extends BaseRoleStrategy {
         canShoot: false,
         hasSpied: false,
         spyRisk: 0,
-        isProtected: false
-      }
+        isProtected: false,
+      },
     };
   }
 

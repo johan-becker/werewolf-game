@@ -1,11 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
-import {
-  DatabaseError,
-  ValidationError,
-  NotFoundError,
-  ConflictError
-} from '../types/database';
+import { DatabaseError, ValidationError, NotFoundError, ConflictError } from '../types/database';
 
 export interface AppError extends Error {
   statusCode?: number;
@@ -28,7 +23,7 @@ export const errorHandler = (
   err: AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
   let statusCode = 500;
   let message = 'Internal Server Error';
@@ -73,13 +68,13 @@ export const errorHandler = (
       url: req.url,
       method: req.method,
       ip: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent'),
     });
   } else if (statusCode === 404) {
     logger.warn('Not Found:', {
       url: req.url,
       method: req.method,
-      ip: req.ip
+      ip: req.ip,
     });
   } else {
     logger.info('Client Error:', {
@@ -87,36 +82,40 @@ export const errorHandler = (
       statusCode,
       url: req.url,
       method: req.method,
-      ip: req.ip
+      ip: req.ip,
     });
   }
 
-  const response: any = {
+  const response: {
+    success: false;
+    error: {
+      code: string;
+      message: string;
+      stack?: string;
+    };
+  } = {
     success: false,
     error: {
       code: errorCode,
-      message
-    }
+      message,
+    },
   };
 
   // Include stack trace in development
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development' && err.stack) {
     response.error.stack = err.stack;
   }
 
   res.status(statusCode).json(response);
 };
 
-export const notFoundHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
   const error = createError(`Route ${req.originalUrl} not found`, 404);
   error.code = 'ROUTE_NOT_FOUND';
   next(error);
 };
 
 export const asyncHandler =
-  (fn: Function) => (req: Request, res: Response, next: NextFunction) =>
+  (fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) =>
+  (req: Request, res: Response, next: NextFunction) =>
     Promise.resolve(fn(req, res, next)).catch(next);

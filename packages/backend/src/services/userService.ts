@@ -1,19 +1,14 @@
-import bcrypt from 'bcrypt';
 import { prisma } from '@/database';
 import { logger } from '@utils/logger';
 import {
   User,
-  UserCreateData,
   UserRegistrationData,
-  UserLoginData,
   UserProfile,
   UserFilters,
   PaginationOptions,
   PaginatedResponse,
   DatabaseError,
-  ValidationError,
   ConflictError,
-  NotFoundError
 } from '@/types/database';
 
 export class UserService {
@@ -22,38 +17,29 @@ export class UserService {
   // Create a new user
   static async createUser(userData: UserRegistrationData): Promise<User> {
     try {
-      // Check if username or email already exists
-      const existingUser = await prisma.user.findFirst({
+      // Check if username already exists
+      const existingUser = await prisma.profile.findFirst({
         where: {
-          OR: [
-            { username: userData.username },
-            { email: userData.email }
-          ]
-        }
+          username: userData.username,
+        },
       });
 
       if (existingUser) {
-        if (existingUser.username === userData.username) {
-          throw new ConflictError('Username already exists');
-        }
-        throw new ConflictError('Email already exists');
+        throw new ConflictError('Username already exists');
       }
 
-      // Hash password
-      const passwordHash = await bcrypt.hash(userData.password, this.SALT_ROUNDS);
-
-      // Create user
-      const user = await prisma.user.create({
+      // Create user profile (authentication handled by Supabase)
+      const user = await prisma.profile.create({
         data: {
+          id: crypto.randomUUID(), // Will be replaced by Supabase auth ID
           username: userData.username,
-          email: userData.email,
-          passwordHash
-        }
+          full_name: null,
+          avatar_url: null,
+        },
       });
 
       logger.info(`User created: ${user.username} (${user.id})`);
       return user;
-
     } catch (error) {
       if (error instanceof ConflictError) {
         throw error;
@@ -63,31 +49,19 @@ export class UserService {
     }
   }
 
-  // Authenticate user
-  static async authenticateUser(loginData: UserLoginData): Promise<User | null> {
+  // Get user by username (authentication handled by Supabase)
+  static async getUserByUsername(username: string): Promise<User | null> {
     try {
-      const user = await prisma.user.findUnique({
-        where: { username: loginData.username }
+      const user = await prisma.profile.findUnique({
+        where: { username: username },
       });
 
-      if (!user || !user.isActive) {
+      if (!user) {
         return null;
       }
 
-      const isPasswordValid = await bcrypt.compare(loginData.password, user.passwordHash);
-      if (!isPasswordValid) {
-        return null;
-      }
-
-      // Update last login
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { lastLogin: new Date() }
-      });
-
-      logger.info(`User authenticated: ${user.username}`);
+      logger.info(`User found: ${user.username}`);
       return user;
-
     } catch (error) {
       logger.error('Error authenticating user:', error);
       throw new DatabaseError('Authentication failed');
@@ -97,8 +71,8 @@ export class UserService {
   // Get user by ID
   static async getUserById(id: string): Promise<User | null> {
     try {
-      return await prisma.user.findUnique({
-        where: { id }
+      return await prisma.profile.findUnique({
+        where: { id },
       });
     } catch (error) {
       logger.error('Error fetching user by ID:', error);
@@ -106,42 +80,29 @@ export class UserService {
     }
   }
 
-  // Get user by username
-  static async getUserByUsername(username: string): Promise<User | null> {
-    try {
-      return await prisma.user.findUnique({
-        where: { username }
-      });
-    } catch (error) {
-      logger.error('Error fetching user by username:', error);
-      throw new DatabaseError('Failed to fetch user');
-    }
-  }
-
   // Get user profile with calculated win rate
   static async getUserProfile(id: string): Promise<UserProfile | null> {
     try {
-      const user = await prisma.user.findUnique({
-        where: { id }
+      const user = await prisma.profile.findUnique({
+        where: { id },
       });
 
       if (!user) {
         return null;
       }
 
-      const winRate = user.gamesPlayed > 0 ? (user.gamesWon / user.gamesPlayed) * 100 : 0;
+      const winRate = user.games_played > 0 ? (user.games_won / user.games_played) * 100 : 0;
 
       return {
         id: user.id,
-        username: user.username,
-        email: user.email,
-        gamesPlayed: user.gamesPlayed,
-        gamesWon: user.gamesWon,
+        username: user.username || 'Unknown',
+        email: '', // Email handled by Supabase Auth
+        gamesPlayed: user.games_played,
+        gamesWon: user.games_won,
         winRate: Math.round(winRate * 100) / 100,
-        createdAt: user.createdAt,
-        lastLogin: user.lastLogin
+        createdAt: user.created_at,
+        lastLogin: null, // Not tracked in current schema
       };
-
     } catch (error) {
       logger.error('Error fetching user profile:', error);
       throw new DatabaseError('Failed to fetch user profile');
@@ -151,16 +112,15 @@ export class UserService {
   // Update user stats after game
   static async updateUserStats(userId: string, won: boolean): Promise<void> {
     try {
-      await prisma.user.update({
+      await prisma.profile.update({
         where: { id: userId },
         data: {
-          gamesPlayed: { increment: 1 },
-          ...(won && { gamesWon: { increment: 1 } })
-        }
+          games_played: { increment: 1 },
+          ...(won && { games_won: { increment: 1 } }),
+        },
       });
 
       logger.info(`Updated stats for user ${userId}: won=${won}`);
-
     } catch (error) {
       logger.error('Error updating user stats:', error);
       throw new DatabaseError('Failed to update user stats');
@@ -173,25 +133,23 @@ export class UserService {
     pagination: PaginationOptions = {}
   ): Promise<PaginatedResponse<User>> {
     try {
-      const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = pagination;
-      const { isActive, minGamesPlayed } = filters;
+      const { page = 1, limit = 10, sortBy = 'created_at', sortOrder = 'desc' } = pagination;
+      const { minGamesPlayed } = filters;
 
       const where: any = {};
-      if (isActive !== undefined) {
-        where.isActive = isActive;
-      }
+      // Note: isActive field doesn't exist in current schema
       if (minGamesPlayed !== undefined) {
-        where.gamesPlayed = { gte: minGamesPlayed };
+        where.games_played = { gte: minGamesPlayed };
       }
 
       const [users, total] = await Promise.all([
-        prisma.user.findMany({
+        prisma.profile.findMany({
           where,
           orderBy: { [sortBy]: sortOrder },
           skip: (page - 1) * limit,
-          take: limit
+          take: limit,
         }),
-        prisma.user.count({ where })
+        prisma.profile.count({ where }),
       ]);
 
       return {
@@ -200,10 +158,9 @@ export class UserService {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
-
     } catch (error) {
       logger.error('Error fetching users:', error);
       throw new DatabaseError('Failed to fetch users');
@@ -213,33 +170,33 @@ export class UserService {
   // Update user
   static async updateUser(id: string, updateData: Partial<User>): Promise<User> {
     try {
-      const user = await prisma.user.update({
+      const user = await prisma.profile.update({
         where: { id },
-        data: updateData
+        data: updateData,
       });
 
       logger.info(`User updated: ${user.username} (${user.id})`);
       return user;
-
     } catch (error) {
       logger.error('Error updating user:', error);
       throw new DatabaseError('Failed to update user');
     }
   }
 
-  // Deactivate user (soft delete)
+  // Note: User deactivation not implemented in current schema
+  // Users are managed through Supabase Auth
   static async deactivateUser(id: string): Promise<void> {
     try {
-      await prisma.user.update({
+      // In current implementation, we would need to delete the profile
+      // or add an isActive field to the schema
+      await prisma.profile.delete({
         where: { id },
-        data: { isActive: false }
       });
 
-      logger.info(`User deactivated: ${id}`);
-
+      logger.info(`User profile deleted: ${id}`);
     } catch (error) {
-      logger.error('Error deactivating user:', error);
-      throw new DatabaseError('Failed to deactivate user');
+      logger.error('Error deleting user profile:', error);
+      throw new DatabaseError('Failed to delete user profile');
     }
   }
 
@@ -250,24 +207,24 @@ export class UserService {
 
       const [players, total] = await Promise.all([
         prisma.player.findMany({
-          where: { userId },
+          where: { user_id: userId },
           include: {
             game: {
               select: {
                 id: true,
                 name: true,
                 status: true,
-                createdAt: true,
-                startedAt: true,
-                finishedAt: true
-              }
-            }
+                created_at: true,
+                started_at: true,
+                finished_at: true,
+              },
+            },
           },
-          orderBy: { joinedAt: 'desc' },
+          orderBy: { joined_at: 'desc' },
           skip: (page - 1) * limit,
-          take: limit
+          take: limit,
         }),
-        prisma.player.count({ where: { userId } })
+        prisma.player.count({ where: { user_id: userId } }),
       ]);
 
       return {
@@ -276,10 +233,9 @@ export class UserService {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit)
-        }
+          totalPages: Math.ceil(total / limit),
+        },
       };
-
     } catch (error) {
       logger.error('Error fetching user game history:', error);
       throw new DatabaseError('Failed to fetch game history');

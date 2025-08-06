@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.12.0
- * Query Engine version: 8047c96bbd92db98a2abc7c9323ce77c02c89dbc
+ * Prisma Client JS version: 6.13.0
+ * Query Engine version: 361e86d0ea4987e9f53a565309b3eed797a6bcbd
  */
 Prisma.prismaVersion = {
-  client: "6.12.0",
-  engine: "8047c96bbd92db98a2abc7c9323ce77c02c89dbc"
+  client: "6.13.0",
+  engine: "361e86d0ea4987e9f53a565309b3eed797a6bcbd"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -120,63 +120,110 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.UserScalarFieldEnum = {
-  id: 'id',
-  username: 'username',
-  email: 'email',
-  passwordHash: 'passwordHash',
-  isActive: 'isActive',
-  gamesPlayed: 'gamesPlayed',
-  gamesWon: 'gamesWon',
-  createdAt: 'createdAt',
-  lastLogin: 'lastLogin'
-};
-
 exports.Prisma.GameScalarFieldEnum = {
   id: 'id',
   name: 'name',
   code: 'code',
   status: 'status',
-  maxPlayers: 'maxPlayers',
-  currentPlayers: 'currentPlayers',
-  gameSettings: 'gameSettings',
-  creatorId: 'creatorId',
-  createdAt: 'createdAt',
-  startedAt: 'startedAt',
-  finishedAt: 'finishedAt'
+  phase: 'phase',
+  night_phase: 'night_phase',
+  day_number: 'day_number',
+  max_players: 'max_players',
+  current_players: 'current_players',
+  game_settings: 'game_settings',
+  winner: 'winner',
+  creator_id: 'creator_id',
+  created_at: 'created_at',
+  started_at: 'started_at',
+  finished_at: 'finished_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.PlayerScalarFieldEnum = {
-  userId: 'userId',
-  gameId: 'gameId',
+  user_id: 'user_id',
+  game_id: 'game_id',
   role: 'role',
-  isAlive: 'isAlive',
-  isHost: 'isHost',
-  joinedAt: 'joinedAt',
-  eliminatedAt: 'eliminatedAt'
+  team: 'team',
+  is_alive: 'is_alive',
+  is_host: 'is_host',
+  joined_at: 'joined_at',
+  eliminated_at: 'eliminated_at',
+  votes_cast: 'votes_cast',
+  lover_id: 'lover_id',
+  has_heal_potion: 'has_heal_potion',
+  has_poison_potion: 'has_poison_potion',
+  can_shoot: 'can_shoot',
+  has_spied: 'has_spied',
+  spy_risk: 'spy_risk',
+  is_protected: 'is_protected'
 };
 
 exports.Prisma.GameLogScalarFieldEnum = {
   id: 'id',
-  gameId: 'gameId',
-  roundNumber: 'roundNumber',
-  phase: 'phase',
-  actionType: 'actionType',
-  actorId: 'actorId',
-  targetId: 'targetId',
+  game_id: 'game_id',
+  user_id: 'user_id',
+  player_id: 'player_id',
+  action: 'action',
   details: 'details',
-  timestamp: 'timestamp'
+  phase: 'phase',
+  day_number: 'day_number',
+  created_at: 'created_at'
 };
 
-exports.Prisma.RefreshTokenScalarFieldEnum = {
+exports.Prisma.ChatMessageScalarFieldEnum = {
   id: 'id',
-  token: 'token',
-  userId: 'userId',
-  tokenVersion: 'tokenVersion',
-  expiresAt: 'expiresAt',
-  isRevoked: 'isRevoked',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  game_id: 'game_id',
+  user_id: 'user_id',
+  channel: 'channel',
+  type: 'type',
+  content: 'content',
+  mentions: 'mentions',
+  edited: 'edited',
+  edited_at: 'edited_at',
+  created_at: 'created_at'
+};
+
+exports.Prisma.GameRoleConfigScalarFieldEnum = {
+  id: 'id',
+  game_id: 'game_id',
+  villagers: 'villagers',
+  werewolves: 'werewolves',
+  seer: 'seer',
+  witch: 'witch',
+  hunter: 'hunter',
+  cupid: 'cupid',
+  little_girl: 'little_girl',
+  created_by: 'created_by',
+  created_at: 'created_at'
+};
+
+exports.Prisma.NightActionScalarFieldEnum = {
+  id: 'id',
+  game_id: 'game_id',
+  player_id: 'player_id',
+  action_type: 'action_type',
+  target_id: 'target_id',
+  second_target_id: 'second_target_id',
+  phase: 'phase',
+  day_number: 'day_number',
+  resolved: 'resolved',
+  success: 'success',
+  result_message: 'result_message',
+  revealed_info: 'revealed_info',
+  effects: 'effects',
+  created_at: 'created_at',
+  resolved_at: 'resolved_at'
+};
+
+exports.Prisma.ProfileScalarFieldEnum = {
+  id: 'id',
+  username: 'username',
+  full_name: 'full_name',
+  avatar_url: 'avatar_url',
+  updated_at: 'updated_at',
+  created_at: 'created_at',
+  games_played: 'games_played',
+  games_won: 'games_won'
 };
 
 exports.Prisma.SortOrder = {
@@ -198,19 +245,19 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
 exports.GameStatus = exports.$Enums.GameStatus = {
   WAITING: 'WAITING',
-  RUNNING: 'RUNNING',
+  IN_PROGRESS: 'IN_PROGRESS',
   FINISHED: 'FINISHED'
 };
 
@@ -219,12 +266,66 @@ exports.GamePhase = exports.$Enums.GamePhase = {
   NIGHT: 'NIGHT'
 };
 
+exports.NightPhase = exports.$Enums.NightPhase = {
+  CUPID_PHASE: 'CUPID_PHASE',
+  SEER_PHASE: 'SEER_PHASE',
+  WEREWOLF_PHASE: 'WEREWOLF_PHASE',
+  WITCH_PHASE: 'WITCH_PHASE'
+};
+
+exports.WerewolfRole = exports.$Enums.WerewolfRole = {
+  VILLAGER: 'VILLAGER',
+  SEER: 'SEER',
+  WITCH: 'WITCH',
+  HUNTER: 'HUNTER',
+  CUPID: 'CUPID',
+  LITTLE_GIRL: 'LITTLE_GIRL',
+  WEREWOLF: 'WEREWOLF'
+};
+
+exports.Team = exports.$Enums.Team = {
+  VILLAGE: 'VILLAGE',
+  WEREWOLF: 'WEREWOLF',
+  LOVERS: 'LOVERS'
+};
+
+exports.ChatChannel = exports.$Enums.ChatChannel = {
+  LOBBY: 'LOBBY',
+  DAY: 'DAY',
+  NIGHT: 'NIGHT',
+  DEAD: 'DEAD',
+  SYSTEM: 'SYSTEM'
+};
+
+exports.MessageType = exports.$Enums.MessageType = {
+  TEXT: 'TEXT',
+  SYSTEM: 'SYSTEM',
+  JOIN: 'JOIN',
+  LEAVE: 'LEAVE',
+  DEATH: 'DEATH',
+  ROLE_REVEAL: 'ROLE_REVEAL'
+};
+
+exports.ActionType = exports.$Enums.ActionType = {
+  SEER_INVESTIGATE: 'SEER_INVESTIGATE',
+  WEREWOLF_KILL: 'WEREWOLF_KILL',
+  WITCH_HEAL: 'WITCH_HEAL',
+  WITCH_POISON: 'WITCH_POISON',
+  CUPID_LINK: 'CUPID_LINK',
+  LITTLE_GIRL_SPY: 'LITTLE_GIRL_SPY',
+  VILLAGE_VOTE: 'VILLAGE_VOTE',
+  HUNTER_SHOOT: 'HUNTER_SHOOT',
+  NO_ACTION: 'NO_ACTION'
+};
+
 exports.Prisma.ModelName = {
-  User: 'User',
   Game: 'Game',
   Player: 'Player',
   GameLog: 'GameLog',
-  RefreshToken: 'RefreshToken'
+  ChatMessage: 'ChatMessage',
+  GameRoleConfig: 'GameRoleConfig',
+  NightAction: 'NightAction',
+  Profile: 'Profile'
 };
 
 /**

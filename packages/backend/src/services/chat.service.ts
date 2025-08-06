@@ -1,14 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
-
-const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 
 export interface ChatMessage {
   id: string;
@@ -46,19 +38,12 @@ export class ChatService {
   /**
    * Send a chat message with validation and permissions
    */
-  async sendMessage(
-    userId: string,
-    request: SendMessageRequest
-  ): Promise<ChatMessage> {
+  async sendMessage(userId: string, request: SendMessageRequest): Promise<ChatMessage> {
     // Validate message content
     this.validateMessage(request.content);
 
     // Check permissions
-    const permissions = await this.getChannelPermissions(
-      userId,
-      request.channel,
-      request.gameId
-    );
+    const permissions = await this.getChannelPermissions(userId, request.channel, request.gameId);
 
     if (!permissions.canWrite) {
       throw new Error(permissions.reason || 'No permission to write in this channel');
@@ -82,12 +67,14 @@ export class ChatService {
         channel: request.channel,
         type: 'TEXT',
         content: filteredContent,
-        mentions: mentions
+        mentions: mentions,
       })
-      .select(`
+      .select(
+        `
         *,
         user:profiles!inner(username, avatar_url)
-      `)
+      `
+      )
       .single();
 
     if (error) throw new Error(`Failed to send message: ${error.message}`);
@@ -111,12 +98,14 @@ export class ChatService {
         user_id: '00000000-0000-0000-0000-000000000000', // System user ID
         channel,
         type,
-        content
+        content,
       })
-      .select(`
+      .select(
+        `
         *,
         user:profiles!inner(username, avatar_url)
-      `)
+      `
+      )
       .single();
 
     if (error) throw new Error(`Failed to send system message: ${error.message}`);
@@ -142,10 +131,12 @@ export class ChatService {
 
     let query = supabaseAdmin
       .from('chat_messages')
-      .select(`
+      .select(
+        `
         *,
         user:profiles!inner(username, avatar_url)
-      `)
+      `
+      )
       .eq('channel', channel)
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -186,7 +177,7 @@ export class ChatService {
 
       case 'DAY':
       case 'NIGHT':
-      case 'DEAD':
+      case 'DEAD': {
         if (!gameId) {
           return { canRead: false, canWrite: false, reason: 'Game ID required for game channels' };
         }
@@ -215,6 +206,7 @@ export class ChatService {
         }
 
         return this.getGameChannelPermissions(channel, player, game);
+      }
 
       default:
         return { canRead: false, canWrite: false, reason: 'Unknown channel' };
@@ -226,29 +218,33 @@ export class ChatService {
    */
   private getGameChannelPermissions(
     channel: ChatMessage['channel'],
-    player: any,
-    game: any
+    player: { is_alive?: boolean; role?: string },
+    game: { phase?: string }
   ): ChatPermissions {
     switch (channel) {
       case 'DAY':
         return {
           canRead: true,
-          canWrite: player.is_alive && game.phase === 'DAY'
+          canWrite: (player.is_alive ?? true) && game.phase === 'DAY',
         };
 
       case 'NIGHT':
         if (player.role !== 'WEREWOLF') {
-          return { canRead: false, canWrite: false, reason: 'Only werewolves can access night chat' };
+          return {
+            canRead: false,
+            canWrite: false,
+            reason: 'Only werewolves can access night chat',
+          };
         }
         return {
           canRead: true,
-          canWrite: player.is_alive && game.phase === 'NIGHT'
+          canWrite: (player.is_alive ?? true) && game.phase === 'NIGHT',
         };
 
       case 'DEAD':
         return {
           canRead: !player.is_alive,
-          canWrite: !player.is_alive
+          canWrite: !player.is_alive,
         };
 
       default:
@@ -309,7 +305,7 @@ export class ChatService {
 
     while ((match = mentionRegex.exec(content)) !== null) {
       const username = match[1];
-      if (!mentions.includes(username)) {
+      if (username && !mentions.includes(username)) {
         mentions.push(username);
       }
     }
@@ -334,32 +330,52 @@ export class ChatService {
   /**
    * Format database message to ChatMessage interface
    */
-  private formatMessage(dbMessage: any): ChatMessage {
-    return {
+  private formatMessage(dbMessage: {
+    id: string;
+    game_id?: string;
+    user_id: string;
+    user?: { username?: string; avatar_url?: string };
+    channel: ChatMessage['channel'];
+    type: ChatMessage['type'];
+    content: string;
+    mentions?: string[];
+    edited: boolean;
+    edited_at?: string;
+    created_at: string;
+  }): ChatMessage {
+    const message: ChatMessage = {
       id: dbMessage.id,
-      gameId: dbMessage.game_id,
       userId: dbMessage.user_id,
       username: dbMessage.user?.username || 'System',
-      avatarUrl: dbMessage.user?.avatar_url,
       channel: dbMessage.channel,
       type: dbMessage.type,
       content: dbMessage.content,
       mentions: dbMessage.mentions || [],
       edited: dbMessage.edited,
-      editedAt: dbMessage.edited_at,
-      createdAt: dbMessage.created_at
+      createdAt: dbMessage.created_at,
     };
+
+    if (dbMessage.game_id) {
+      message.gameId = dbMessage.game_id;
+    }
+
+    if (dbMessage.user?.avatar_url) {
+      message.avatarUrl = dbMessage.user.avatar_url;
+    }
+
+    if (dbMessage.edited_at) {
+      message.editedAt = dbMessage.edited_at;
+    }
+
+    return message;
   }
 
   /**
    * Delete message (moderation)
    */
-  async deleteMessage(messageId: string, moderatorId: string): Promise<void> {
+  async deleteMessage(messageId: string, _moderatorId: string): Promise<void> {
     // Hier könntest du zusätzliche Moderator-Checks implementieren
-    const { error } = await supabaseAdmin
-      .from('chat_messages')
-      .delete()
-      .eq('id', messageId);
+    const { error } = await supabaseAdmin.from('chat_messages').delete().eq('id', messageId);
 
     if (error) throw new Error(`Failed to delete message: ${error.message}`);
   }
@@ -367,11 +383,7 @@ export class ChatService {
   /**
    * Edit message
    */
-  async editMessage(
-    messageId: string,
-    userId: string,
-    newContent: string
-  ): Promise<ChatMessage> {
+  async editMessage(messageId: string, userId: string, newContent: string): Promise<ChatMessage> {
     this.validateMessage(newContent);
 
     const filteredContent = this.filterContent(newContent);
@@ -383,14 +395,16 @@ export class ChatService {
         content: filteredContent,
         mentions: mentions,
         edited: true,
-        edited_at: new Date().toISOString()
+        edited_at: new Date().toISOString(),
       })
       .eq('id', messageId)
       .eq('user_id', userId) // Only owner can edit
-      .select(`
+      .select(
+        `
         *,
         user:profiles!inner(username, avatar_url)
-      `)
+      `
+      )
       .single();
 
     if (error) throw new Error(`Failed to edit message: ${error.message}`);

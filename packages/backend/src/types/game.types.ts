@@ -1,7 +1,7 @@
 export interface GameSettings {
-  dayDuration: number;      // seconds
-  nightDuration: number;    // seconds
-  discussionTime: number;   // seconds
+  dayDuration: number; // seconds
+  nightDuration: number; // seconds
+  discussionTime: number; // seconds
   roles?: {
     werewolf: number;
     villager: number;

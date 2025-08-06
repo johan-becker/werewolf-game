@@ -1,23 +1,16 @@
-import { 
-  $Enums,
-  User, 
-  Game, 
-  Player, 
-  GameLog, 
-  Prisma 
-} from '../generated/prisma';
+import { $Enums, Profile, Game, Player, GameLog, Prisma } from '../generated/prisma';
 
 export type GameStatus = $Enums.GameStatus;
 export type GamePhase = $Enums.GamePhase;
 
 // Base entity types (direct from Prisma)
-export type { User, Game, Player, GameLog };
+export type { Profile as User, Game, Player, GameLog };
 
 // User related types
-export type UserCreateInput = Prisma.UserCreateInput;
-export type UserUpdateInput = Prisma.UserUpdateInput;
-export type UserWhereInput = Prisma.UserWhereInput;
-export type UserWithStats = User;
+export type UserCreateInput = Prisma.ProfileCreateInput;
+export type UserUpdateInput = Prisma.ProfileUpdateInput;
+export type UserWhereInput = Prisma.ProfileWhereInput;
+export type UserWithStats = Profile;
 
 export interface UserRegistrationData {
   username: string;
@@ -80,7 +73,7 @@ export interface GameSettingsType {
 }
 
 export interface GameWithDetails extends Game {
-  creator: User;
+  creator: Profile;
   players: PlayerWithUser[];
   _count: {
     players: number;
@@ -93,12 +86,12 @@ export type PlayerUpdateInput = Prisma.PlayerUpdateInput;
 export type PlayerWhereInput = Prisma.PlayerWhereInput;
 
 export interface PlayerWithUser extends Player {
-  user: User;
+  user: Profile;
 }
 
 export interface PlayerWithGame extends Player {
   game: Game;
-  user: User;
+  user: Profile;
 }
 
 export interface GameJoinData {
@@ -171,7 +164,7 @@ export interface PaginatedResponse<T> {
 }
 
 // Game action types
-export type GameActionType = 
+export type GameActionType =
   | 'VOTE'
   | 'WEREWOLF_KILL'
   | 'SEER_CHECK'
@@ -185,25 +178,24 @@ export type GameActionType =
   | 'PLAYER_LEAVE';
 
 // Role types
-export type GameRole = 
-  | 'villager'
-  | 'werewolf'
-  | 'seer'
-  | 'doctor'
-  | 'hunter'
-  | 'mayor'
-  | 'witch';
+export type GameRole = 'villager' | 'werewolf' | 'seer' | 'doctor' | 'hunter' | 'mayor' | 'witch';
 
 // Error types
 export class DatabaseError extends Error {
-  constructor(message: string, public code?: string) {
+  constructor(
+    message: string,
+    public code?: string
+  ) {
     super(message);
     this.name = 'DatabaseError';
   }
 }
 
 export class ValidationError extends Error {
-  constructor(message: string, public field?: string) {
+  constructor(
+    message: string,
+    public field?: string
+  ) {
     super(message);
     this.name = 'ValidationError';
   }

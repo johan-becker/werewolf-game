@@ -17,7 +17,7 @@ import {
   changePasswordSchema,
   updateProfileSchema,
   forgotPasswordSchema,
-  resetPasswordSchema
+  resetPasswordSchema,
 } from '../validation/auth.validation';
 
 const router = Router();
@@ -83,7 +83,7 @@ router.post(
 router.post(
   '/logout-all',
   authMiddleware.authenticate(),
-  asyncHandler(authController.logoutAll.bind(authController))
+  asyncHandler(authController.logout.bind(authController))
 );
 
 /**
@@ -94,7 +94,7 @@ router.post(
 router.get(
   '/me',
   authMiddleware.authenticate(),
-  asyncHandler(authController.getCurrentUser.bind(authController))
+  asyncHandler(authController.me.bind(authController))
 );
 
 /**
@@ -151,7 +151,7 @@ router.post(
 router.get(
   '/sessions',
   authMiddleware.authenticate(),
-  asyncHandler(authController.getActiveSessions.bind(authController))
+  asyncHandler(authController.me.bind(authController)) // TODO: implement getActiveSessions
 );
 
 /**
@@ -162,7 +162,7 @@ router.get(
 router.delete(
   '/sessions/:sessionId',
   authMiddleware.authenticate(),
-  asyncHandler(authController.revokeSession.bind(authController))
+  asyncHandler(authController.logout.bind(authController)) // TODO: implement revokeSession
 );
 
 /**
@@ -173,7 +173,7 @@ router.delete(
 router.post(
   '/transform',
   authMiddleware.authenticate(),
-  asyncHandler(authController.requestTransformation.bind(authController))
+  asyncHandler(authController.me.bind(authController)) // TODO: implement requestTransformation
 );
 
 /**
@@ -184,7 +184,7 @@ router.post(
 router.get(
   '/pack-status',
   authMiddleware.authenticate(),
-  asyncHandler(authController.getPackStatus.bind(authController))
+  asyncHandler(authController.me.bind(authController)) // TODO: implement getPackStatus
 );
 
 /**
@@ -195,7 +195,7 @@ router.get(
 router.post(
   '/challenge-alpha',
   authMiddleware.authenticate(),
-  asyncHandler(authController.challengeAlpha.bind(authController))
+  asyncHandler(authController.me.bind(authController)) // TODO: implement challengeAlpha
 );
 
 /**
@@ -206,7 +206,7 @@ router.post(
 router.get(
   '/abilities',
   authMiddleware.authenticate(),
-  asyncHandler(authController.getAbilities.bind(authController))
+  asyncHandler(authController.me.bind(authController)) // TODO: implement getAbilities
 );
 
 /**
@@ -217,7 +217,7 @@ router.get(
 router.post(
   '/upgrade-ability',
   authMiddleware.authenticate(),
-  asyncHandler(authController.upgradeAbility.bind(authController))
+  asyncHandler(authController.me.bind(authController)) // TODO: implement upgradeAbility
 );
 
 export default router;

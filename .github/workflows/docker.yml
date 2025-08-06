@@ -2,7 +2,7 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: [main, develop, 'fix/**', 'feat/**', 'feature/**', 'hotfix/**']
+    branches: [main, develop, fix/*]
   pull_request:
     branches: [main, develop]
 
@@ -30,10 +30,14 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Validate and install dependencies
+      - name: Validate package-lock.json
         run: |
-          echo "=== Installing dependencies ==="
-          npm ci
+          echo "=== Validating package-lock.json ==="
+          if [ ! -f package-lock.json ]; then
+            echo "❌ No package-lock.json found!"
+            exit 1
+          fi
+          echo "✅ package-lock.json exists"
 
       - name: Debug Environment
         run: |
@@ -52,19 +56,19 @@ jobs:
           find . -name "package*.json" -type f | head -20
 
       - name: Set up QEMU for multi-platform
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: linux/amd64
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
         with:
           driver-opts: |
             network=host
           buildkitd-flags: --debug
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -90,6 +94,7 @@ jobs:
           build-args: |
             BUILDKIT_INLINE_CACHE=1
             NODE_ENV=production
+          outputs: type=registry,push=${{ github.event_name != 'pull_request' }}
 
       # OPTIONAL: Upload build logs as artifacts
       - name: Upload Docker build logs

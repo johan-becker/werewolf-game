@@ -81,7 +81,13 @@ export interface PlayerChatStatus {
 
 // System message templates
 export interface SystemMessageData {
-  type: 'player_joined' | 'player_left' | 'game_started' | 'phase_changed' | 'player_died' | 'role_revealed';
+  type:
+    | 'player_joined'
+    | 'player_left'
+    | 'game_started'
+    | 'phase_changed'
+    | 'player_died'
+    | 'role_revealed';
   playerName?: string;
   role?: string;
   phase?: string;
@@ -95,45 +101,48 @@ export interface ChatService {
   sendMessage(data: SendMessageDTO): Promise<ChatMessageResponse>;
   editMessage(messageId: string, content: string): Promise<ChatMessageResponse>;
   deleteMessage(messageId: string): Promise<ChatMessageResponse>;
-  
+
   // System messages
   sendSystemMessage(gameId: string, data: SystemMessageData): Promise<ChatMessageResponse>;
-  
+
   // Channel access
   getChannelAccess(gameId: string, userId: string): Promise<PlayerChatStatus>;
-  
+
   // Utilities
   mentionPlayer(content: string, userId: string, username: string): string;
   extractMentions(content: string): string[];
 }
 
 // Channel descriptions for UI
-export const CHAT_CHANNEL_INFO: Record<ChatChannel, { name: string; description: string; color: string }> = {
+export const CHAT_CHANNEL_INFO: Record<
+  ChatChannel,
+  { name: string; description: string; color: string }
+> = {
   LOBBY: {
     name: 'Lobby',
     description: 'Pre-game chat for all players',
-    color: '#6B7280'
+    color: '#6B7280',
   },
   DAY: {
     name: 'Day Chat',
     description: 'Daytime discussions for living players',
-    color: '#F59E0B'
+    color: '#F59E0B',
   },
   NIGHT: {
     name: 'Werewolf Chat',
     description: 'Private werewolf communication',
-    color: '#EF4444'
+    color: '#EF4444',
   },
   DEAD: {
     name: 'Ghost Chat',
     description: 'Chat for eliminated players',
-    color: '#9CA3AF'
+    color: '#9CA3AF',
   },
   SYSTEM: {
     name: 'System',
     description: 'Game announcements and notifications',
-    color: '#3B82F6'
-  }
+    color: '#3B82F6',
+  },
 };
 
 // Validation helpers
@@ -141,11 +150,11 @@ export const validateChatMessage = (content: string): { valid: boolean; error?: 
   if (!content || content.trim().length === 0) {
     return { valid: false, error: 'Message cannot be empty' };
   }
-  
+
   if (content.length > 1000) {
     return { valid: false, error: 'Message too long (max 1000 characters)' };
   }
-  
+
   return { valid: true };
 };
 
@@ -154,62 +163,62 @@ export const canAccessChannel = (
   playerStatus: { isAlive: boolean; role: string; gamePhase: string }
 ): ChatChannelAccess => {
   const { isAlive, role, gamePhase } = playerStatus;
-  
+
   switch (channel) {
     case 'LOBBY':
-      return { 
-        canRead: true, 
-        canWrite: gamePhase === 'lobby' || gamePhase === 'waiting' 
+      return {
+        canRead: true,
+        canWrite: gamePhase === 'lobby' || gamePhase === 'waiting',
       };
-      
+
     case 'SYSTEM':
-      return { 
-        canRead: true, 
+      return {
+        canRead: true,
         canWrite: false,
-        reason: 'System messages are read-only'
+        reason: 'System messages are read-only',
       };
-      
+
     case 'DAY':
       if (!isAlive) {
-        return { 
-          canRead: false, 
+        return {
+          canRead: false,
           canWrite: false,
-          reason: 'Only living players can participate in day chat'
+          reason: 'Only living players can participate in day chat',
         };
       }
-      return { 
-        canRead: true, 
-        canWrite: gamePhase === 'day' || gamePhase === 'voting'
+      return {
+        canRead: true,
+        canWrite: gamePhase === 'day' || gamePhase === 'voting',
       };
-      
+
     case 'NIGHT':
       if (role !== 'werewolf') {
-        return { 
-          canRead: false, 
+        return {
+          canRead: false,
           canWrite: false,
-          reason: 'Only werewolves can access night chat'
+          reason: 'Only werewolves can access night chat',
         };
       }
-      return { 
-        canRead: true, 
-        canWrite: gamePhase === 'night'
+      return {
+        canRead: true,
+        canWrite: gamePhase === 'night',
       };
-      
+
     case 'DEAD':
       if (isAlive) {
-        return { 
-          canRead: false, 
+        return {
+          canRead: false,
           canWrite: false,
-          reason: 'Only eliminated players can access ghost chat'
+          reason: 'Only eliminated players can access ghost chat',
         };
       }
       return { canRead: true, canWrite: true };
-      
+
     default:
-      return { 
-        canRead: false, 
+      return {
+        canRead: false,
         canWrite: false,
-        reason: 'Unknown channel'
+        reason: 'Unknown channel',
       };
   }
 };

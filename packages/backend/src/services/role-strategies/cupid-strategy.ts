@@ -7,7 +7,7 @@ import {
   WerewolfGameState,
   ActionType,
   Team,
-  NightPhase
+  NightPhase,
 } from '../../types/werewolf-roles.types';
 
 /**
@@ -19,22 +19,21 @@ export class CupidStrategy extends BaseRoleStrategy {
   /**
    * Amor kann nur in der ersten Nacht verlieben
    */
-  getAvailableActions(
-    player: WerewolfPlayer,
-    gameState: WerewolfGameState
-  ): ActionType[] {
+  getAvailableActions(player: WerewolfPlayer, gameState: WerewolfGameState): ActionType[] {
     if (!player.isAlive) return [];
-    
+
     const actions: ActionType[] = [];
-    
+
     if (gameState.phase === 'DAY') {
       actions.push(ActionType.VILLAGE_VOTE);
-    } else if (gameState.phase === 'NIGHT' && 
-               gameState.currentNightPhase === NightPhase.CUPID_PHASE &&
-               gameState.nightNumber === 1) {
+    } else if (
+      gameState.phase === 'NIGHT' &&
+      gameState.currentNightPhase === NightPhase.CUPID_PHASE &&
+      gameState.nightNumber === 1
+    ) {
       actions.push(ActionType.CUPID_LINK);
     }
-    
+
     return actions;
   }
 
@@ -50,45 +49,45 @@ export class CupidStrategy extends BaseRoleStrategy {
     if (action.actionType !== ActionType.CUPID_LINK) {
       return {
         success: false,
-        message: 'Amor kann nur Spieler verlieben'
+        message: 'Amor kann nur Spieler verlieben',
       };
     }
 
     if (gameState.nightNumber !== 1) {
       return {
         success: false,
-        message: 'Amor kann nur in der ersten Nacht agieren'
+        message: 'Amor kann nur in der ersten Nacht agieren',
       };
     }
 
     if (!action.targetId || !action.secondTargetId) {
       return {
         success: false,
-        message: 'Zwei Ziele erforderlich für Verkupplung'
+        message: 'Zwei Ziele erforderlich für Verkupplung',
       };
     }
 
     if (action.targetId === action.secondTargetId) {
       return {
         success: false,
-        message: 'Kann nicht denselben Spieler zweimal auswählen'
+        message: 'Kann nicht denselben Spieler zweimal auswählen',
       };
     }
 
     const target1 = this.findPlayer(allPlayers, action.targetId);
     const target2 = this.findPlayer(allPlayers, action.secondTargetId);
-    
+
     if (!target1 || !target2) {
       return {
         success: false,
-        message: 'Ein oder beide Ziele nicht gefunden'
+        message: 'Ein oder beide Ziele nicht gefunden',
       };
     }
 
     if (!target1.isAlive || !target2.isAlive) {
       return {
         success: false,
-        message: 'Kann keine toten Spieler verlieben'
+        message: 'Kann keine toten Spieler verlieben',
       };
     }
 
@@ -99,15 +98,15 @@ export class CupidStrategy extends BaseRoleStrategy {
       effects: {
         deaths: [],
         protections: [],
-        lovers: [target1.id, target2.id]
-      }
+        lovers: [target1.id, target2.id],
+      },
     };
   }
 
   /**
    * Initialisiert Amor
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.CUPID,
       team: Team.VILLAGE,
@@ -117,8 +116,8 @@ export class CupidStrategy extends BaseRoleStrategy {
         canShoot: false,
         hasSpied: false,
         spyRisk: 0,
-        isProtected: false
-      }
+        isProtected: false,
+      },
     };
   }
 
@@ -132,13 +131,15 @@ export class CupidStrategy extends BaseRoleStrategy {
   ): boolean {
     switch (action) {
       case ActionType.CUPID_LINK:
-        return gameState.phase === 'NIGHT' && 
-               gameState.currentNightPhase === NightPhase.CUPID_PHASE &&
-               gameState.nightNumber === 1;
-      
+        return (
+          gameState.phase === 'NIGHT' &&
+          gameState.currentNightPhase === NightPhase.CUPID_PHASE &&
+          gameState.nightNumber === 1
+        );
+
       case ActionType.VILLAGE_VOTE:
         return gameState.phase === 'DAY';
-      
+
       default:
         return false;
     }
@@ -155,10 +156,11 @@ export class CupidStrategy extends BaseRoleStrategy {
    * Hilfsmethode: Ermittelt mögliche Ziele für Verkupplung
    */
   getPossibleTargets(player: WerewolfPlayer, allPlayers: WerewolfPlayer[]): WerewolfPlayer[] {
-    return allPlayers.filter(p => 
-      p.isAlive && 
-      p.id !== player.id && // Amor kann sich nicht selbst verkuppeln
-      !p.specialStates.loverId    // Bereits verliebte Spieler ausschließen
+    return allPlayers.filter(
+      p =>
+        p.isAlive &&
+        p.id !== player.id && // Amor kann sich nicht selbst verkuppeln
+        !p.specialStates.loverId // Bereits verliebte Spieler ausschließen
     );
   }
 }

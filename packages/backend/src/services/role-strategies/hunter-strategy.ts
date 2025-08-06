@@ -6,7 +6,7 @@ import {
   ActionResult,
   WerewolfGameState,
   ActionType,
-  Team
+  Team,
 } from '../../types/werewolf-roles.types';
 
 /**
@@ -18,16 +18,13 @@ export class HunterStrategy extends BaseRoleStrategy {
   /**
    * Jäger kann tagsüber abstimmen
    */
-  getAvailableActions(
-    player: WerewolfPlayer,
-    gameState: WerewolfGameState
-  ): ActionType[] {
+  getAvailableActions(player: WerewolfPlayer, gameState: WerewolfGameState): ActionType[] {
     if (!player.isAlive) return [];
-    
+
     if (gameState.phase === 'DAY') {
       return [ActionType.VILLAGE_VOTE];
     }
-    
+
     return []; // Nachts keine Aktionen
   }
 
@@ -43,10 +40,10 @@ export class HunterStrategy extends BaseRoleStrategy {
     if (action.actionType === ActionType.HUNTER_REVENGE) {
       return this.executeShoot(player, action, allPlayers, gameState);
     }
-    
+
     return {
       success: false,
-      message: 'Jäger kann nur beim Tod schießen'
+      message: 'Jäger kann nur beim Tod schießen',
     };
   }
 
@@ -55,8 +52,8 @@ export class HunterStrategy extends BaseRoleStrategy {
    */
   async onDeath(
     player: WerewolfPlayer,
-    allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _allPlayers: WerewolfPlayer[],
+    _gameState: WerewolfGameState
   ): Promise<ActionResult | null> {
     if (!player.specialStates.canShoot) {
       return null; // Bereits geschossen oder durch Gift gestorben
@@ -67,7 +64,7 @@ export class HunterStrategy extends BaseRoleStrategy {
       success: true,
       message: 'Der Jäger kann beim Tod noch jemanden erschießen',
       requiresAction: true,
-      availableActions: [ActionType.HUNTER_REVENGE]
+      availableActions: [ActionType.HUNTER_REVENGE],
     };
   }
 
@@ -78,19 +75,19 @@ export class HunterStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     if (!player.specialStates.canShoot) {
       return {
         success: false,
-        message: 'Kann nicht mehr schießen'
+        message: 'Kann nicht mehr schießen',
       };
     }
 
     if (!action.targetId) {
       return {
         success: false,
-        message: 'Ziel erforderlich für Schuss'
+        message: 'Ziel erforderlich für Schuss',
       };
     }
 
@@ -98,21 +95,21 @@ export class HunterStrategy extends BaseRoleStrategy {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
     if (!target.isAlive) {
       return {
         success: false,
-        message: 'Kann keine toten Spieler erschießen'
+        message: 'Kann keine toten Spieler erschießen',
       };
     }
 
     if (target.id === player.id) {
       return {
         success: false,
-        message: 'Jäger kann sich nicht selbst erschießen'
+        message: 'Jäger kann sich nicht selbst erschießen',
       };
     }
 
@@ -125,15 +122,15 @@ export class HunterStrategy extends BaseRoleStrategy {
       effects: {
         deaths: [target.id],
         protections: [],
-        lovers: []
-      }
+        lovers: [],
+      },
     };
   }
 
   /**
    * Initialisiert Jäger mit Schuss-Fähigkeit
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.HUNTER,
       team: Team.VILLAGE,
@@ -143,8 +140,8 @@ export class HunterStrategy extends BaseRoleStrategy {
         canShoot: true, // Jäger startet mit Schuss
         hasSpied: false,
         spyRisk: 0,
-        isProtected: false
-      }
+        isProtected: false,
+      },
     };
   }
 
@@ -159,10 +156,10 @@ export class HunterStrategy extends BaseRoleStrategy {
     switch (action) {
       case ActionType.VILLAGE_VOTE:
         return gameState.phase === 'DAY';
-      
+
       case ActionType.HUNTER_REVENGE:
         return !player.isAlive && player.specialStates.canShoot; // Nur beim Tod
-      
+
       default:
         return false;
     }

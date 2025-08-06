@@ -6,27 +6,24 @@
 import { Socket } from 'socket.io';
 import { createClient } from '@supabase/supabase-js';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { AuthSecurityService } from '../services/auth-security.service';
+// import { AuthSecurityService } from '../services/auth-security.service';
 import { AuthErrorCode } from '../types/auth.types';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
 
-const authService = AuthSecurityService.getInstance();
+// const authService = AuthSecurityService.getInstance();
 
 // Connection tracking for reconnection handling
-const activeConnections = new Map<string, {
-  socket: Socket;
-  lastSeen: number;
-  gameId?: string;
-}>();
+const activeConnections = new Map<
+  string,
+  {
+    socket: Socket;
+    lastSeen: number;
+    gameId?: string | undefined;
+  }
+>();
 
-export async function authenticateSocket(
-  socket: Socket,
-  next: (err?: ExtendedError) => void
-) {
+export async function authenticateSocket(socket: Socket, next: (err?: ExtendedError) => void) {
   try {
     let token: string | undefined;
 
@@ -54,8 +51,11 @@ export async function authenticateSocket(
     }
 
     // Verify with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
     if (error || !user) {
       return next(new Error('Invalid or expired token'));
     }
@@ -71,9 +71,10 @@ export async function authenticateSocket(
     if (!socket.data) {
       socket.data = {};
     }
-    
+
     socket.data.userId = user.id;
-    socket.data.username = profile?.username || profile?.full_name || user.email?.split('@')[0] || 'Anonymous';
+    socket.data.username =
+      profile?.username || profile?.full_name || user.email?.split('@')[0] || 'Anonymous';
 
     // Handle reconnection - check if user was previously connected
     const existingConnection = activeConnections.get(user.id);
@@ -82,7 +83,7 @@ export async function authenticateSocket(
       if (existingConnection.socket.connected) {
         existingConnection.socket.disconnect(true);
       }
-      
+
       // Transfer game room if user was in one
       if (existingConnection.gameId) {
         (socket.data as any).gameId = existingConnection.gameId;
@@ -94,7 +95,7 @@ export async function authenticateSocket(
     activeConnections.set(user.id, {
       socket,
       lastSeen: Date.now(),
-      gameId: (socket.data as any).gameId
+      gameId: (socket.data as any).gameId,
     });
 
     // Auto-disconnect on invalid token (session expired)
@@ -139,7 +140,11 @@ export function getActiveConnection(userId: string) {
 export function updateConnectionGame(userId: string, gameId?: string) {
   const connection = activeConnections.get(userId);
   if (connection) {
-    connection.gameId = gameId || undefined;
+    if (gameId !== undefined) {
+      connection.gameId = gameId;
+    } else {
+      connection.gameId = undefined;
+    }
     connection.lastSeen = Date.now();
   }
 }
@@ -157,26 +162,26 @@ export function rateLimitMiddleware(
     if (!socket.data?.userId) {
       socket.emit('error', {
         code: AuthErrorCode.INVALID_SESSION,
-        message: 'Socket not properly authenticated'
+        message: 'Socket not properly authenticated',
       });
       return;
     }
-    
+
     const key = `${socket.data.userId}:${eventName}`;
     const now = Date.now();
     const requests = rateLimitMap.get(key) || [];
-    
+
     // Clean old requests
     const validRequests = requests.filter(time => now - time < windowMs);
-    
+
     if (validRequests.length >= maxRequests) {
       socket.emit('error', {
         code: 'RATE_LIMIT',
-        message: `Too many requests for ${eventName}`
+        message: `Too many requests for ${eventName}`,
       });
       return;
     }
-    
+
     validRequests.push(now);
     rateLimitMap.set(key, validRequests);
     next();

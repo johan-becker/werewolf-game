@@ -1,7 +1,5 @@
-'use client'
+'use client';
 
 export function DashboardSidebar() {
-  return (
-    <div>Dashboard Sidebar - Coming Soon</div>
-  )
+  return <div>Dashboard Sidebar - Coming Soon</div>;
 }

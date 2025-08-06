@@ -17,7 +17,7 @@ import {
   SecuritySeverity,
   AuthMetadata,
   AuthConfig,
-  AuthPerformanceMetrics
+  AuthPerformanceMetrics,
 } from '../types/auth.types';
 
 export class AuthSecurityService {
@@ -33,14 +33,14 @@ export class AuthSecurityService {
       maxConcurrentSessions: 3,
       sessionTimeoutMs: 24 * 60 * 60 * 1000, // 24 hours
       enableDeviceTracking: true,
-      strictModeEnabled: process.env.NODE_ENV === 'production'
+      strictModeEnabled: process.env.NODE_ENV === 'production',
     };
 
     this.performanceMetrics = {
       authenticationLatencyMs: 0,
       cacheHitRate: 0,
       activeSessionsCount: 0,
-      tokenValidationsPerSecond: 0
+      tokenValidationsPerSecond: 0,
     };
   }
 
@@ -79,9 +79,12 @@ export class AuthSecurityService {
           userAgent: context.userAgent,
           details: { token: token.substring(0, 10) + '...' },
           timestamp: new Date(),
-          severity: SecuritySeverity.MEDIUM
+          severity: SecuritySeverity.MEDIUM,
         });
-        return this.createErrorResult(AuthErrorCode.RATE_LIMITED, 'Too many authentication attempts');
+        return this.createErrorResult(
+          AuthErrorCode.RATE_LIMITED,
+          'Too many authentication attempts'
+        );
       }
 
       // Check cache first (with security validation)
@@ -90,14 +93,14 @@ export class AuthSecurityService {
         return {
           success: true,
           user: cachedUser.user,
-          metadata: cachedUser.metadata
+          metadata: cachedUser.metadata,
         };
       }
 
       // Supabase token validation with timeout
       const authResult = await Promise.race([
         this.validateTokenWithSupabase(token),
-        this.createTimeoutPromise()
+        this.createTimeoutPromise(),
       ]);
 
       if (!authResult.success) {
@@ -122,27 +125,29 @@ export class AuthSecurityService {
         userAgent: context.userAgent,
         details: { loginTime: new Date() },
         timestamp: new Date(),
-        severity: SecuritySeverity.LOW
+        severity: SecuritySeverity.LOW,
       });
 
       // Update performance metrics
       this.updatePerformanceMetrics(Date.now() - startTime, true);
 
       return authResult;
-
     } catch (error) {
       // Critical error handling
       await this.logSecurityEvent({
         type: SecurityEventType.SUSPICIOUS_ACTIVITY,
         ip: context.ip,
         userAgent: context.userAgent,
-        details: { error: error instanceof Error ? error.message : 'Unknown error', token: token.substring(0, 10) + '...' },
+        details: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+          token: token.substring(0, 10) + '...',
+        },
         timestamp: new Date(),
-        severity: SecuritySeverity.HIGH
+        severity: SecuritySeverity.HIGH,
       });
 
       return this.createErrorResult(
-        AuthErrorCode.SERVICE_UNAVAILABLE, 
+        AuthErrorCode.SERVICE_UNAVAILABLE,
         'Authentication service temporarily unavailable'
       );
     }
@@ -163,10 +168,13 @@ export class AuthSecurityService {
       [UserRole.PLAYER]: 0,
       [UserRole.MODERATOR]: 1,
       [UserRole.ADMIN]: 2,
-      [UserRole.SYSTEM]: 3
+      [UserRole.SYSTEM]: 3,
     };
 
-    return roleHierarchy[user.role] >= roleHierarchy[minimumRole];
+    return (
+      roleHierarchy[user.role as keyof typeof roleHierarchy] >=
+      roleHierarchy[minimumRole as keyof typeof roleHierarchy]
+    );
   }
 
   /**
@@ -186,25 +194,26 @@ export class AuthSecurityService {
 
     return {
       id: supabaseUser.id,
+      userId: supabaseUser.id,
       email: supabaseUser.email!,
       username: profile?.username,
       role,
       permissions,
       isVerified: supabaseUser.email_confirmed_at !== null,
       createdAt: new Date(supabaseUser.created_at),
-      lastActiveAt: new Date()
+      lastActiveAt: new Date(),
     };
   }
 
   private async validateTokenWithSupabase(token: string): Promise<AuthenticationResult> {
     try {
-      const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-      
+      const {
+        data: { user },
+        error,
+      } = await supabaseAdmin.auth.getUser(token);
+
       if (error) {
-        return this.createErrorResult(
-          this.mapSupabaseError(error.message),
-          error.message
-        );
+        return this.createErrorResult(this.mapSupabaseError(error.message), error.message);
       }
 
       if (!user) {
@@ -220,25 +229,21 @@ export class AuthSecurityService {
         tokenType: 'bearer',
         expiresAt: new Date(Date.now() + this.config.sessionTimeoutMs),
         issuer: 'supabase',
-        audience: 'werewolf-game'
+        audience: 'werewolf-game',
       };
 
       return {
         success: true,
         user: authenticatedUser,
-        metadata
+        metadata,
       };
-
     } catch (error) {
-      return this.createErrorResult(
-        AuthErrorCode.SERVICE_UNAVAILABLE,
-        'Token validation failed'
-      );
+      return this.createErrorResult(AuthErrorCode.SERVICE_UNAVAILABLE, 'Token validation failed');
     }
   }
 
   private async performSecurityValidations(
-    user: AuthenticatedUser, 
+    user: AuthenticatedUser,
     context: AuthContext
   ): Promise<AuthenticationResult> {
     // Check if user is suspended
@@ -255,17 +260,20 @@ export class AuthSecurityService {
         userAgent: context.userAgent,
         details: { reason: 'Suspicious IP detected' },
         timestamp: new Date(),
-        severity: SecuritySeverity.HIGH
+        severity: SecuritySeverity.HIGH,
       });
-      return this.createErrorResult(AuthErrorCode.INVALID_SESSION, 'Authentication blocked for security');
+      return this.createErrorResult(
+        AuthErrorCode.INVALID_SESSION,
+        'Authentication blocked for security'
+      );
     }
 
     // Additional security checks...
-    
+
     return { success: true, user };
   }
 
-  private async determineUserRole(userId: string): Promise<UserRole> {
+  private async determineUserRole(_userId: string): Promise<UserRole> {
     // In production, fetch from database
     // For now, return default role
     return UserRole.PLAYER;
@@ -275,18 +283,18 @@ export class AuthSecurityService {
     const rolePermissions = {
       [UserRole.PLAYER]: [Permission.PLAY_GAME, Permission.CREATE_GAME],
       [UserRole.MODERATOR]: [
-        Permission.PLAY_GAME, 
-        Permission.CREATE_GAME, 
-        Permission.MODERATE_CHAT
+        Permission.PLAY_GAME,
+        Permission.CREATE_GAME,
+        Permission.MODERATE_CHAT,
       ],
       [UserRole.ADMIN]: [
         Permission.PLAY_GAME,
         Permission.CREATE_GAME,
         Permission.MODERATE_CHAT,
         Permission.BAN_USER,
-        Permission.VIEW_ANALYTICS
+        Permission.VIEW_ANALYTICS,
       ],
-      [UserRole.SYSTEM]: Object.values(Permission)
+      [UserRole.SYSTEM]: Object.values(Permission),
     };
 
     return rolePermissions[role] || [];
@@ -298,8 +306,8 @@ export class AuthSecurityService {
       error: {
         code,
         message,
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      },
     };
   }
 
@@ -310,7 +318,7 @@ export class AuthSecurityService {
     return AuthErrorCode.INVALID_TOKEN;
   }
 
-  private isRateLimited(ip: string): boolean {
+  private isRateLimited(_ip: string): boolean {
     // Implement rate limiting logic
     return false;
   }
@@ -327,7 +335,7 @@ export class AuthSecurityService {
     this.userCache.set(token, {
       user,
       metadata,
-      expiresAt: new Date(Date.now() + 300000) // 5 minutes cache
+      expiresAt: new Date(Date.now() + 300000), // 5 minutes cache
     });
   }
 
@@ -340,7 +348,7 @@ export class AuthSecurityService {
   }
 
   private async handleAuthenticationFailure(
-    error: AuthenticationError, 
+    error: AuthenticationError,
     context: AuthContext
   ): Promise<void> {
     await this.logSecurityEvent({
@@ -349,7 +357,7 @@ export class AuthSecurityService {
       userAgent: context.userAgent,
       details: { errorCode: error.code, errorMessage: error.message },
       timestamp: new Date(),
-      severity: SecuritySeverity.MEDIUM
+      severity: SecuritySeverity.MEDIUM,
     });
   }
 
@@ -358,12 +366,12 @@ export class AuthSecurityService {
     console.log('Security Event:', event);
   }
 
-  private async isUserSuspended(userId: string): Promise<boolean> {
+  private async isUserSuspended(_userId: string): Promise<boolean> {
     // Check user suspension status
     return false;
   }
 
-  private updatePerformanceMetrics(latencyMs: number, cacheHit: boolean): void {
+  private updatePerformanceMetrics(latencyMs: number, _cacheHit: boolean): void {
     this.performanceMetrics.authenticationLatencyMs = latencyMs;
     // Update other metrics...
   }

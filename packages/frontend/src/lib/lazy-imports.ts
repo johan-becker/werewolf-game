@@ -3,7 +3,7 @@
  * Dynamic imports with loading states for better performance
  */
 
-import React, { lazy } from 'react'
+import React, { lazy } from 'react';
 
 // Dashboard Components (temporarily disabled until components are created)
 // export const DashboardOverview = lazy(() => import('@/components/dashboard/dashboard-overview'))
@@ -18,14 +18,26 @@ import React, { lazy } from 'react'
 // export const GameResults = lazy(() => import('@/components/game/game-results'))
 
 // Werewolf Components
-export const PackCard = lazy(() => import('@/components/werewolf/pack-card').then(module => ({ default: module.PackCard })))
-export const TerritoryMap = lazy(() => import('@/components/werewolf/territory-map').then(module => ({ default: module.TerritoryMap })))
-export const TransformationTimer = lazy(() => import('@/components/werewolf/transformation-timer').then(module => ({ default: module.TransformationTimer })))
-export const MoonPhaseIndicator = lazy(() => import('@/components/werewolf/moon-phase-indicator').then(module => ({ default: module.MoonPhaseIndicator })))
+export const PackCard = lazy(() =>
+  import('@/components/werewolf/pack-card').then(module => ({ default: module.PackCard }))
+);
+export const TerritoryMap = lazy(() =>
+  import('@/components/werewolf/territory-map').then(module => ({ default: module.TerritoryMap }))
+);
+export const TransformationTimer = lazy(() =>
+  import('@/components/werewolf/transformation-timer').then(module => ({
+    default: module.TransformationTimer,
+  }))
+);
+export const MoonPhaseIndicator = lazy(() =>
+  import('@/components/werewolf/moon-phase-indicator').then(module => ({
+    default: module.MoonPhaseIndicator,
+  }))
+);
 
 // Auth Components (temporarily disabled)
 // export const LoginForm = lazy(() => import('@/components/auth/login-form'))
-// export const RegisterForm = lazy(() => import('@/components/auth/register-form')) 
+// export const RegisterForm = lazy(() => import('@/components/auth/register-form'))
 // export const ForgotPasswordForm = lazy(() => import('@/components/auth/forgot-password-form'))
 
 // Admin Components (temporarily disabled)
@@ -34,8 +46,14 @@ export const MoonPhaseIndicator = lazy(() => import('@/components/werewolf/moon-
 // export const GameManagement = lazy(() => import('@/components/admin/game-management'))
 
 // Landing Page Components
-export const HeroSection = lazy(() => import('@/components/landing/hero-section').then(module => ({ default: module.HeroSection })))
-export const FeaturesSection = lazy(() => import('@/components/landing/features-section').then(module => ({ default: module.FeaturesSection })))
+export const HeroSection = lazy(() =>
+  import('@/components/landing/hero-section').then(module => ({ default: module.HeroSection }))
+);
+export const FeaturesSection = lazy(() =>
+  import('@/components/landing/features-section').then(module => ({
+    default: module.FeaturesSection,
+  }))
+);
 // export const TestimonialsSection = lazy(() => import('@/components/landing/testimonials-section'))
 
 // Utility Components (temporarily disabled)
@@ -52,51 +70,51 @@ export const FeaturesSection = lazy(() => import('@/components/landing/features-
 // export const NotificationSettings = lazy(() => import('@/components/settings/notification-settings'))
 // export const ThemeSettings = lazy(() => import('@/components/settings/theme-settings'))
 
-// Helper function for creating lazy components with error boundaries  
-export const withLazyLoading = (
-  importFn: () => Promise<{ default: React.ComponentType<any> }>,
-  fallback?: React.ComponentType
+// Helper function for creating lazy components with error boundaries
+export const withLazyLoading = <T extends Record<string, any> = Record<string, any>>(
+  importFn: () => Promise<{ default: React.ComponentType<T> }>,
+  _fallback?: React.ComponentType
 ) => {
-  const LazyComponent = lazy(importFn)
-  
-  return function LazyWrapper(props: any) {
-    return React.createElement(LazyComponent, props)
-  }
-}
+  const LazyComponent = lazy(importFn);
+
+  return function LazyWrapper(props: T) {
+    return React.createElement(LazyComponent as any, props);
+  };
+};
 
 // Preload functions for critical components
 export const preloadCriticalComponents = () => {
   // Preload components that are likely to be used soon
   // import('@/components/dashboard/dashboard-overview')
-  import('@/components/werewolf/moon-phase-indicator')
-  import('@/components/werewolf/pack-card')
-}
+  import('@/components/werewolf/moon-phase-indicator');
+  import('@/components/werewolf/pack-card');
+};
 
 // Route-based preloading
 export const preloadRouteComponents = (route: string) => {
   switch (route) {
     case '/dashboard':
       // import('@/components/dashboard/dashboard-overview')
-      import('@/components/werewolf/moon-phase-indicator')
-      break
+      import('@/components/werewolf/moon-phase-indicator');
+      break;
     case '/pack':
       // import('@/components/pack/pack-manager')
-      import('@/components/werewolf/pack-card')
-      break
+      import('@/components/werewolf/pack-card');
+      break;
     case '/territories':
       // import('@/components/territory/territory-manager')
-      import('@/components/werewolf/territory-map')
-      break
+      import('@/components/werewolf/territory-map');
+      break;
     case '/moon':
       // import('@/components/moon/moon-calendar')
-      import('@/components/werewolf/moon-phase-indicator')
-      import('@/components/werewolf/transformation-timer')
-      break
+      import('@/components/werewolf/moon-phase-indicator');
+      import('@/components/werewolf/transformation-timer');
+      break;
     case '/game':
       // import('@/components/game/game-lobby')
       // import('@/components/game/game-board')
-      break
+      break;
     default:
-      break
+      break;
   }
-}
+};

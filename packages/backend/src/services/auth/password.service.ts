@@ -11,9 +11,7 @@ import { TYPES } from '../../container/types';
 
 @injectable()
 export class PasswordService implements IPasswordService {
-  constructor(
-    @inject(TYPES.AppConfig) private readonly config: IAppConfig
-  ) {}
+  constructor(@inject(TYPES.AppConfig) private readonly config: IAppConfig) {}
 
   /**
    * Hash a password using Argon2id
@@ -26,10 +24,12 @@ export class PasswordService implements IPasswordService {
         timeCost: this.config.argon2Time,
         parallelism: this.config.argon2Parallelism,
         hashLength: 32, // 32-byte hash
-        saltLength: 16  // 16-byte salt
+        saltLength: 16, // 16-byte salt
       });
     } catch (error) {
-      throw new Error(`Failed to hash password: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to hash password: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -55,7 +55,7 @@ export class PasswordService implements IPasswordService {
         type: argon2.argon2id,
         memoryCost: this.config.argon2Memory,
         timeCost: this.config.argon2Time,
-        parallelism: this.config.argon2Parallelism
+        parallelism: this.config.argon2Parallelism,
       });
     } catch (error) {
       // If we can't determine, assume it needs rehashing for safety
@@ -67,13 +67,14 @@ export class PasswordService implements IPasswordService {
    * Generate a secure random password
    */
   generateSecurePassword(length: number = 16): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
     let password = '';
-    
+
     for (let i = 0; i < length; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    
+
     return password;
   }
 
@@ -119,7 +120,7 @@ export class PasswordService implements IPasswordService {
     }
 
     // Check for special characters
-    if (/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) {
+    if (/[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/.test(password)) {
       score += 1;
     } else {
       feedback.push('Password should contain special characters');
@@ -142,7 +143,7 @@ export class PasswordService implements IPasswordService {
     return {
       isValid,
       score: Math.max(0, Math.min(10, score)),
-      feedback
+      feedback,
     };
   }
 
@@ -158,7 +159,7 @@ export class PasswordService implements IPasswordService {
       /admin/i,
       /login/i,
       /welcome/i,
-      /letmein/i
+      /letmein/i,
     ];
 
     return commonPatterns.some(pattern => pattern.test(password));

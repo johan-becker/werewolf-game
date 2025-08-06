@@ -1,0 +1,2602 @@
+{
+  "config": {
+    "configFile": "/Users/johan/werewolf-game/packages/frontend/playwright.config.ts",
+    "rootDir": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e/global-setup.ts",
+    "globalTeardown": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e/global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/werewolf-e2e-results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/werewolf-e2e-results.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/johan/werewolf-game/packages/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/johan/werewolf-game/packages/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/johan/werewolf-game/packages/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/johan/werewolf-game/packages/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/johan/werewolf-game/packages/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/johan/werewolf-game/packages/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Microsoft Edge",
+        "name": "Microsoft Edge",
+        "testDir": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/johan/werewolf-game/packages/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "Google Chrome",
+        "name": "Google Chrome",
+        "testDir": "/Users/johan/werewolf-game/packages/frontend/src/__tests__/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "werewolf-game-flow.spec.ts",
+      "file": "werewolf-game-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Werewolf Game Complete Flow",
+          "file": "werewolf-game-flow.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Game Creation and Lobby",
+              "file": "werewolf-game-flow.spec.ts",
+              "line": 18,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should create werewolf game and display game code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-8e463131a9104d36a90b",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 19,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf game lobby with theme elements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-ff6fdefc84119c3807bf",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 54,
+                  "column": 9
+                },
+                {
+                  "title": "should allow player to join werewolf game by code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-6da44aac42d1ac33a989",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 70,
+                  "column": 9
+                },
+                {
+                  "title": "should add more players for minimum game requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-0bb7699f8a1fbfdaaee5",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 92,
+                  "column": 9
+                },
+                {
+                  "title": "should create werewolf game and display game code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-1705a8fc811d53d84ee5",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 19,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf game lobby with theme elements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-04419a2541d2e0960446",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 54,
+                  "column": 9
+                },
+                {
+                  "title": "should allow player to join werewolf game by code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-b3afd680a4bbc06c2503",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 70,
+                  "column": 9
+                },
+                {
+                  "title": "should add more players for minimum game requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-6a5c3301badfd0ac9c92",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 92,
+                  "column": 9
+                },
+                {
+                  "title": "should create werewolf game and display game code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-cb0b28f5a40bc2ff8d98",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 19,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf game lobby with theme elements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-90f8fd9a976e0b24c037",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 54,
+                  "column": 9
+                },
+                {
+                  "title": "should allow player to join werewolf game by code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-ff2d59a402a093009e79",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 70,
+                  "column": 9
+                },
+                {
+                  "title": "should add more players for minimum game requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-272cabb20c80977710fa",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 92,
+                  "column": 9
+                },
+                {
+                  "title": "should create werewolf game and display game code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-bcc813b4ea71b9a622b0",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 19,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf game lobby with theme elements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-e09fc88146656e29919f",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 54,
+                  "column": 9
+                },
+                {
+                  "title": "should allow player to join werewolf game by code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-d5ee3c34f62513928d9d",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 70,
+                  "column": 9
+                },
+                {
+                  "title": "should add more players for minimum game requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-6c8096a89c353af076f0",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 92,
+                  "column": 9
+                },
+                {
+                  "title": "should create werewolf game and display game code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-6b9ed194d3523e02a681",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 19,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf game lobby with theme elements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-25eba2afe9d8b470ee36",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 54,
+                  "column": 9
+                },
+                {
+                  "title": "should allow player to join werewolf game by code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-2f30d203987d96c9d126",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 70,
+                  "column": 9
+                },
+                {
+                  "title": "should add more players for minimum game requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-d19504454580c17b2fc4",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 92,
+                  "column": 9
+                },
+                {
+                  "title": "should create werewolf game and display game code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-dcbda86f614575e56790",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 19,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf game lobby with theme elements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-aafb23cad7edd88ba87d",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 54,
+                  "column": 9
+                },
+                {
+                  "title": "should allow player to join werewolf game by code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-74e916bb7cc338528276",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 70,
+                  "column": 9
+                },
+                {
+                  "title": "should add more players for minimum game requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-e27d6eb89fd142428c06",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 92,
+                  "column": 9
+                },
+                {
+                  "title": "should create werewolf game and display game code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-c8d6d67933d649699507",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 19,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf game lobby with theme elements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-515d3fd56cdb8f831745",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 54,
+                  "column": 9
+                },
+                {
+                  "title": "should allow player to join werewolf game by code",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-bd5fe962b9f903a941da",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 70,
+                  "column": 9
+                },
+                {
+                  "title": "should add more players for minimum game requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-b458d302266d63c119f6",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 92,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Game Start and Role Assignment",
+              "file": "werewolf-game-flow.spec.ts",
+              "line": 116,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should start werewolf game and assign roles",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-7165177652d9c5393a06",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 117,
+                  "column": 9
+                },
+                {
+                  "title": "should display role information and werewolf abilities",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-43afbdf9c5b577a853a1",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 138,
+                  "column": 9
+                },
+                {
+                  "title": "should start werewolf game and assign roles",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-3ccc96b1f65e062777f1",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 117,
+                  "column": 9
+                },
+                {
+                  "title": "should display role information and werewolf abilities",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-c13082483518d5d158f6",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 138,
+                  "column": 9
+                },
+                {
+                  "title": "should start werewolf game and assign roles",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-1d79725d49f544e443ca",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 117,
+                  "column": 9
+                },
+                {
+                  "title": "should display role information and werewolf abilities",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-fcf13cd431ae278ce580",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 138,
+                  "column": 9
+                },
+                {
+                  "title": "should start werewolf game and assign roles",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-6efac64de7a82886460d",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 117,
+                  "column": 9
+                },
+                {
+                  "title": "should display role information and werewolf abilities",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-68c34e064670fd366a12",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 138,
+                  "column": 9
+                },
+                {
+                  "title": "should start werewolf game and assign roles",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-466277ab58f7ff6f4ac7",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 117,
+                  "column": 9
+                },
+                {
+                  "title": "should display role information and werewolf abilities",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-082a1e085289eef4bd9e",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 138,
+                  "column": 9
+                },
+                {
+                  "title": "should start werewolf game and assign roles",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-d91b5dd995b556cda6ed",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 117,
+                  "column": 9
+                },
+                {
+                  "title": "should display role information and werewolf abilities",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-d85c2d1c6fafd62ec31e",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 138,
+                  "column": 9
+                },
+                {
+                  "title": "should start werewolf game and assign roles",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-c1d1b4c6db4c487b51be",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 117,
+                  "column": 9
+                },
+                {
+                  "title": "should display role information and werewolf abilities",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-779f5634701ff7b2ce0b",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 138,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Day Phase Gameplay",
+              "file": "werewolf-game-flow.spec.ts",
+              "line": 162,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display day phase interface with werewolf theme",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-8fd3a27b3e765923c566",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 163,
+                  "column": 9
+                },
+                {
+                  "title": "should allow chat communication during day phase",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-26aecb161ce996e4fe7d",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 175,
+                  "column": 9
+                },
+                {
+                  "title": "should handle voting phase transition",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-f6d3b6d8c0996bfa3eef",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 191,
+                  "column": 9
+                },
+                {
+                  "title": "should display day phase interface with werewolf theme",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-bc0d014e35f967774eea",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 163,
+                  "column": 9
+                },
+                {
+                  "title": "should allow chat communication during day phase",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-43fb5c81adffbabdc01b",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 175,
+                  "column": 9
+                },
+                {
+                  "title": "should handle voting phase transition",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-028b4b91f696bca10597",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 191,
+                  "column": 9
+                },
+                {
+                  "title": "should display day phase interface with werewolf theme",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-fbf28e61578c915b1344",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 163,
+                  "column": 9
+                },
+                {
+                  "title": "should allow chat communication during day phase",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-5780f57913b695b4fc73",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 175,
+                  "column": 9
+                },
+                {
+                  "title": "should handle voting phase transition",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-017c79fd5fe4274c2fa4",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 191,
+                  "column": 9
+                },
+                {
+                  "title": "should display day phase interface with werewolf theme",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-003f28e4177002a7372f",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 163,
+                  "column": 9
+                },
+                {
+                  "title": "should allow chat communication during day phase",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-bd0217128df754e3c4c7",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 175,
+                  "column": 9
+                },
+                {
+                  "title": "should handle voting phase transition",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-07afbd0d4ca6502c1e44",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 191,
+                  "column": 9
+                },
+                {
+                  "title": "should display day phase interface with werewolf theme",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-35f4e04a714ced0e9caa",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 163,
+                  "column": 9
+                },
+                {
+                  "title": "should allow chat communication during day phase",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-29a71867ea5599ac8b64",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 175,
+                  "column": 9
+                },
+                {
+                  "title": "should handle voting phase transition",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-6fbe1375638a933a371b",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 191,
+                  "column": 9
+                },
+                {
+                  "title": "should display day phase interface with werewolf theme",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-04582d59d83f2e76e8ea",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 163,
+                  "column": 9
+                },
+                {
+                  "title": "should allow chat communication during day phase",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-c556c3937fe7a1e289ea",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 175,
+                  "column": 9
+                },
+                {
+                  "title": "should handle voting phase transition",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-0c287152474a3c764015",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 191,
+                  "column": 9
+                },
+                {
+                  "title": "should display day phase interface with werewolf theme",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-958e87ab32563b456767",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 163,
+                  "column": 9
+                },
+                {
+                  "title": "should allow chat communication during day phase",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-0a37a63839dcab73bef4",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 175,
+                  "column": 9
+                },
+                {
+                  "title": "should handle voting phase transition",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-016baed8941f3ae097f9",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 191,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Night Phase and Werewolf Actions",
+              "file": "werewolf-game-flow.spec.ts",
+              "line": 206,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should transition to night phase with werewolf atmosphere",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-36d173b3b60c59b915f2",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 207,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf night action interface",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-06ebbb80040ab29c6b9d",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 221,
+                  "column": 9
+                },
+                {
+                  "title": "should handle special role night actions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-74ff1e75d55df00a6c18",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 251,
+                  "column": 9
+                },
+                {
+                  "title": "should transition to night phase with werewolf atmosphere",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-90c1251983d41f15e1c5",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 207,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf night action interface",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-bcb7522181633c0ce1d5",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 221,
+                  "column": 9
+                },
+                {
+                  "title": "should handle special role night actions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-04b08efc87607b2a9187",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 251,
+                  "column": 9
+                },
+                {
+                  "title": "should transition to night phase with werewolf atmosphere",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-97d9c014e3139850e146",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 207,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf night action interface",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-7d36e57a0c0316d8397d",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 221,
+                  "column": 9
+                },
+                {
+                  "title": "should handle special role night actions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-8db4a3a306d7f0aac21a",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 251,
+                  "column": 9
+                },
+                {
+                  "title": "should transition to night phase with werewolf atmosphere",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-f91314c3549dc11d8b52",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 207,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf night action interface",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-16b8afe39a790ecfaeb8",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 221,
+                  "column": 9
+                },
+                {
+                  "title": "should handle special role night actions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-9b930f2d8374c050b05d",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 251,
+                  "column": 9
+                },
+                {
+                  "title": "should transition to night phase with werewolf atmosphere",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-bec5f20dd78fe766613e",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 207,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf night action interface",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-27d5f6e8ac4296384023",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 221,
+                  "column": 9
+                },
+                {
+                  "title": "should handle special role night actions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-3e1552868b7ffb7c1b00",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 251,
+                  "column": 9
+                },
+                {
+                  "title": "should transition to night phase with werewolf atmosphere",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-d53ef4bcda57f4ff62b7",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 207,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf night action interface",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-e6973b1974d58f55eb83",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 221,
+                  "column": 9
+                },
+                {
+                  "title": "should handle special role night actions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-74726b064243788a218c",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 251,
+                  "column": 9
+                },
+                {
+                  "title": "should transition to night phase with werewolf atmosphere",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-e1bad1ba44ebbe2714fc",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 207,
+                  "column": 9
+                },
+                {
+                  "title": "should display werewolf night action interface",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-eb637468624c314084ce",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 221,
+                  "column": 9
+                },
+                {
+                  "title": "should handle special role night actions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-150e3d564f77502118fc",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 251,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Game Progression and Win Conditions",
+              "file": "werewolf-game-flow.spec.ts",
+              "line": 274,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should handle day/night cycle transitions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-bd1cdcb234b9da348136",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 275,
+                  "column": 9
+                },
+                {
+                  "title": "should display updated player count and pack status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-9fd54a6f12cd9df1b040",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 292,
+                  "column": 9
+                },
+                {
+                  "title": "should detect and display win conditions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-bd17ed26edcae46ed091",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should handle day/night cycle transitions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-46e585683ded75ba9558",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 275,
+                  "column": 9
+                },
+                {
+                  "title": "should display updated player count and pack status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-fc43d6b2d38df0c5e68c",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 292,
+                  "column": 9
+                },
+                {
+                  "title": "should detect and display win conditions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-78b10c56568571973874",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should handle day/night cycle transitions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-385c5292ffc54cf53dac",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 275,
+                  "column": 9
+                },
+                {
+                  "title": "should display updated player count and pack status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-5c9375cbe21cd51be771",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 292,
+                  "column": 9
+                },
+                {
+                  "title": "should detect and display win conditions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-13c01ac1ec809b01e037",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should handle day/night cycle transitions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-b81bf2e220d8d38ba073",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 275,
+                  "column": 9
+                },
+                {
+                  "title": "should display updated player count and pack status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-37140cbe726e0e92518d",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 292,
+                  "column": 9
+                },
+                {
+                  "title": "should detect and display win conditions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-814b0a56a1fb679d23ca",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should handle day/night cycle transitions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-8724807018eb6b96cf12",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 275,
+                  "column": 9
+                },
+                {
+                  "title": "should display updated player count and pack status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-6ac89ce6e82b570f4e4b",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 292,
+                  "column": 9
+                },
+                {
+                  "title": "should detect and display win conditions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-882bafc0a0f022ac32f9",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should handle day/night cycle transitions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-7928fb74b85b10e00c6b",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 275,
+                  "column": 9
+                },
+                {
+                  "title": "should display updated player count and pack status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-dd2a7d5de5cd2acd0273",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 292,
+                  "column": 9
+                },
+                {
+                  "title": "should detect and display win conditions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-7a09fabaf2a885be8e86",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should handle day/night cycle transitions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-629fb2e074b10e84da91",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 275,
+                  "column": 9
+                },
+                {
+                  "title": "should display updated player count and pack status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-8744bd8fe7f187cf74ee",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 292,
+                  "column": 9
+                },
+                {
+                  "title": "should detect and display win conditions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-0986996e6a9393225310",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 306,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Accessibility and Mobile Responsiveness",
+              "file": "werewolf-game-flow.spec.ts",
+              "line": 339,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should be accessible with screen readers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-0c6b274fc6898fd65527",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 340,
+                  "column": 9
+                },
+                {
+                  "title": "should work on mobile devices",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-55202ef2cb533bad22ea",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 355,
+                  "column": 9
+                },
+                {
+                  "title": "should be accessible with screen readers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-1e0df328da4ee037a471",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 340,
+                  "column": 9
+                },
+                {
+                  "title": "should work on mobile devices",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-da101109192a4385e2bf",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 355,
+                  "column": 9
+                },
+                {
+                  "title": "should be accessible with screen readers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-9c4ef2a37c21c5110352",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 340,
+                  "column": 9
+                },
+                {
+                  "title": "should work on mobile devices",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-2c5c6c04c44ef387df86",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 355,
+                  "column": 9
+                },
+                {
+                  "title": "should be accessible with screen readers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-0155bf0382d4825aa887",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 340,
+                  "column": 9
+                },
+                {
+                  "title": "should work on mobile devices",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-812be33c32820a613321",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 355,
+                  "column": 9
+                },
+                {
+                  "title": "should be accessible with screen readers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-15c5807f18b482056a50",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 340,
+                  "column": 9
+                },
+                {
+                  "title": "should work on mobile devices",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-4bd0b050e7c5fc678ccf",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 355,
+                  "column": 9
+                },
+                {
+                  "title": "should be accessible with screen readers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-b6462722b285ab858163",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 340,
+                  "column": 9
+                },
+                {
+                  "title": "should work on mobile devices",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Microsoft Edge",
+                      "projectName": "Microsoft Edge",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-4f08ab405e1e4fa42ff5",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 355,
+                  "column": 9
+                },
+                {
+                  "title": "should be accessible with screen readers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-83838196ef2c069fe154",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 340,
+                  "column": 9
+                },
+                {
+                  "title": "should work on mobile devices",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Google Chrome",
+                      "projectName": "Google Chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "fbf7f1bc8ad559b6d650-cbe3f89a3df0fe0b98a8",
+                  "file": "werewolf-game-flow.spec.ts",
+                  "line": 355,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-03T14:22:40.726Z",
+    "duration": 1277.9669999999996,
+    "expected": 0,
+    "skipped": 119,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

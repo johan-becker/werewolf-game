@@ -2,7 +2,7 @@ name: 🐺 Werewolf Game CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop, 'fix/**', 'feat/**', 'feature/**', 'hotfix/**']
+    branches: [ main, develop, fix/* ]
   pull_request:
     branches: [main, develop]
   workflow_dispatch:
@@ -36,7 +36,7 @@ jobs:
       - name: 🎨 Check Prettier formatting  
         run: |
           echo "🌙 Checking werewolf code formatting..."
-          turbo run format -- --check || echo "⚠️  Prettier configuration incomplete - this is expected for new projects"
+          turbo run format:check || echo "⚠️  Prettier configuration incomplete - this is expected for new projects"
 
       - name: 📝 TypeScript type checking
         run: |

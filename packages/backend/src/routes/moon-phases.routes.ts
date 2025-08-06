@@ -10,6 +10,7 @@ import { AuthMiddleware } from '../middleware/auth.middleware';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
 import { EnhancedErrorMiddleware } from '../middleware/enhanced-error.middleware';
 import { MoonPhaseController } from '../controllers/moon-phase.controller';
+import { WerewolfRole } from '../types/werewolf-roles.types';
 import { z } from 'zod';
 
 const router = Router();
@@ -31,30 +32,34 @@ const scheduleEventSchema = z.object({
     eventType: z.enum(['hunt', 'ritual', 'gathering', 'training', 'ceremony']),
     scheduledFor: z.string().datetime(),
     duration: z.number().min(1).max(480), // minutes, max 8 hours
-    location: z.object({
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180),
-      name: z.string().max(100).optional()
-    }).optional(),
+    location: z
+      .object({
+        latitude: z.number().min(-90).max(90),
+        longitude: z.number().min(-180).max(180),
+        name: z.string().max(100).optional(),
+      })
+      .optional(),
     requiredRoles: z.array(z.string()).optional(),
     maxParticipants: z.number().min(1).max(50).optional(),
-    isPrivate: z.boolean().default(false)
-  })
+    isPrivate: z.boolean().default(false),
+  }),
 });
 
 const transformationLogSchema = z.object({
   body: z.object({
     transformationType: z.enum(['voluntary', 'forced', 'partial', 'failed']),
     duration: z.number().min(1), // minutes
-    location: z.object({
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180)
-    }).optional(),
+    location: z
+      .object({
+        latitude: z.number().min(-90).max(90),
+        longitude: z.number().min(-180).max(180),
+      })
+      .optional(),
     difficulty: z.number().min(1).max(10),
     complications: z.string().max(1000).optional(),
     witnesses: z.array(z.string()).optional(),
-    notes: z.string().max(500).optional()
-  })
+    notes: z.string().max(500).optional(),
+  }),
 });
 
 /**
@@ -65,7 +70,7 @@ const transformationLogSchema = z.object({
 router.get(
   '/current',
   authMiddleware.authenticate(),
-  asyncHandler(moonPhaseController.getCurrentMoonPhase.bind(moonPhaseController))
+  asyncHandler(moonPhaseController.getCurrentPhase.bind(moonPhaseController))
 );
 
 /**
@@ -76,7 +81,7 @@ router.get(
 router.get(
   '/calendar',
   authMiddleware.authenticate(),
-  asyncHandler(moonPhaseController.getLunarCalendar.bind(moonPhaseController))
+  asyncHandler(moonPhaseController.getPhaseCalendar.bind(moonPhaseController))
 );
 
 /**
@@ -233,7 +238,7 @@ router.get(
 router.post(
   '/ritual',
   authMiddleware.authenticate(),
-  authMiddleware.requireRole('HEALER', 'ALPHA'),
+  authMiddleware.requireRole(WerewolfRole.WITCH), // Fixed: HEALER -> WITCH
   asyncHandler(moonPhaseController.performRitual.bind(moonPhaseController))
 );
 

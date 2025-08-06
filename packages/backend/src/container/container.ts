@@ -8,9 +8,9 @@ import { Container } from 'inversify';
 import { TYPES } from './types';
 
 // Core Services
-import { logger as Logger } from '../utils/logger';
 import { DatabaseService } from '../services/core/database.service';
 import { RedisService } from '../services/core/redis.service';
+import { LoggerService } from '../services/core/logger.service';
 import { AppConfig } from '../config/app.config';
 
 // Controllers
@@ -42,11 +42,12 @@ import { PasswordService } from '../services/auth/password.service';
 // Middleware
 import { AuthMiddleware } from '../middleware/auth.middleware';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
+import { EnhancedErrorMiddleware } from '../middleware/enhanced-error.middleware';
 
 // Interfaces
-import { ILogger } from '../interfaces/core/logger.interface';
 import { IDatabase } from '../interfaces/core/database.interface';
 import { IRedis } from '../interfaces/core/redis.interface';
+import { ILogger } from '../interfaces/core/logger.interface';
 // import { IAuthService } from '../interfaces/auth/auth-service.interface'; // TODO: Create this interface
 import { IJwtService } from '../interfaces/auth/jwt-service.interface';
 import { IPasswordService } from '../interfaces/auth/password-service.interface';
@@ -80,7 +81,7 @@ class DIContainer {
     container.bind<IAppConfig>(TYPES.AppConfig).to(AppConfig).inSingletonScope();
 
     // Core Services
-    // container.bind<ILogger>(TYPES.Logger).to(Logger).inSingletonScope(); // TODO: Fix Logger binding
+    container.bind<ILogger>(TYPES.Logger).to(LoggerService).inSingletonScope();
     container.bind<IDatabase>(TYPES.Database).to(DatabaseService).inSingletonScope();
     container.bind<IRedis>(TYPES.Redis).to(RedisService).inSingletonScope();
 
@@ -106,14 +107,26 @@ class DIContainer {
 
     // Middleware
     container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware).inSingletonScope();
-    container.bind<ValidationMiddleware>(TYPES.ValidationMiddleware).to(ValidationMiddleware).inSingletonScope();
-    // container.bind<EnhancedErrorMiddleware>(TYPES.EnhancedErrorMiddleware).to(EnhancedErrorMiddleware).inSingletonScope(); // TODO: Fix EnhancedErrorMiddleware
+    container
+      .bind<ValidationMiddleware>(TYPES.ValidationMiddleware)
+      .to(ValidationMiddleware)
+      .inSingletonScope();
+    container
+      .bind<EnhancedErrorMiddleware>(TYPES.EnhancedErrorMiddleware)
+      .to(EnhancedErrorMiddleware)
+      .inSingletonScope();
 
     // Controllers
     container.bind<AuthController>(TYPES.AuthController).to(AuthController).inSingletonScope();
-    container.bind<MoonPhaseController>(TYPES.MoonPhaseController).to(MoonPhaseController).inSingletonScope();
+    container
+      .bind<MoonPhaseController>(TYPES.MoonPhaseController)
+      .to(MoonPhaseController)
+      .inSingletonScope();
     container.bind<PackController>(TYPES.PackController).to(PackController).inSingletonScope();
-    container.bind<TerritoryController>(TYPES.TerritoryController).to(TerritoryController).inSingletonScope();
+    container
+      .bind<TerritoryController>(TYPES.TerritoryController)
+      .to(TerritoryController)
+      .inSingletonScope();
 
     return container;
   }

@@ -1,42 +1,42 @@
-'use client'
+'use client';
 
-import { useState, useRef, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { ZoomIn, ZoomOut, RotateCcw, MapPin, Users, Sword, Shield } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useState, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ZoomIn, ZoomOut, RotateCcw, MapPin, Users, Sword, Shield } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export type TerritoryStatus = 'CONTROLLED' | 'CONTESTED' | 'NEUTRAL' | 'ENEMY'
-export type TerrainType = 'FOREST' | 'MOUNTAIN' | 'PLAINS' | 'SWAMP' | 'URBAN' | 'COASTAL'
+export type TerritoryStatus = 'CONTROLLED' | 'CONTESTED' | 'NEUTRAL' | 'ENEMY';
+export type TerrainType = 'FOREST' | 'MOUNTAIN' | 'PLAINS' | 'SWAMP' | 'URBAN' | 'COASTAL';
 
 interface Territory {
-  id: string
-  name: string
-  status: TerritoryStatus
-  terrain: TerrainType
-  size: number
-  population: number
-  resources: number
-  packName?: string
-  position: { x: number; y: number }
-  shape: string // SVG path
-  strategicValue: number
-  defenseBonus: number
-  huntingBonus: number
+  id: string;
+  name: string;
+  status: TerritoryStatus;
+  terrain: TerrainType;
+  size: number;
+  population: number;
+  resources: number;
+  packName?: string;
+  position: { x: number; y: number };
+  shape: string; // SVG path
+  strategicValue: number;
+  defenseBonus: number;
+  huntingBonus: number;
 }
 
 interface TerritoryMapProps {
-  territories: Territory[]
-  userPackId?: string
-  selectedTerritoryId?: string
-  showControls?: boolean
-  interactive?: boolean
-  className?: string
-  onTerritorySelect?: (territory: Territory) => void
-  onTerritoryAttack?: (territoryId: string) => void
-  onTerritoryDefend?: (territoryId: string) => void
+  territories: Territory[];
+  userPackId?: string;
+  selectedTerritoryId?: string;
+  showControls?: boolean;
+  interactive?: boolean;
+  className?: string;
+  onTerritorySelect?: (territory: Territory) => void;
+  onTerritoryAttack?: (territoryId: string) => void;
+  onTerritoryDefend?: (territoryId: string) => void;
 }
 
 const statusColors: Record<TerritoryStatus, string> = {
@@ -44,7 +44,7 @@ const statusColors: Record<TerritoryStatus, string> = {
   CONTESTED: 'fill-blood-500/80 stroke-blood-700',
   NEUTRAL: 'fill-shadow-400/80 stroke-shadow-600',
   ENEMY: 'fill-blood-600/80 stroke-blood-800',
-}
+};
 
 const terrainPatterns: Record<TerrainType, string> = {
   FOREST: 'url(#forest-pattern)',
@@ -53,11 +53,11 @@ const terrainPatterns: Record<TerrainType, string> = {
   SWAMP: 'url(#swamp-pattern)',
   URBAN: 'url(#urban-pattern)',
   COASTAL: 'url(#coastal-pattern)',
-}
+};
 
 export function TerritoryMap({
   territories,
-  userPackId,
+  userPackId: _userPackId,
   selectedTerritoryId,
   showControls = true,
   interactive = true,
@@ -66,43 +66,43 @@ export function TerritoryMap({
   onTerritoryAttack,
   onTerritoryDefend,
 }: TerritoryMapProps) {
-  const [zoom, setZoom] = useState(1)
-  const [pan, setPan] = useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const svgRef = useRef<SVGSVGElement>(null)
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const svgRef = useRef<SVGSVGElement>(null);
 
-  const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 3))
-  const handleZoomOut = () => setZoom(prev => Math.max(prev / 1.2, 0.5))
+  const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 3));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev / 1.2, 0.5));
   const handleReset = () => {
-    setZoom(1)
-    setPan({ x: 0, y: 0 })
-  }
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!interactive) return
-    setIsDragging(true)
-    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y })
-  }
+    if (!interactive) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !interactive) return
+    if (!isDragging || !interactive) return;
     setPan({
       x: e.clientX - dragStart.x,
       y: e.clientY - dragStart.y,
-    })
-  }
+    });
+  };
 
   const handleMouseUp = () => {
-    setIsDragging(false)
-  }
+    setIsDragging(false);
+  };
 
   const handleTerritoryClick = (territory: Territory, e: React.MouseEvent) => {
-    e.stopPropagation()
+    e.stopPropagation();
     if (interactive) {
-      onTerritorySelect?.(territory)
+      onTerritorySelect?.(territory);
     }
-  }
+  };
 
   const getTerritoryStatusBadge = (status: TerritoryStatus) => {
     const statusInfo = {
@@ -110,9 +110,9 @@ export function TerritoryMap({
       CONTESTED: { label: 'Contested', color: 'bg-red-100 text-red-800' },
       NEUTRAL: { label: 'Neutral', color: 'bg-gray-100 text-gray-800' },
       ENEMY: { label: 'Enemy', color: 'bg-red-100 text-red-800' },
-    }
-    return statusInfo[status]
-  }
+    };
+    return statusInfo[status];
+  };
 
   return (
     <TooltipProvider>
@@ -122,27 +122,13 @@ export function TerritoryMap({
             <CardTitle className="font-display">Territory Map</CardTitle>
             {showControls && (
               <div className="flex items-center space-x-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleZoomOut}
-                  disabled={zoom <= 0.5}
-                >
+                <Button variant="outline" size="sm" onClick={handleZoomOut} disabled={zoom <= 0.5}>
                   <ZoomOut className="w-4 h-4" />
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReset}
-                >
+                <Button variant="outline" size="sm" onClick={handleReset}>
                   <RotateCcw className="w-4 h-4" />
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleZoomIn}
-                  disabled={zoom >= 3}
-                >
+                <Button variant="outline" size="sm" onClick={handleZoomIn} disabled={zoom >= 3}>
                   <ZoomIn className="w-4 h-4" />
                 </Button>
               </div>
@@ -196,13 +182,19 @@ export function TerritoryMap({
               {/* Background map grid */}
               <defs>
                 <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
-                  <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#e5e7eb" strokeWidth="1" opacity="0.3" />
+                  <path
+                    d="M 50 0 L 0 0 0 50"
+                    fill="none"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                    opacity="0.3"
+                  />
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#grid)" />
 
               {/* Render territories */}
-              {territories.map((territory) => (
+              {territories.map(territory => (
                 <Tooltip key={territory.id}>
                   <TooltipTrigger asChild>
                     <g
@@ -211,7 +203,7 @@ export function TerritoryMap({
                         interactive && 'hover:opacity-90',
                         selectedTerritoryId === territory.id && 'ring-2 ring-blood-500'
                       )}
-                      onClick={(e) => handleTerritoryClick(territory, e)}
+                      onClick={e => handleTerritoryClick(territory, e)}
                     >
                       <path
                         d={territory.shape}
@@ -221,7 +213,7 @@ export function TerritoryMap({
                         )}
                         fill={terrainPatterns[territory.terrain]}
                       />
-                      
+
                       {/* Territory center marker */}
                       <circle
                         cx={territory.position.x}
@@ -229,7 +221,7 @@ export function TerritoryMap({
                         r="4"
                         className="fill-white stroke-gray-800 stroke-2"
                       />
-                      
+
                       {/* Territory name */}
                       <text
                         x={territory.position.x}
@@ -249,7 +241,7 @@ export function TerritoryMap({
                           {getTerritoryStatusBadge(territory.status).label}
                         </Badge>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div className="flex items-center space-x-1">
                           <MapPin className="w-3 h-3" />
@@ -268,13 +260,13 @@ export function TerritoryMap({
                           <span>+{territory.huntingBonus}% hunt</span>
                         </div>
                       </div>
-                      
+
                       {territory.packName && (
                         <p className="text-xs text-muted-foreground">
                           Controlled by: {territory.packName}
                         </p>
                       )}
-                      
+
                       <div className="flex space-x-2">
                         {territory.status === 'NEUTRAL' && (
                           <Button
@@ -317,7 +309,12 @@ export function TerritoryMap({
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {Object.entries(statusColors).map(([status, color]) => (
                   <div key={status} className="flex items-center space-x-2">
-                    <div className={cn('w-3 h-3 rounded', color.replace('fill-', 'bg-').replace('/80', ''))} />
+                    <div
+                      className={cn(
+                        'w-3 h-3 rounded',
+                        color.replace('fill-', 'bg-').replace('/80', '')
+                      )}
+                    />
                     <span>{status.toLowerCase()}</span>
                   </div>
                 ))}
@@ -329,7 +326,9 @@ export function TerritoryMap({
               <div className="text-sm space-y-1">
                 <p className="font-medium">Territory Control</p>
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <span>Controlled: {territories.filter(t => t.status === 'CONTROLLED').length}</span>
+                  <span>
+                    Controlled: {territories.filter(t => t.status === 'CONTROLLED').length}
+                  </span>
                   <span>Contested: {territories.filter(t => t.status === 'CONTESTED').length}</span>
                   <span>Neutral: {territories.filter(t => t.status === 'NEUTRAL').length}</span>
                   <span>Enemy: {territories.filter(t => t.status === 'ENEMY').length}</span>
@@ -340,5 +339,5 @@ export function TerritoryMap({
         </CardContent>
       </Card>
     </TooltipProvider>
-  )
+  );
 }

@@ -7,7 +7,7 @@ import {
   WerewolfGameState,
   ActionType,
   Team,
-  NightPhase
+  NightPhase,
 } from '../../types/werewolf-roles.types';
 
 /**
@@ -19,20 +19,20 @@ export class WerewolfStrategy extends BaseRoleStrategy {
   /**
    * Werwolf kann nachts töten und tagsüber abstimmen
    */
-  getAvailableActions(
-    player: WerewolfPlayer,
-    gameState: WerewolfGameState
-  ): ActionType[] {
+  getAvailableActions(player: WerewolfPlayer, gameState: WerewolfGameState): ActionType[] {
     if (!player.isAlive) return [];
-    
+
     const actions: ActionType[] = [];
-    
+
     if (gameState.phase === 'DAY') {
       actions.push(ActionType.VILLAGE_VOTE);
-    } else if (gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE) {
+    } else if (
+      gameState.phase === 'NIGHT' &&
+      gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE
+    ) {
       actions.push(ActionType.WEREWOLF_KILL);
     }
-    
+
     return actions;
   }
 
@@ -50,19 +50,19 @@ export class WerewolfStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
     if (action.actionType !== ActionType.WEREWOLF_KILL) {
       return {
         success: false,
-        message: 'Werwölfe können nur töten'
+        message: 'Werwölfe können nur töten',
       };
     }
 
     if (!action.targetId) {
       return {
         success: false,
-        message: 'Ziel erforderlich für Angriff'
+        message: 'Ziel erforderlich für Angriff',
       };
     }
 
@@ -70,21 +70,21 @@ export class WerewolfStrategy extends BaseRoleStrategy {
     if (!target) {
       return {
         success: false,
-        message: 'Ziel nicht gefunden'
+        message: 'Ziel nicht gefunden',
       };
     }
 
     if (!target.isAlive) {
       return {
         success: false,
-        message: 'Kann keine toten Spieler angreifen'
+        message: 'Kann keine toten Spieler angreifen',
       };
     }
 
     if (target.role === WerewolfRole.WEREWOLF) {
       return {
         success: false,
-        message: 'Werwölfe greifen sich nicht gegenseitig an'
+        message: 'Werwölfe greifen sich nicht gegenseitig an',
       };
     }
 
@@ -95,8 +95,8 @@ export class WerewolfStrategy extends BaseRoleStrategy {
       effects: {
         deaths: [target.id],
         protections: [],
-        lovers: []
-      }
+        lovers: [],
+      },
     };
   }
 
@@ -111,7 +111,7 @@ export class WerewolfStrategy extends BaseRoleStrategy {
   /**
    * Prüft Werwolf-Siegbedingungen
    */
-  getWinCondition(gameState: WerewolfGameState): any | null {
+  getWinCondition(_gameState: WerewolfGameState): any | null {
     // Werwölfe gewinnen, wenn sie die Mehrheit haben
     // Diese Logik sollte vom WerewolfGameManager gehandhabt werden
     return null;
@@ -124,15 +124,15 @@ export class WerewolfStrategy extends BaseRoleStrategy {
     player: WerewolfPlayer,
     action: NightAction,
     allPlayers: WerewolfPlayer[],
-    gameState: WerewolfGameState
+    _gameState: WerewolfGameState
   ): Promise<ActionResult> {
-    return this.executeNightAction(player, action, allPlayers, gameState);
+    return this.executeNightAction(player, action, allPlayers, _gameState);
   }
 
   /**
    * Initialisiert Werwolf
    */
-  initializePlayer(playerId: string, gameId: string): Partial<WerewolfPlayer> {
+  initializePlayer(_playerId: string, _gameId: string): Partial<WerewolfPlayer> {
     return {
       role: WerewolfRole.WEREWOLF,
       team: Team.WEREWOLF,
@@ -142,8 +142,8 @@ export class WerewolfStrategy extends BaseRoleStrategy {
         canShoot: false,
         hasSpied: false,
         spyRisk: 0,
-        isProtected: false
-      }
+        isProtected: false,
+      },
     };
   }
 
@@ -157,11 +157,13 @@ export class WerewolfStrategy extends BaseRoleStrategy {
   ): boolean {
     switch (action) {
       case ActionType.WEREWOLF_KILL:
-        return gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE;
-      
+        return (
+          gameState.phase === 'NIGHT' && gameState.currentNightPhase === NightPhase.WEREWOLF_PHASE
+        );
+
       case ActionType.VILLAGE_VOTE:
         return gameState.phase === 'DAY'; // Werwolf tarnt sich tagsüber
-      
+
       default:
         return false;
     }
@@ -171,10 +173,8 @@ export class WerewolfStrategy extends BaseRoleStrategy {
    * Hilfsmethode: Ermittelt alle anderen Werwölfe
    */
   getOtherWerewolves(player: WerewolfPlayer, allPlayers: WerewolfPlayer[]): WerewolfPlayer[] {
-    return allPlayers.filter(p => 
-      p.role === WerewolfRole.WEREWOLF && 
-      p.isAlive && 
-      p.id !== player.id
+    return allPlayers.filter(
+      p => p.role === WerewolfRole.WEREWOLF && p.isAlive && p.id !== player.id
     );
   }
 
@@ -182,9 +182,8 @@ export class WerewolfStrategy extends BaseRoleStrategy {
    * Hilfsmethode: Ermittelt mögliche Angriffsziele
    */
   getPossibleTargets(player: WerewolfPlayer, allPlayers: WerewolfPlayer[]): WerewolfPlayer[] {
-    return allPlayers.filter(p => 
-      p.isAlive && 
-      p.role !== WerewolfRole.WEREWOLF // Werwölfe greifen sich nicht gegenseitig an
+    return allPlayers.filter(
+      p => p.isAlive && p.role !== WerewolfRole.WEREWOLF // Werwölfe greifen sich nicht gegenseitig an
     );
   }
 }

@@ -78,7 +78,7 @@ global.fetch = jest.fn();
 beforeEach(() => {
   // Reset fetch mock
   (fetch as jest.Mock).mockClear();
-  
+
   // Mock werewolf game state
   window.localStorage.setItem('werewolf-game-theme', 'dark');
   window.localStorage.setItem('werewolf-user-pack', 'shadow-wolves');

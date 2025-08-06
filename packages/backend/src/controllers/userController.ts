@@ -4,6 +4,17 @@ import { AuthService } from '../services/authService';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 
+// Helper function to safely extract error message
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'An unknown error occurred';
+};
+
 export class UserController {
   // Get public user profile by ID
   static async getPublicProfile(req: Request, res: Response): Promise<void> {
@@ -12,7 +23,7 @@ export class UserController {
 
       if (!id) {
         res.status(400).json({
-          error: 'User ID is required'
+          error: 'User ID is required',
         });
         return;
       }
@@ -21,21 +32,21 @@ export class UserController {
 
       res.status(200).json({
         success: true,
-        user: profile
+        user: profile,
       });
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get public profile controller error:', error);
-      
-      if (error.message.includes('not found')) {
+
+      const errorMessage = getErrorMessage(error);
+      if (errorMessage.includes('not found')) {
         res.status(404).json({
-          error: 'User not found'
+          error: 'User not found',
         });
         return;
       }
 
       res.status(500).json({
-        error: error.message || 'Failed to get user profile'
+        error: errorMessage || 'Failed to get user profile',
       });
     }
   }
@@ -45,18 +56,18 @@ export class UserController {
     try {
       if (!req.user) {
         res.status(401).json({
-          error: 'User not authenticated'
+          error: 'User not authenticated',
         });
         return;
       }
 
       const { username, full_name, bio, avatar_url } = req.body;
-      const updates: any = {};
+      const updates: Record<string, string> = {};
 
       if (username !== undefined) {
         if (username.length < 3 || username.length > 20) {
           res.status(400).json({
-            error: 'Username must be between 3 and 20 characters'
+            error: 'Username must be between 3 and 20 characters',
           });
           return;
         }
@@ -69,7 +80,7 @@ export class UserController {
 
       if (Object.keys(updates).length === 0) {
         res.status(400).json({
-          error: 'No valid fields to update'
+          error: 'No valid fields to update',
         });
         return;
       }
@@ -78,31 +89,31 @@ export class UserController {
       const accessToken = req.headers.authorization?.replace('Bearer ', '');
       if (!accessToken) {
         res.status(401).json({
-          error: 'Access token required'
+          error: 'Access token required',
         });
         return;
       }
 
-      const updatedProfile = await AuthService.updateProfile(req.user.id, updates, accessToken);
+      const updatedProfile = await AuthService.updateProfile(req.user.userId, updates, accessToken);
 
       res.status(200).json({
         success: true,
         message: 'Profile updated successfully',
-        user: updatedProfile
+        user: updatedProfile,
       });
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update profile controller error:', error);
-      
-      if (error.message.includes('duplicate') || error.message.includes('unique')) {
+      const errorMessage = getErrorMessage(error);
+
+      if (errorMessage.includes('duplicate') || errorMessage.includes('unique')) {
         res.status(409).json({
-          error: 'Username already taken'
+          error: 'Username already taken',
         });
         return;
       }
 
       res.status(500).json({
-        error: error.message || 'Failed to update profile'
+        error: errorMessage || 'Failed to update profile',
       });
     }
   }
@@ -112,22 +123,22 @@ export class UserController {
     try {
       if (!req.user) {
         res.status(401).json({
-          error: 'User not authenticated'
+          error: 'User not authenticated',
         });
         return;
       }
 
-      const profile = await AuthService.getUserProfile(req.user.id);
+      const profile = await AuthService.getUserProfile(req.user.userId);
 
       res.status(200).json({
         success: true,
-        user: profile
+        user: profile,
       });
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get my profile controller error:', error);
+      const errorMessage = getErrorMessage(error);
       res.status(500).json({
-        error: error.message || 'Failed to get user profile'
+        error: errorMessage || 'Failed to get user profile',
       });
     }
   }

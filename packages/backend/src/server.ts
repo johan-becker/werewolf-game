@@ -3,7 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { logger } from './utils/logger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
@@ -27,7 +26,7 @@ app.use(
     origin: [
       process.env.CORS_ORIGIN || 'http://localhost:3001',
       'http://localhost:3000',
-      'file://'
+      'file://',
     ],
     credentials: true,
   })
@@ -72,7 +71,6 @@ app.get('/', (req, res) => {
     version: '1.0.0',
   });
 });
-
 
 // Initialize Socket.IO server
 const io = initializeSocketServer(httpServer);

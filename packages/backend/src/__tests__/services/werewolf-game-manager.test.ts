@@ -1,6 +1,5 @@
 import { WerewolfGameManager } from '../../services/werewolf-game-manager.service';
 import { WerewolfFactories } from '../factories/werewolf-factories';
-import { testDb } from '../test-database';
 
 describe('WerewolfGameManager', () => {
   let gameManager: WerewolfGameManager;
@@ -9,7 +8,7 @@ describe('WerewolfGameManager', () => {
 
   beforeEach(async () => {
     gameManager = new WerewolfGameManager();
-    
+
     // Create test game with werewolf theme
     mockGame = WerewolfFactories.Game.createActiveGame({
       current_phase: 'night',
@@ -86,7 +85,7 @@ describe('WerewolfGameManager', () => {
 
     it('should apply moon phase effects during initialization', async () => {
       mockGame.settings.moon_phase_effects = true;
-      
+
       const result = await gameManager.initializeGame(mockGame.id, mockPlayers);
 
       expect(result.moon_phase_bonuses).toBeDefined();
@@ -199,7 +198,7 @@ describe('WerewolfGameManager', () => {
 
       // Simulate lovers scenario
       const result = await gameManager.checkWinConditions(mockGame.id, mockPlayers, {
-        special_conditions: { lovers_alive: true, others_eliminated: true }
+        special_conditions: { lovers_alive: true, others_eliminated: true },
       });
 
       expect(result.game_ended).toBe(true);
@@ -237,7 +236,7 @@ describe('WerewolfGameManager', () => {
 
     it('should calculate moon phase effects on gameplay', async () => {
       const phases = ['new_moon', 'full_moon', 'waxing_crescent', 'waning_gibbous'];
-      
+
       for (const phase of phases) {
         mockGame.moon_phase = phase;
         const result = await gameManager.calculateMoonPhaseEffects(mockGame);
@@ -250,7 +249,7 @@ describe('WerewolfGameManager', () => {
 
     it('should handle alpha werewolf special privileges', async () => {
       const alphaPlayer = mockPlayers.find(p => p.pack_rank === 'alpha');
-      
+
       const result = await gameManager.executeAlphaAbility(mockGame.id, alphaPlayer.id, {
         ability: 'pack_rally',
         targets: mockPlayers.filter(p => p.werewolf_team === 'werewolf').map(p => p.id),
@@ -284,7 +283,7 @@ describe('WerewolfGameManager', () => {
 
     it('should handle disconnected players during critical phases', async () => {
       await gameManager.initializeGame(mockGame.id, mockPlayers);
-      
+
       const result = await gameManager.handlePlayerDisconnection(mockGame.id, mockPlayers[0].id);
 
       expect(result.success).toBe(true);
@@ -306,7 +305,7 @@ describe('WerewolfGameManager', () => {
   describe('Performance and Scalability', () => {
     it('should handle large werewolf games efficiently', async () => {
       const largePlayers = WerewolfFactories.Player.createGamePlayers(mockGame.id, 20);
-      
+
       const startTime = Date.now();
       const result = await gameManager.initializeGame(mockGame.id, largePlayers);
       const endTime = Date.now();
@@ -317,7 +316,7 @@ describe('WerewolfGameManager', () => {
 
     it('should batch process multiple night actions efficiently', async () => {
       await gameManager.initializeGame(mockGame.id, mockPlayers);
-      
+
       const actions = mockPlayers
         .filter(p => p.werewolf_team === 'werewolf')
         .map(p => ({
