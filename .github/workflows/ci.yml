@@ -24,13 +24,13 @@ jobs:
         run: npm ci --workspaces --include-workspace-root
 
       - name: Lint code
-        run: turbo run lint
+        run: npx turbo run lint
 
       - name: Type check
-        run: turbo run typecheck
+        run: npx turbo run typecheck
 
       - name: Format check
-        run: turbo run format:check
+        run: npx turbo run format:check
 
   test-backend:
     name: Backend Tests
@@ -132,7 +132,7 @@ jobs:
         run: npm ci --workspaces --include-workspace-root
 
       - name: Build all packages
-        run: turbo run build
+        run: npx turbo run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

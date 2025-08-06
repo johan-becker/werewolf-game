@@ -477,9 +477,7 @@ export class SocketAuthenticationStateMachine {
     );
 
     if (!validTransition) {
-      logger.warn(
-        `Invalid state transition: ${currentState} -> ${newState} (trigger: ${trigger})`
-      );
+      logger.warn(`Invalid state transition: ${currentState} -> ${newState} (trigger: ${trigger})`);
       return;
     }
 
