@@ -5,14 +5,11 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 
 // Import routes
-import authRoutes from '../../routes/auth';
-import gameRoutes from '../../routes/game.routes';
 import moonPhaseRoutes from '../../routes/moon-phases.routes';
 import packRoutes from '../../routes/packs.routes';
 import territoryRoutes from '../../routes/territories.routes';
 
 // Import controllers for test routes
-import { GameController } from '../../controllers/game.controller';
 import {
   validateCreateGame,
   validateGameId,
@@ -81,7 +78,6 @@ function createTestRateLimit(options: {
 
 // Import middleware
 import { errorHandler } from '../../middleware/errorHandler';
-import { authenticateToken } from '../../middleware/auth';
 
 /**
  * Creates a test Express application for werewolf game testing

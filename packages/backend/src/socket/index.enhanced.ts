@@ -18,6 +18,8 @@ import {
   SocketData,
 } from '../types/socket.types';
 
+import { logger } from '../utils/logger';
+
 export function initializeEnhancedSocketServer(httpServer: HttpServer) {
   const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(
     httpServer,
@@ -69,8 +71,8 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
     const clientIP = authSocket.handshake.address;
     const userAgent = authSocket.handshake.headers['user-agent'] || 'unknown';
 
-    console.log(`New socket connection ${authSocket.id} from ${clientIP} (UA: ${userAgent})`);
-    console.log(
+    logger.info(`New socket connection ${authSocket.id} from ${clientIP} (UA: ${userAgent})`);
+    logger.info(
       `Connection stats: ${connectionStats.totalConnections} total, ${connectionStats.authenticatedConnections} authenticated`
     );
 
@@ -95,7 +97,7 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
 
   // Global error handling
   io.engine.on('connection_error', err => {
-    console.error('Socket.IO connection error:', {
+    logger.error('Socket.IO connection error:', {
       code: err.code,
       message: err.message,
       context: err.context,
@@ -111,7 +113,7 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
       s => (s as unknown as AuthenticatedSocket).data?.authState === 'AUTHENTICATED'
     );
 
-    console.log(
+    logger.info(
       `Socket Health Check: ${authenticatedSockets.length} authenticated sockets of ${io.sockets.sockets.size} total`
     );
 
@@ -140,7 +142,7 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
         // Force disconnect sockets that have been pending too long
         if (timeSinceConnection > 10000) {
           // 10 seconds grace period beyond the 5-second timeout
-          console.log(`Force disconnecting expired pending socket ${socket.id}`);
+          logger.info(`Force disconnecting expired pending socket ${socket.id}`);
           socket.disconnect(true);
           cleanedUp++;
         }
@@ -148,20 +150,20 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
     }
 
     if (cleanedUp > 0) {
-      console.log(`Cleaned up ${cleanedUp} expired authentication attempts`);
+      logger.info(`Cleaned up ${cleanedUp} expired authentication attempts`);
     }
   }, 15000); // Every 15 seconds
 
   // Graceful shutdown with authentication state cleanup
   const gracefulShutdown = async (signal: string) => {
-    console.log(`Received ${signal}, starting graceful shutdown...`);
+    logger.info(`Received ${signal}, starting graceful shutdown...`);
 
     // Notify all authenticated clients
     const authenticatedSockets = Array.from(io.sockets.sockets.values()).filter(
       s => (s as unknown as AuthenticatedSocket).data?.authState === 'AUTHENTICATED'
     );
 
-    console.log(`Notifying ${authenticatedSockets.length} authenticated clients of shutdown`);
+    logger.info(`Notifying ${authenticatedSockets.length} authenticated clients of shutdown`);
 
     for (const socket of authenticatedSockets) {
       socket.emit('server:shutdown', {
@@ -179,8 +181,8 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
     // Give clients time to save state and prepare for reconnection
     setTimeout(() => {
       io.close(() => {
-        console.log('Enhanced Socket.IO server closed gracefully');
-        console.log(
+        logger.info('Enhanced Socket.IO server closed gracefully');
+        logger.info(
           `Final stats: ${connectionStats.totalConnections} total connections, ${connectionStats.authenticatedConnections} successful authentications`
         );
         process.exit(0);
@@ -191,13 +193,13 @@ export function initializeEnhancedSocketServer(httpServer: HttpServer) {
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-  console.log('Enhanced Socket.IO server initialized with authentication state machine');
-  console.log('Features enabled:');
-  console.log('- Mandatory 5-second authentication timeout');
-  console.log('- Message queuing during pending authentication');
-  console.log('- Connection state machine enforcement');
-  console.log('- Typed event interfaces with user context validation');
-  console.log('- Automatic cleanup of failed authentication attempts');
+  logger.info('Enhanced Socket.IO server initialized with authentication state machine');
+  logger.info('Features enabled:');
+  logger.info('- Mandatory 5-second authentication timeout');
+  logger.info('- Message queuing during pending authentication');
+  logger.info('- Connection state machine enforcement');
+  logger.info('- Typed event interfaces with user context validation');
+  logger.info('- Automatic cleanup of failed authentication attempts');
 
   return io;
 }
@@ -212,13 +214,13 @@ function setupAuthenticationMonitoring(socket: AuthenticatedSocket, stats: any):
     // Track authentication events
     if (event === 'auth:success') {
       stats.authenticatedConnections++;
-      console.log(`Socket ${socket.id} successfully authenticated`);
+      logger.info(`Socket ${socket.id} successfully authenticated`);
     } else if (event === 'auth:error' || event === 'auth:timeout') {
       stats.rejectedConnections++;
       if (event === 'auth:timeout') {
         stats.timeoutConnections++;
       }
-      console.log(`Socket ${socket.id} authentication failed: ${event}`);
+      logger.info(`Socket ${socket.id} authentication failed: ${event}`);
     }
 
     return originalEmit(event, ...args);
@@ -234,7 +236,7 @@ function setupConnectionHealthChecks(socket: AuthenticatedSocket): void {
 
       // Disconnect inactive authenticated sockets after 30 minutes
       if (inactiveTime > 30 * 60 * 1000) {
-        console.log(
+        logger.info(
           `Disconnecting inactive authenticated socket ${socket.id} (inactive for ${Math.round(inactiveTime / 60000)} minutes)`
         );
 
@@ -260,10 +262,10 @@ function setupDisconnectHandling(socket: AuthenticatedSocket, stats: any): void 
     const user = socket.data?.user;
     const gameId = socket.data?.currentGame;
 
-    console.log(`Socket ${socket.id} disconnected (state: ${authState}, reason: ${reason})`);
+    logger.info(`Socket ${socket.id} disconnected (state: ${authState}, reason: ${reason})`);
 
     if (user) {
-      console.log(
+      logger.info(
         `User ${user.userId} (${user.username || user.email}) disconnected from game ${gameId || 'none'}`
       );
     }
@@ -277,7 +279,7 @@ function setupDisconnectHandling(socket: AuthenticatedSocket, stats: any): void 
     try {
       await socketAuthStateMachine.cleanupSocket(socket);
     } catch (error) {
-      console.error(`Error cleaning up socket ${socket.id}:`, error);
+      logger.error(`Error cleaning up socket ${socket.id}:`, error);
     }
 
     // Notify game room if user was in a game
@@ -313,7 +315,7 @@ function setupSecurityMonitoring(socket: AuthenticatedSocket): void {
       suspiciousEvents++;
 
       if (suspiciousEvents > 5) {
-        console.warn(
+        logger.warn(
           `Suspicious activity detected on socket ${socket.id}: ${eventCount} events in ${eventWindow}ms`
         );
 

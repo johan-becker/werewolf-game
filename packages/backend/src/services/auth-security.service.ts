@@ -20,6 +20,8 @@ import {
   AuthPerformanceMetrics,
 } from '../types/auth.types';
 
+import { logger } from '../utils/logger';
+
 export class AuthSecurityService {
   private static instance: AuthSecurityService;
   private performanceMetrics: AuthPerformanceMetrics;
@@ -363,7 +365,7 @@ export class AuthSecurityService {
 
   private async logSecurityEvent(event: SecurityEvent): Promise<void> {
     // In production, log to security monitoring system
-    console.log('Security Event:', event);
+    logger.info('Security Event:', event);
   }
 
   private async isUserSuspended(_userId: string): Promise<boolean> {
