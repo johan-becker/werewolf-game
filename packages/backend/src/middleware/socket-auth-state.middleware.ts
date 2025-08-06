@@ -17,7 +17,7 @@ import {
   MessageQueueConfig,
   SocketSecurityConfig,
 } from '../types/socket-auth.types';
-
+import { logger } from '../utils/logger';
 export class SocketAuthenticationStateMachine {
   private static instance: SocketAuthenticationStateMachine;
   private authService: AuthSecurityService;
@@ -119,7 +119,7 @@ export class SocketAuthenticationStateMachine {
     this.connectedSockets.set(socket.id, authSocket);
     this.incrementConnectionCount(clientIP);
 
-    console.log(`Socket ${socket.id} initialized in PENDING state from IP ${clientIP}`);
+    logger.info(`Socket ${socket.id} initialized in PENDING state from IP ${clientIP}`);
 
     // Set up authentication timeout (5 seconds as required)
     this.setupAuthenticationTimeout(authSocket);
@@ -200,7 +200,7 @@ export class SocketAuthenticationStateMachine {
         // Track user connection
         this.incrementUserConnectionCount(userId);
 
-        console.log(`Socket ${socket.id} authenticated for user ${userId}`);
+        logger.info(`Socket ${socket.id} authenticated for user ${userId}`);
 
         return {
           success: true,
@@ -232,7 +232,7 @@ export class SocketAuthenticationStateMachine {
         };
       }
     } catch (error) {
-      console.error('Socket authentication error:', error);
+      logger.error('Socket authentication error:', error);
 
       await this.transitionState(
         socket,
@@ -308,7 +308,7 @@ export class SocketAuthenticationStateMachine {
     // Remove from tracking
     this.connectedSockets.delete(socket.id);
 
-    console.log(`Socket ${socket.id} cleaned up`);
+    logger.info(`Socket ${socket.id} cleaned up`);
   }
 
   // Private methods
@@ -316,7 +316,7 @@ export class SocketAuthenticationStateMachine {
   private setupAuthenticationTimeout(socket: AuthenticatedSocket): void {
     socket.data.authTimeoutId = setTimeout(async () => {
       if (socket.data.authState === SocketAuthenticationState.PENDING) {
-        console.log(`Socket ${socket.id} authentication timeout`);
+        logger.info(`Socket ${socket.id} authentication timeout`);
 
         socket.emit('auth:timeout', {
           message: 'Authentication timeout - connection will be closed',
@@ -392,7 +392,7 @@ export class SocketAuthenticationStateMachine {
 
     socket.data.messageQueue.push(queuedMessage);
 
-    console.log(
+    logger.info(
       `Queued message ${event} for socket ${socket.id} (queue size: ${socket.data.messageQueue.length})`
     );
   }
@@ -420,7 +420,7 @@ export class SocketAuthenticationStateMachine {
       return a.timestamp.getTime() - b.timestamp.getTime();
     });
 
-    console.log(`Processing ${validMessages.length} queued messages for socket ${socket.id}`);
+    logger.info(`Processing ${validMessages.length} queued messages for socket ${socket.id}`);
 
     // Process messages
     for (const message of validMessages) {
@@ -428,7 +428,7 @@ export class SocketAuthenticationStateMachine {
         // Re-emit the event with original data
         socket.emit('internal:process_queued', message.event, ...message.data);
       } catch (error) {
-        console.error(`Error processing queued message ${message.id}:`, error);
+        logger.error(`Error processing queued message ${message.id}:`, error);
       }
     }
 
@@ -438,12 +438,12 @@ export class SocketAuthenticationStateMachine {
 
   private setupConnectionHandlers(socket: AuthenticatedSocket): void {
     socket.on('disconnect', async reason => {
-      console.log(`Socket ${socket.id} disconnected: ${reason}`);
+      logger.info(`Socket ${socket.id} disconnected: ${reason}`);
       await this.cleanupSocket(socket);
     });
 
     socket.on('error', error => {
-      console.error(`Socket ${socket.id} error:`, error);
+      logger.error(`Socket ${socket.id} error:`, error);
     });
 
     // Heartbeat handling
@@ -477,14 +477,12 @@ export class SocketAuthenticationStateMachine {
     );
 
     if (!validTransition) {
-      console.warn(
-        `Invalid state transition: ${currentState} -> ${newState} (trigger: ${trigger})`
-      );
+      logger.warn(`Invalid state transition: ${currentState} -> ${newState} (trigger: ${trigger})`);
       return;
     }
 
     socket.data.authState = newState;
-    console.log(`Socket ${socket.id} state transition: ${currentState} -> ${newState}`);
+    logger.info(`Socket ${socket.id} state transition: ${currentState} -> ${newState}`);
 
     // Handle state-specific actions
     if (newState === SocketAuthenticationState.REJECTED) {

@@ -31,17 +31,17 @@ jobs:
       - name: 🔍 Run ESLint on werewolf code
         run: |
           echo "🐺 Running werewolf code linting..."
-          turbo run lint || echo "⚠️  Linting configuration incomplete - this is expected for new projects"
+          npx turbo run lint || echo "⚠️  Linting configuration incomplete - this is expected for new projects"
 
       - name: 🎨 Check Prettier formatting  
         run: |
           echo "🌙 Checking werewolf code formatting..."
-          turbo run format:check || echo "⚠️  Prettier configuration incomplete - this is expected for new projects"
+          npx turbo run format:check || echo "⚠️  Prettier configuration incomplete - this is expected for new projects"
 
       - name: 📝 TypeScript type checking
         run: |
           echo "📝 Checking werewolf TypeScript..."
-          turbo run typecheck || echo "⚠️  TypeScript configuration incomplete - this is expected for new projects"
+          npx turbo run typecheck || echo "⚠️  TypeScript configuration incomplete - this is expected for new projects"
 
   # Unit and integration tests
   test:
@@ -127,7 +127,7 @@ jobs:
         run: npm ci --workspaces --include-workspace-root
 
       - name: 🏗️ Build werewolf applications
-        run: turbo run build
+        run: npx turbo run build
 
       - name: 📦 Archive werewolf build artifacts
         uses: actions/upload-artifact@v4
