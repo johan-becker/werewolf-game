@@ -72,7 +72,9 @@
       "Bash(git cherry-pick:*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr checks:*)",
-      "Bash(npx next lint:*)"
+      "Bash(npx next lint:*)",
+      "Bash(git rm:*)",
+      "Bash(turbo run:*)"
     ],
     "deny": []
   }
