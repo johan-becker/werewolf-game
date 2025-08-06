@@ -1,17 +1,13 @@
 # Production Dockerfile for Werewolf Frontend
-FROM --platform=linux/amd64 node:18-alpine AS base
+FROM node:18-alpine AS base
 
 # Install system dependencies
 RUN apk add --no-cache python3 make g++ git libc6-compat
 
 WORKDIR /app
 
-# Force npm to use platform-specific resolution
-ENV npm_config_force=true
-ENV npm_config_legacy_peer_deps=true
-
-# Install global packages with specific versions
-RUN npm install -g npm@10.2.4
+# Install global packages
+RUN npm install -g turbo
 
 # Copy only frontend and shared package files (avoid workspace complexity)
 COPY packages/frontend/package.json ./packages/frontend/
@@ -24,45 +20,29 @@ COPY package-lock.json ./
 # Create a temporary package.json for just frontend and shared
 RUN echo '{"name": "werewolf-frontend-build", "private": true, "workspaces": ["packages/frontend", "packages/shared"]}' > package.json
 
-# Debug: Print package structure
-RUN echo "=== Package Structure ===" && \
-    ls -la && \
-    echo "=== Temp package.json ===" && \
-    cat package.json && \
-    echo "=== NPM Version ===" && \
-    npm --version
-
-# Install production dependencies only
-RUN npm ci --workspaces --omit=dev --loglevel=verbose || \
-    npm install --workspaces --omit=dev --legacy-peer-deps
-
-# Clean cache after successful install
-RUN npm cache clean --force
+# Install dependencies
+RUN npm ci --workspaces --include-workspace-root --omit=dev && npm cache clean --force
 
 # Builder stage
 FROM base AS builder
 
-# Install all dependencies for building (including dev dependencies)
-RUN npm ci --workspaces --loglevel=verbose || \
-    npm install --workspaces --legacy-peer-deps
+# Install all dependencies for building
+RUN npm ci --workspaces --include-workspace-root
 
 # Copy source code
 COPY packages/frontend ./packages/frontend
 COPY packages/shared ./packages/shared
 
-# Ensure public directory exists for Next.js
-RUN mkdir -p /app/packages/frontend/public
-
-# Build shared package first
+# Build shared package if it exists
 WORKDIR /app/packages/shared
-RUN npm run build || echo "Shared build skipped"
+RUN npm run build || echo "Shared package build not configured, skipping"
 
 # Build frontend
 WORKDIR /app/packages/frontend
 RUN npm run build
 
 # Production stage with minimal image
-FROM --platform=linux/amd64 node:18-alpine AS production
+FROM node:18-alpine AS production
 
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
@@ -80,6 +60,7 @@ EXPOSE 3000
 
 # Simple health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "const http = require('http'); http.get('http://localhost:3000/', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))" || exit 1
 
 CMD ["node", "server.js"]
+EOF < /dev/null

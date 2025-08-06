@@ -13,6 +13,10 @@ RUN npm install -g turbo
 COPY package*.json ./
 COPY turbo.json ./
 COPY tsconfig.base.json ./
+
+# Create package directories
+RUN mkdir -p packages/backend packages/shared
+
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/shared/package.json ./packages/shared/
 COPY scripts/ ./scripts/
@@ -51,6 +55,10 @@ WORKDIR /app
 # Copy root package files (package-lock.json is essential for monorepo npm ci)
 COPY package*.json ./
 COPY turbo.json ./
+
+# Create package directories
+RUN mkdir -p packages/backend packages/shared
+
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/shared/package.json ./packages/shared/
 COPY scripts/ ./scripts/

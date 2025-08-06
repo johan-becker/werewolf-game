@@ -27,17 +27,13 @@ jobs:
       - name: Set up Node.js for package-lock validation
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
-      - name: Validate package-lock.json
+      - name: Install dependencies for validation
         run: |
-          echo "=== Validating package-lock.json ==="
-          if [ ! -f package-lock.json ]; then
-            echo "❌ No package-lock.json found!"
-            exit 1
-          fi
-          echo "✅ package-lock.json exists"
+          echo "=== Installing dependencies ==="
+          npm ci --workspaces --include-workspace-root
 
       - name: Debug Environment
         run: |
@@ -46,26 +42,9 @@ jobs:
           echo "=== Docker Info ==="
           docker version
           docker info
-          echo "=== Disk Space ==="
-          df -h
-          echo "=== Memory ==="
-          free -h
-          echo "=== NPM Config ==="
-          npm config list
-          echo "=== Package Files ==="
-          find . -name "package*.json" -type f | head -20
-
-      - name: Set up QEMU for multi-platform
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/amd64
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: |
-            network=host
-          buildkitd-flags: --debug
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
@@ -86,82 +65,10 @@ jobs:
           context: .
           file: packages/${{ matrix.service }}/Dockerfile
           platforms: linux/amd64
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name \!= "pull_request" }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
-            BUILDKIT_INLINE_CACHE=1
             NODE_ENV=production
-          outputs: type=registry,push=${{ github.event_name != 'pull_request' }}
-
-      # OPTIONAL: Upload build logs as artifacts
-      - name: Upload Docker build logs
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-build-logs-${{ matrix.service }}
-          path: |
-            /tmp/buildx-*.log
-          retention-days: 3
-
-  deploy-docker-compose:
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create docker-compose.prod.yml
-        run: |
-          cat > docker-compose.prod.yml << EOF
-          version: '3.8'
-          services:
-            postgres:
-              image: postgres:15-alpine
-              environment:
-                POSTGRES_DB: \${{ secrets.POSTGRES_DB }}
-                POSTGRES_USER: \${{ secrets.POSTGRES_USER }}
-                POSTGRES_PASSWORD: \${{ secrets.POSTGRES_PASSWORD }}
-              volumes:
-                - postgres_data:/var/lib/postgresql/data
-
-            redis:
-              image: redis:7-alpine
-              volumes:
-                - redis_data:/data
-
-            backend:
-              image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:main
-              environment:
-                NODE_ENV: production
-                DATABASE_URL: \${{ secrets.DATABASE_URL }}
-                REDIS_URL: redis://redis:6379
-                SUPABASE_URL: \${{ secrets.SUPABASE_URL }}
-                SUPABASE_ANON_KEY: \${{ secrets.SUPABASE_ANON_KEY }}
-                SUPABASE_SERVICE_ROLE_KEY: \${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-                JWT_SECRET: \${{ secrets.JWT_SECRET }}
-              depends_on:
-                - postgres
-                - redis
-
-            frontend:
-              image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:main
-              environment:
-                NODE_ENV: production
-                NEXT_PUBLIC_API_URL: \${{ secrets.NEXT_PUBLIC_API_URL }}
-                NEXT_PUBLIC_WS_URL: \${{ secrets.NEXT_PUBLIC_WS_URL }}
-              depends_on:
-                - backend
-
-          volumes:
-            postgres_data:
-            redis_data:
-          EOF
-
-      - name: Deploy via Docker Compose
-        run: |
-          echo "Production docker-compose.prod.yml created"
-          # Add deployment logic here (e.g., SSH to server and run docker-compose)
