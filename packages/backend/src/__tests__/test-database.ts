@@ -17,21 +17,37 @@ export class TestDatabaseManager {
   private supabase: SupabaseClient;
 
   constructor() {
+    interface MockPrismaOperations {
+      deleteMany: () => Promise<Record<string, unknown>>;
+      create: (data: { data: Record<string, unknown> }) => Promise<Record<string, unknown>>;
+    }
+
+    interface MockPrismaClient {
+      chatMessage: MockPrismaOperations;
+      gameLog: { deleteMany: () => Promise<Record<string, unknown>> };
+      player: MockPrismaOperations;
+      game: MockPrismaOperations;
+      profile: MockPrismaOperations;
+      $disconnect: () => Promise<void>;
+    }
+
     // Mock Prisma client for tests to avoid database connection issues
-    this.prisma = {
+    const mockClient: MockPrismaClient = {
       chatMessage: { deleteMany: async () => ({}), create: async () => ({}) },
       gameLog: { deleteMany: async () => ({}) },
       player: {
         deleteMany: async () => ({}),
-        create: async (data: any) => ({ ...data.data, id: 'test-id' }),
+        create: async (data: { data: Record<string, unknown> }) => ({ ...data.data, id: 'test-id' }),
       },
       game: {
         deleteMany: async () => ({}),
-        create: async (data: any) => ({ ...data.data, id: 'test-id' }),
+        create: async (data: { data: Record<string, unknown> }) => ({ ...data.data, id: 'test-id' }),
       },
-      profile: { deleteMany: async () => ({}), create: async (data: any) => ({ ...data.data }) },
+      profile: { deleteMany: async () => ({}), create: async (data: { data: Record<string, unknown> }) => ({ ...data.data }) },
       $disconnect: async () => {},
-    } as any;
+    };
+
+    this.prisma = mockClient as unknown as PrismaClient;
 
     this.supabase = createClient(
       process.env.TEST_SUPABASE_URL || 'http://localhost:54321',

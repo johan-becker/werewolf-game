@@ -164,7 +164,7 @@ export class SocketAuthenticationStateMachine {
 
       if (authResult.success && authResult.user) {
         // Check user connection limits
-        const userId = authResult.user.id;
+        const userId = authResult.user.id as string;
         if (!this.checkUserConnectionLimits(userId)) {
           return {
             success: false,
@@ -387,7 +387,7 @@ export class SocketAuthenticationStateMachine {
 
     // Add callback if the last argument is a function
     if (args[args.length - 1] && typeof args[args.length - 1] === 'function') {
-      queuedMessage.callback = args[args.length - 1] as (response: any) => void;
+      queuedMessage.callback = args[args.length - 1] as (response: unknown) => void;
     }
 
     socket.data.messageQueue.push(queuedMessage);
@@ -426,7 +426,7 @@ export class SocketAuthenticationStateMachine {
     for (const message of validMessages) {
       try {
         // Re-emit the event with original data
-        socket.emit('internal:process_queued', message.event, ...message.data);
+        socket.emit('internal:process_queued', message.event, ...(message.data as unknown[]));
       } catch (error) {
         logger.error(`Error processing queued message ${message.id}:`, error);
       }
@@ -459,7 +459,8 @@ export class SocketAuthenticationStateMachine {
   }
 
   private challengeAuthentication(socket: AuthenticatedSocket): void {
-    socket.emit('auth:challenge', (_response: any) => {
+    socket.emit('auth:challenge', (response: Record<string, unknown>) => {
+      console.log('Authentication challenge response received:', response);
       // Client should respond with authentication token
     });
   }

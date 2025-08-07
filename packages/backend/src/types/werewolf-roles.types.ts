@@ -77,7 +77,7 @@ export interface NightAction {
 }
 
 // Aktion-Ergebnis
-export interface ActionResult {
+export interface ActionResult extends Record<string, unknown> {
   success: boolean;
   message: string;
   requiresAction?: boolean; // Benötigt weitere Aktionen (z.B. Jäger-Schuss)
@@ -175,7 +175,7 @@ export interface WerewolfGameState {
 }
 
 // Rolle-Information
-export interface RoleInfo {
+export interface RoleInfo extends Record<string, unknown> {
   role: WerewolfRole;
   name: string; // Deutscher Name
   description: string; // Rollenbeschreibung

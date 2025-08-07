@@ -23,7 +23,7 @@ export interface GameListQuery {
   status?: 'waiting' | 'in_progress' | 'finished';
 }
 
-export interface GameResponse {
+export interface GameResponse extends Record<string, unknown> {
   id: string;
   name: string;
   code: string;

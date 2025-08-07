@@ -1,6 +1,107 @@
 import { WerewolfGameManager } from '../../services/werewolf-game-manager.service';
 import { WerewolfFactories } from '../factories/werewolf-factories';
 
+// Type definitions for test responses
+interface GameInitializationResult {
+  success: boolean;
+  werewolf_count: number;
+  villager_count: number;
+  special_roles: unknown[];
+  moon_phase: string;
+  pack_structure: {
+    alpha: unknown;
+    members: unknown[];
+  };
+  moon_phase_bonuses?: unknown;
+  transformation_schedule?: unknown;
+  error?: string;
+}
+
+interface PhaseAdvancementResult {
+  success: boolean;
+  new_phase: string;
+  phase_duration: number;
+  night_results: {
+    werewolf_kills: string[];
+    casualties: string[];
+    pack_bonus_applied: boolean;
+    territory_bonuses: {
+      forest_advantage?: boolean;
+    };
+  };
+}
+
+interface NightActionSubmission {
+  action?: string;
+  target_id?: string;
+  pack_coordination?: boolean;
+}
+
+interface NightResults {
+  werewolf_kills: string[];
+  casualties: string[];
+  pack_bonus_applied: boolean;
+  territory_bonuses: {
+    forest_advantage?: boolean;
+  };
+}
+
+interface PackStructure {
+  alpha: unknown;
+  members: unknown[];
+}
+
+interface AlphaAbilityData {
+  type: string;
+  targets?: string[];
+}
+
+interface NightActionData {
+  action?: string;
+  target_id?: string;
+}
+
+interface WinConditionResult {
+  game_ended: boolean;
+  winning_team: string | null;
+  victory_type?: string;
+}
+
+interface TransformationResult {
+  success: boolean;
+  transformation_progress: number;
+  abilities_unlocked: unknown;
+}
+
+interface PackCommunicationResult {
+  success: boolean;
+  werewolf_chat_enabled: boolean;
+  pack_members: unknown[];
+}
+
+interface MoonPhaseEffectsResult {
+  phase: string;
+  werewolf_bonuses: unknown;
+  transformation_modifiers: unknown;
+}
+
+interface AlphaAbilityResult {
+  success: boolean;
+  pack_bonuses_applied: boolean;
+  affected_werewolves: number;
+}
+
+interface DisconnectionResult {
+  success: boolean;
+  game_continues: boolean;
+  replacement_needed: boolean;
+}
+
+interface BatchActionResult {
+  success: boolean;
+  processed_count: number;
+}
+
 describe('WerewolfGameManager', () => {
   let gameManager: WerewolfGameManager;
   let mockGame: any;
@@ -60,27 +161,27 @@ describe('WerewolfGameManager', () => {
     it('should initialize werewolf game with proper role distribution', async () => {
       const result = await gameManager.initializeGame(mockGame.id, mockPlayers);
 
-      expect(result.success).toBe(true);
-      expect(result.werewolf_count).toBeGreaterThan(0);
-      expect(result.villager_count).toBeGreaterThan(0);
-      expect(result.special_roles).toBeDefined();
-      expect(result.moon_phase).toBe(mockGame.moon_phase);
+      expect((result as any).success).toBe(true);
+      expect((result as any).werewolf_count).toBeGreaterThan(0);
+      expect((result as any).villager_count).toBeGreaterThan(0);
+      expect((result as any).special_roles).toBeDefined();
+      expect((result as any).moon_phase).toBe(mockGame.moon_phase);
     });
 
     it('should assign werewolf roles according to ratio settings', async () => {
       const result = await gameManager.initializeGame(mockGame.id, mockPlayers);
       const expectedWerewolves = Math.floor(mockPlayers.length * mockGame.settings.werewolf_ratio);
 
-      expect(result.werewolf_count).toBeGreaterThanOrEqual(1);
-      expect(result.werewolf_count).toBeLessThanOrEqual(expectedWerewolves + 1);
+      expect((result as any).werewolf_count).toBeGreaterThanOrEqual(1);
+      expect((result as any).werewolf_count).toBeLessThanOrEqual(expectedWerewolves + 1);
     });
 
     it('should create proper pack hierarchy for werewolves', async () => {
       const result = await gameManager.initializeGame(mockGame.id, mockPlayers);
 
-      expect(result.pack_structure).toBeDefined();
-      expect(result.pack_structure.alpha).toBeDefined();
-      expect(result.pack_structure.members).toBeInstanceOf(Array);
+      expect((result as any).pack_structure).toBeDefined();
+      expect((result as any).pack_structure.alpha).toBeDefined();
+      expect((result as any).pack_structure.members).toBeInstanceOf(Array);
     });
 
     it('should apply moon phase effects during initialization', async () => {
@@ -88,8 +189,8 @@ describe('WerewolfGameManager', () => {
 
       const result = await gameManager.initializeGame(mockGame.id, mockPlayers);
 
-      expect(result.moon_phase_bonuses).toBeDefined();
-      expect(result.transformation_schedule).toBeDefined();
+      expect((result as any).moon_phase_bonuses).toBeDefined();
+      expect((result as any).transformation_schedule).toBeDefined();
     });
   });
 
@@ -99,7 +200,7 @@ describe('WerewolfGameManager', () => {
     });
 
     it('should transition from night to day phase correctly', async () => {
-      const result = await gameManager.advancePhase(mockGame.id);
+      const result = await gameManager.advancePhase(mockGame.id) as unknown as PhaseAdvancementResult;
 
       expect(result.success).toBe(true);
       expect(result.new_phase).toBe('day');
@@ -109,50 +210,54 @@ describe('WerewolfGameManager', () => {
 
     it('should process werewolf night actions during phase transition', async () => {
       // Simulate werewolf actions
-      await gameManager.submitNightAction(mockGame.id, mockPlayers[0].id, {
+      const actionData: NightActionSubmission = {
         action: 'werewolf_kill',
         target_id: mockPlayers[2].id,
-      });
+      };
+      await gameManager.submitNightAction(mockGame.id, mockPlayers[0].id, actionData);
 
-      const result = await gameManager.advancePhase(mockGame.id);
+      const result = await gameManager.advancePhase(mockGame.id) as unknown as PhaseAdvancementResult;
 
       expect(result.success).toBe(true);
-      expect(result.night_results.werewolf_kills).toBeDefined();
-      expect(result.night_results.casualties).toBeInstanceOf(Array);
+      expect((result.night_results as NightResults).werewolf_kills).toBeDefined();
+      expect((result.night_results as NightResults).casualties).toBeInstanceOf(Array);
     });
 
     it('should handle pack coordination during night phase', async () => {
       // Multiple werewolves coordinate
-      await gameManager.submitNightAction(mockGame.id, mockPlayers[0].id, {
+      const coordinatedAction: NightActionSubmission = {
         action: 'werewolf_kill',
         target_id: mockPlayers[2].id,
         pack_coordination: true,
-      });
+      };
+      await gameManager.submitNightAction(mockGame.id, mockPlayers[0].id, coordinatedAction);
 
-      await gameManager.submitNightAction(mockGame.id, mockPlayers[1].id, {
+      const supportAction: NightActionSubmission = {
         action: 'werewolf_support',
         target_id: mockPlayers[2].id,
-      });
+      };
+      await gameManager.submitNightAction(mockGame.id, mockPlayers[1].id, supportAction);
 
-      const result = await gameManager.advancePhase(mockGame.id);
+      const result = await gameManager.advancePhase(mockGame.id) as unknown as PhaseAdvancementResult;
 
       expect(result.success).toBe(true);
-      expect(result.night_results.pack_bonus_applied).toBe(true);
+      expect((result.night_results as NightResults).pack_bonus_applied).toBe(true);
     });
 
     it('should apply territory bonuses when enabled', async () => {
       mockGame.settings.territory_bonuses = true;
       mockPlayers[0].territory_bonus_active = true;
 
-      await gameManager.submitNightAction(mockGame.id, mockPlayers[0].id, {
+      const territoryAction: NightActionSubmission = {
         action: 'werewolf_kill',
         target_id: mockPlayers[2].id,
-      });
+      };
+      await gameManager.submitNightAction(mockGame.id, mockPlayers[0].id, territoryAction);
 
-      const result = await gameManager.advancePhase(mockGame.id);
+      const result = await gameManager.advancePhase(mockGame.id) as unknown as PhaseAdvancementResult;
 
       expect(result.success).toBe(true);
-      expect(result.night_results.territory_bonuses).toBeDefined();
+      expect((result.night_results as NightResults).territory_bonuses).toBeDefined();
     });
   });
 
@@ -250,10 +355,11 @@ describe('WerewolfGameManager', () => {
     it('should handle alpha werewolf special privileges', async () => {
       const alphaPlayer = mockPlayers.find(p => p.pack_rank === 'alpha');
 
-      const result = await gameManager.executeAlphaAbility(mockGame.id, alphaPlayer.id, {
-        ability: 'pack_rally',
+      const abilityData: AlphaAbilityData = {
+        type: 'pack_rally',
         targets: mockPlayers.filter(p => p.werewolf_team === 'werewolf').map(p => p.id),
-      });
+      };
+      const result = await gameManager.executeAlphaAbility(mockGame.id, alphaPlayer.id, abilityData) as unknown as AlphaAbilityResult;
 
       expect(result.success).toBe(true);
       expect(result.pack_bonuses_applied).toBe(true);
@@ -272,10 +378,11 @@ describe('WerewolfGameManager', () => {
     it('should prevent invalid night actions', async () => {
       await gameManager.initializeGame(mockGame.id, mockPlayers);
 
-      const result = await gameManager.submitNightAction(mockGame.id, mockPlayers[0].id, {
+      const invalidAction: NightActionData = {
         action: 'invalid_action',
         target_id: mockPlayers[1].id,
-      });
+      };
+      const result = await gameManager.submitNightAction(mockGame.id, mockPlayers[0].id, invalidAction);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('invalid');

@@ -80,7 +80,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
     });
 
     // Handle connection test
-    socket.on('connection:test', callback => {
+    socket.on('connection:test', (callback: (response: { success: boolean; timestamp: string; userId?: string; username?: string }) => void) => {
       callback({
         success: true,
         timestamp: new Date().toISOString(),

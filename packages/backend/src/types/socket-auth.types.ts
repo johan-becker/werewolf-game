@@ -162,7 +162,7 @@ export interface ChatData {
 }
 
 // Response interfaces with user context validation
-export interface GameResponse {
+export interface GameResponse extends Record<string, unknown> {
   success: boolean;
   data?: {
     gameId: string;

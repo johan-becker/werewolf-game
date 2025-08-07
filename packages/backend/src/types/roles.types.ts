@@ -116,8 +116,8 @@ export interface CupidRole extends BaseRole {
   team: 'VILLAGE';
 }
 
-// Action Results
-export interface ActionResult {
+// Action Results  
+export interface ActionResult extends Record<string, unknown> {
   success: boolean;
   message: string;
   action?: string; // Action type that was performed

@@ -223,7 +223,10 @@ export class GameController {
       }
 
       // Calculate moon phase
-      const moonPhaseEffects = await werewolfGameManager.calculateMoonPhaseEffects(game);
+      const moonPhaseEffects = await werewolfGameManager.calculateMoonPhaseEffects({
+        moon_phase: 'full_moon', // default moon phase
+        ...game
+      } as any);
 
       res.json({
         success: true,
@@ -370,7 +373,10 @@ export class GameController {
       }
 
       // Calculate moon phase effects
-      const moonPhaseEffects = await werewolfGameManager.calculateMoonPhaseEffects(game);
+      const moonPhaseEffects = await werewolfGameManager.calculateMoonPhaseEffects({
+        moon_phase: 'full_moon', // default moon phase
+        ...game
+      } as any);
 
       res.json({
         success: true,

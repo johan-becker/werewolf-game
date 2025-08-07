@@ -316,8 +316,9 @@ export class AuthenticatedSocketEventHandler {
       }
 
       try {
-        // const user = socketAuthStateMachine.getAuthenticatedUser(socket);
+        const user = socketAuthStateMachine.getAuthenticatedUser(socket);
         const gameId = socket.data.currentGame;
+        console.log(`Getting game state for user ${user.userId}`);
 
         if (!gameId) {
           callback({
@@ -412,6 +413,7 @@ export class AuthenticatedSocketEventHandler {
         callback(response);
 
         // User performed night action
+        console.log(`Night action completed for user ${user.userId}`);
       } catch (error) {
         // Night action error handled
         callback({
@@ -458,6 +460,7 @@ export class AuthenticatedSocketEventHandler {
         callback(response);
 
         // User voted in game
+        console.log(`Vote completed for user ${user.userId}`);
       } catch (error) {
         // Vote error handled
         callback({

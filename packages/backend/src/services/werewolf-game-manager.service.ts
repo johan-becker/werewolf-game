@@ -273,7 +273,7 @@ export class WerewolfGameManager {
   ): Promise<{
     success: boolean;
     message: string;
-    revealedInfo?: Record<string, unknown>;
+    revealedInfo?: Record<string, unknown> | undefined;
     canProceed?: boolean;
   }> {
     try {
@@ -546,12 +546,13 @@ export class WerewolfGameManager {
 
     // Sammle alle Effekte
     for (const result of results) {
-      if (result.effects) {
-        if (result.effects.deaths) {
-          (result.effects.deaths as string[]).forEach((id: string) => allDeaths.add(id));
+      if (result.effects && typeof result.effects === 'object' && result.effects !== null) {
+        const effects = result.effects as { deaths?: string[]; protections?: string[] };
+        if (effects.deaths) {
+          effects.deaths.forEach((id: string) => allDeaths.add(id));
         }
-        if (result.effects.protections) {
-          (result.effects.protections as string[]).forEach((id: string) => allProtections.add(id));
+        if (effects.protections) {
+          effects.protections.forEach((id: string) => allProtections.add(id));
         }
       }
     }
@@ -740,7 +741,7 @@ export class WerewolfGameManager {
   /**
    * Submit night action (stub implementation for tests)
    */
-  async submitNightAction(gameId: string, playerId: string, action: { action?: string }): Promise<Record<string, unknown>> {
+  async submitNightAction(gameId: string, playerId: string, action: { action?: string; target_id?: string }): Promise<Record<string, unknown>> {
     // Handle invalid actions
     if (action.action && action.action.includes('invalid')) {
       return {

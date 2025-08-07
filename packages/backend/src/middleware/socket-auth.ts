@@ -165,10 +165,10 @@ function generateSessionId(): string {
 function setupActivityTracking(socket: AuthenticatedSocket): void {
   // Track activity on any event
   const originalEmit = socket.emit;
-  socket.emit = function (this: AuthenticatedSocket, event: string, ...args: any[]) {
+  socket.emit = function (this: AuthenticatedSocket, event: string, ...args: unknown[]) {
     socket.data.lastActivityAt = new Date();
     return originalEmit.call(this, event, ...args);
-  } as any;
+  } as typeof socket.emit;
 
   // Set up periodic activity check
   const activityInterval = setInterval(() => {
@@ -193,11 +193,12 @@ function setupActivityTracking(socket: AuthenticatedSocket): void {
  * Set up automatic socket cleanup
  */
 function setupSocketCleanup(socket: AuthenticatedSocket): void {
-  socket.on('disconnect', reason => {
-    // Socket disconnected
+  socket.on('disconnect', (reason: string) => {
+    console.log(`Socket disconnected: ${reason}`);
 
     // Clean up any game-specific state
     if (socket.data.roomId) {
+      console.log(`Cleaning up game state for room: ${socket.data.roomId}`);
       // Game cleanup logic would go here
     }
   });
