@@ -22,7 +22,7 @@ const ConfigSchema = z.object({
   // Supabase Configuration
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_ANON_KEY: z.string().optional(),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  SUPABASE_SERVICE_KEY: z.string().optional(),
 
   // JWT Configuration
   JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters'),
@@ -101,7 +101,7 @@ export class AppConfig implements IAppConfig {
         envVars.REDIS_URL = envVars.REDIS_URL || 'redis://localhost:6379';
         envVars.SUPABASE_URL = envVars.SUPABASE_URL || 'https://test.supabase.co';
         envVars.SUPABASE_ANON_KEY = envVars.SUPABASE_ANON_KEY || 'test-anon-key';
-        envVars.SUPABASE_SERVICE_ROLE_KEY = envVars.SUPABASE_SERVICE_ROLE_KEY || 'test-service-key';
+        envVars.SUPABASE_SERVICE_KEY = envVars.SUPABASE_SERVICE_KEY || 'test-service-key';
       }
 
       this.config = ConfigSchema.parse(envVars);
@@ -144,7 +144,7 @@ export class AppConfig implements IAppConfig {
     return this.config.SUPABASE_ANON_KEY;
   }
   get supabaseServiceRoleKey(): string | undefined {
-    return this.config.SUPABASE_SERVICE_ROLE_KEY;
+    return this.config.SUPABASE_SERVICE_KEY;
   }
 
   // JWT Configuration

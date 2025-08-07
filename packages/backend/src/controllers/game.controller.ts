@@ -137,21 +137,21 @@ export class GameController {
         player: currentPlayer,
         game: result,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle specific error cases that tests expect
-      if (error.message?.includes('not found') || error.message?.includes('Game not found')) {
+      if (error instanceof Error && (error.message.includes('not found') || error.message.includes('Game not found'))) {
         res.status(404).json({ success: false, error: 'Game not found' });
         return;
       }
-      if (error.message?.includes('full') || error.message?.includes('Game is full')) {
+      if (error instanceof Error && (error.message.includes('full') || error.message.includes('Game is full'))) {
         res.status(400).json({ success: false, error: 'Game is full' });
         return;
       }
-      if (error.message?.includes('already started')) {
+      if (error instanceof Error && error.message.includes('already started')) {
         res.status(400).json({ success: false, error: 'Game has already started' });
         return;
       }
-      if (error.message?.includes('Already in this game')) {
+      if (error instanceof Error && error.message.includes('Already in this game')) {
         res.status(400).json({ success: false, error: 'Already in this game' });
         return;
       }
@@ -242,12 +242,12 @@ export class GameController {
         role_assignments: result.roleAssignments,
         game_state: result.gameState,
       });
-    } catch (error: any) {
-      if (error.message?.includes('host')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('host')) {
         res.status(403).json({ success: false, error: 'Only the host can start the game' });
         return;
       }
-      if (error.message?.includes('minimum') || error.message?.includes('players')) {
+      if (error instanceof Error && (error.message.includes('minimum') || error.message.includes('players'))) {
         res
           .status(400)
           .json({ success: false, error: 'Minimum 4 players required to start the game' });

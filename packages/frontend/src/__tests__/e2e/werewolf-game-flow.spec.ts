@@ -93,7 +93,8 @@ test.describe('Werewolf Game Complete Flow', () => {
       // Add 3 more players (total 5 for minimum werewolf game)
       for (let i = 0; i < 3; i++) {
         const context = await hostPage.context().browser()?.newContext();
-        const newPlayerPage = await context!.newPage();
+        if (!context) throw new Error('Failed to create browser context');
+        const newPlayerPage = await context.newPage();
 
         await newPlayerPage.goto('/');
         await newPlayerPage.click('[data-testid="join-game-button"]');

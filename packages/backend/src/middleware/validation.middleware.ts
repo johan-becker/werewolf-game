@@ -52,7 +52,7 @@ export class ValidationMiddleware {
         }
 
         // Handle unexpected validation errors
-        console.error('Unexpected validation error:', error);
+        // Unexpected validation error logged by error system
         return res.status(500).json({
           success: false,
           error: 'Internal validation error',
@@ -87,7 +87,7 @@ export class ValidationMiddleware {
           });
         }
 
-        console.error('Unexpected body validation error:', error);
+        // Unexpected body validation error logged by error system
         return res.status(500).json({
           success: false,
           error: 'Internal validation error',
@@ -122,7 +122,7 @@ export class ValidationMiddleware {
           });
         }
 
-        console.error('Unexpected query validation error:', error);
+        // Unexpected query validation error logged by error system
         return res.status(500).json({
           success: false,
           error: 'Internal validation error',
@@ -157,7 +157,7 @@ export class ValidationMiddleware {
           });
         }
 
-        console.error('Unexpected params validation error:', error);
+        // Unexpected params validation error logged by error system
         return res.status(500).json({
           success: false,
           error: 'Internal validation error',

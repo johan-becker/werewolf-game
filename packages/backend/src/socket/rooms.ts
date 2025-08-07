@@ -43,7 +43,7 @@ export class RoomManager {
     socket.data.currentGame = gameId;
     updateConnectionGame(userId, gameId);
 
-    console.log(`User ${socket.data.username} joined room game:${gameId}`);
+    // User joined game room
   }
 
   /**
@@ -74,7 +74,7 @@ export class RoomManager {
     delete socket.data.currentGame;
     updateConnectionGame(userId, undefined);
 
-    console.log(`User ${socket.data.username} left room game:${currentGame}`);
+    // User left game room
 
     return currentGame;
   }
@@ -84,7 +84,7 @@ export class RoomManager {
    */
   async joinLobby(socket: Socket): Promise<void> {
     await socket.join('lobby');
-    console.log(`User ${socket.data.username} joined lobby`);
+    // User joined lobby
   }
 
   /**
@@ -92,7 +92,7 @@ export class RoomManager {
    */
   async leaveLobby(socket: Socket): Promise<void> {
     await socket.leave('lobby');
-    console.log(`User ${socket.data.username} left lobby`);
+    // User left lobby
   }
 
   /**
@@ -150,11 +150,11 @@ export class RoomManager {
           // User didn't reconnect within grace period
           this.forceLeaveRoom(userId, gameId);
           this.disconnectedUsers.delete(userId);
-          console.log(`User ${userId} permanently left game ${gameId} after grace period`);
+          // User permanently left game after grace period
         }
       }, this.GRACE_PERIOD);
 
-      console.log(`User ${userId} disconnected from game ${gameId}, grace period started`);
+      // User disconnected from game, grace period started
       return gameId;
     }
 
@@ -193,7 +193,7 @@ export class RoomManager {
       // Rejoin the room
       await this.joinRoom(socket, gameId);
 
-      console.log(`User ${socket.data.username} reconnected to game ${gameId}`);
+      // User reconnected to game
       return gameId;
     }
 

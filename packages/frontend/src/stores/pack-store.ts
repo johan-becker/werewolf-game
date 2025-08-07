@@ -93,7 +93,7 @@ export interface PackActivity {
     | 'TRANSFORMATION'
     | 'PACK_CREATED';
   message: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   user: Pick<PackMember['user'], 'id' | 'username' | 'avatar'>;
 }
@@ -117,7 +117,7 @@ export interface PackState {
   activities: PackActivity[];
 
   // Optimistic updates tracking
-  optimisticUpdates: Map<string, any>;
+  optimisticUpdates: Map<string, () => void>;
 
   // Pack management methods
   createPack: (packData: CreatePackData) => Promise<Pack>;
@@ -185,7 +185,7 @@ export interface PackFilters {
 export interface PackUpdate {
   type: 'MEMBER_JOINED' | 'MEMBER_LEFT' | 'TERRITORY_CHANGED' | 'PACK_UPDATED' | 'ROLE_CHANGED';
   packId: string;
-  data: any;
+  data: unknown;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
@@ -424,7 +424,7 @@ export const usePackStore = create<PackState>()(
           });
 
           // Update auth store
-          useAuthStore.getState().updatePackRole(undefined as any);
+          useAuthStore.getState().updatePackRole(undefined);
         } catch (error) {
           set(state => {
             state.isLoading = false;

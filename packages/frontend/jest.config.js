@@ -39,14 +39,6 @@ const customJestConfig = {
     },
   },
   testTimeout: 10000,
-  // Werewolf-themed components and hooks coverage
-  collectCoverageFrom: [
-    'src/components/werewolf/*.{ts,tsx}',
-    'src/hooks/*.{ts,tsx}',
-    'src/stores/*.{ts,tsx}',
-    'src/lib/*.{ts,tsx}',
-    '!**/*.d.ts',
-  ],
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

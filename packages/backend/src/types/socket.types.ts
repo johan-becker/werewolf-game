@@ -15,26 +15,26 @@ export interface SocketError {
 export interface ClientToServerEvents {
   // Connection management
   ping: (callback?: () => void) => void;
-  'connection:test': (callback: (response: any) => void) => void;
+  'connection:test': (callback: (response: { success: boolean; timestamp: string }) => void) => void;
   reconnect: () => void;
 
   // Lobby events
   'lobby:join': () => void;
   'lobby:leave': () => void;
-  'lobby:list': (callback: (response: any) => void) => void;
+  'lobby:list': (callback: (response: { games: Array<Record<string, unknown>>; timestamp: string }) => void) => void;
 
   // Game management
   'game:create': (
     data: { maxPlayers?: number; isPrivate?: boolean },
-    callback: (response: any) => void
+    callback: (response: { success: boolean; game?: Record<string, unknown>; error?: string }) => void
   ) => void;
-  'game:join': (data: { gameId: string }, callback: (response: any) => void) => void;
-  'game:joinByCode': (data: { code: string }, callback: (response: any) => void) => void;
-  'game:leave': (data: { gameId: string }, callback: (response: any) => void) => void;
-  'game:start': (data: { gameId: string }, callback: (response: any) => void) => void;
-  'game:end': (callback: (response: any) => void) => void;
-  'game:pause': (callback: (response: any) => void) => void;
-  'game:resume': (callback: (response: any) => void) => void;
+  'game:join': (data: { gameId: string }, callback: (response: { success: boolean; game?: Record<string, unknown>; error?: string }) => void) => void;
+  'game:joinByCode': (data: { code: string }, callback: (response: { success: boolean; game?: Record<string, unknown>; error?: string }) => void) => void;
+  'game:leave': (data: { gameId: string }, callback: (response: { success: boolean; message?: string; error?: string }) => void) => void;
+  'game:start': (data: { gameId: string }, callback: (response: { success: boolean; game?: Record<string, unknown>; error?: string }) => void) => void;
+  'game:end': (callback: (response: { success: boolean; message?: string; error?: string }) => void) => void;
+  'game:pause': (callback: (response: { success: boolean; message?: string; error?: string }) => void) => void;
+  'game:resume': (callback: (response: { success: boolean; message?: string; error?: string }) => void) => void;
 
   // Role-based actions
   'game:nightAction': (
@@ -43,18 +43,18 @@ export interface ClientToServerEvents {
       targetId?: string;
       secondTargetId?: string;
     },
-    callback: (response: any) => void
+    callback: (response: { success: boolean; message?: string; revealedInfo?: Record<string, unknown>; error?: string }) => void
   ) => void;
-  'game:vote': (data: { targetId: string }, callback: (response: any) => void) => void;
-  'game:getRole': (callback: (response: any) => void) => void;
-  'game:getAvailableActions': (callback: (response: any) => void) => void;
+  'game:vote': (data: { targetId: string }, callback: (response: { success: boolean; message?: string; error?: string }) => void) => void;
+  'game:getRole': (callback: (response: { role?: string; abilities?: string[]; error?: string }) => void) => void;
+  'game:getAvailableActions': (callback: (response: { actions?: string[]; error?: string }) => void) => void;
 
   // Game state
-  'game:getState': (callback: (response: any) => void) => void;
-  'game:ready': (callback: (response: any) => void) => void;
+  'game:getState': (callback: (response: { game?: Record<string, unknown>; error?: string }) => void) => void;
+  'game:ready': (callback: (response: { success: boolean; message?: string; error?: string }) => void) => void;
   'game:action': (
-    data: { type: string; target?: string; extra?: any },
-    callback: (response: any) => void
+    data: { type: string; target?: string; extra?: Record<string, unknown> },
+    callback: (response: { success: boolean; message?: string; error?: string }) => void
   ) => void;
 
   // Communication
@@ -68,7 +68,7 @@ export interface ClientToServerEvents {
       channel: 'LOBBY' | 'DAY' | 'NIGHT' | 'DEAD' | 'SYSTEM';
       gameId?: string;
     },
-    callback: (response: any) => void
+    callback: (response: { success: boolean; message?: Record<string, unknown>; error?: string }) => void
   ) => void;
   'chat:history': (
     data: {
@@ -77,15 +77,15 @@ export interface ClientToServerEvents {
       limit?: number;
       before?: string;
     },
-    callback: (response: any) => void
+    callback: (response: { messages: Array<Record<string, unknown>>; hasMore: boolean; error?: string }) => void
   ) => void;
   'chat:typing:start': (data: { channel: string; gameId?: string }) => void;
   'chat:typing:stop': (data: { channel: string; gameId?: string }) => void;
   'chat:edit': (
     data: { messageId: string; content: string },
-    callback: (response: any) => void
+    callback: (response: { success: boolean; message?: string; error?: string }) => void
   ) => void;
-  'chat:delete': (data: { messageId: string }, callback: (response: any) => void) => void;
+  'chat:delete': (data: { messageId: string }, callback: (response: { success: boolean; message?: string; error?: string }) => void) => void;
 }
 
 // Server to Client Events
@@ -99,7 +99,7 @@ export interface ServerToClientEvents {
   'server:shutdown': (data: { message: string; timestamp: string }) => void;
 
   // Lobby updates
-  'lobby:gameList': (data: { games: any[] }) => void;
+  'lobby:gameList': (data: { games: Array<Record<string, unknown>> }) => void;
   'lobby:gameCreated': (data: {
     gameId: string;
     name: string;
@@ -115,10 +115,10 @@ export interface ServerToClientEvents {
     maxPlayers: number;
   }) => void;
   'lobby:gameRemoved': (data: { gameId: string }) => void;
-  'lobby:periodicUpdate': (data: { games: any[] }) => void;
+  'lobby:periodicUpdate': (data: { games: Array<Record<string, unknown>> }) => void;
 
   // Game updates
-  'game:playerJoined': (data: { gameId: string; player: any }) => void;
+  'game:playerJoined': (data: { gameId: string; player: Record<string, unknown> }) => void;
   'game:playerLeft': (data: { gameId: string; userId: string; username: string }) => void;
   'game:playerDisconnected': (data: {
     gameId: string;
@@ -127,7 +127,7 @@ export interface ServerToClientEvents {
     reason?: string;
   }) => void;
   'game:playerReconnected': (data: { gameId: string; userId: string; username: string }) => void;
-  'game:started': (data: { gameId: string; game?: any; roleAssignments?: any[] }) => void;
+  'game:started': (data: { gameId: string; game?: Record<string, unknown>; roleAssignments?: Array<Record<string, unknown>> }) => void;
   'game:ended': (data: { winner: string; endedBy: string; timestamp: string }) => void;
   'game:cancelled': (reason: string) => void;
   'game:paused': (data: { pausedBy: string; timestamp: string }) => void;
@@ -136,12 +136,12 @@ export interface ServerToClientEvents {
 
   // Role and phase updates
   'game:phaseChanged': (data: { phase: 'DAY' | 'NIGHT'; dayNumber: number }) => void;
-  'game:roleAssigned': (data: { role: string; abilities: any[] }) => void;
+  'game:roleAssigned': (data: { role: string; abilities: string[] }) => void;
   'game:playerEliminated': (data: { playerId: string; playerName: string; role?: string }) => void;
   'game:nightResolved': (data: { deaths: string[]; phase: 'DAY' | 'NIGHT' }) => void;
 
   // Game state sync
-  'game:stateSync': (data: { game: any }) => void;
+  'game:stateSync': (data: { game: Record<string, unknown> }) => void;
   'game:playerReady': (data: { userId: string; username: string; timestamp: string }) => void;
   'game:actionPerformed': (data: {
     userId: string;
@@ -179,7 +179,7 @@ export interface ServerToClientEvents {
     editedAt?: string;
     createdAt: string;
   }) => void;
-  'chat:history': (data: { messages: any[]; hasMore: boolean }) => void;
+  'chat:history': (data: { messages: Array<Record<string, unknown>>; hasMore: boolean }) => void;
   'chat:typing': (data: {
     userId: string;
     username: string;

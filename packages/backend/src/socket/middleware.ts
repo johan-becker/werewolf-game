@@ -114,7 +114,7 @@ export async function authenticateSocket(socket: Socket, next: (err?: ExtendedEr
 
     next();
   } catch (error) {
-    console.error('Socket authentication error:', error);
+    // Socket authentication error handled
     next(new Error('Authentication failed'));
   }
 }

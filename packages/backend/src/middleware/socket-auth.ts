@@ -194,13 +194,7 @@ function setupActivityTracking(socket: AuthenticatedSocket): void {
  */
 function setupSocketCleanup(socket: AuthenticatedSocket): void {
   socket.on('disconnect', reason => {
-    console.log(`Socket ${socket.id} disconnected:`, {
-      userId: socket.data.user.id,
-      sessionId: socket.data.sessionId,
-      reason,
-      connectedDuration: Date.now() - socket.data.connectedAt.getTime(),
-      lastActivity: socket.data.lastActivityAt,
-    });
+    // Socket disconnected
 
     // Clean up any game-specific state
     if (socket.data.roomId) {

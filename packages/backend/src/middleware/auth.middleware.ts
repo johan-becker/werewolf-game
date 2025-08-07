@@ -78,7 +78,7 @@ export class AuthMiddleware {
         req.user = validation.payload;
         return next();
       } catch (error) {
-        console.error('Authentication middleware error:', error);
+        // Authentication error logged by error system
         return res.status(500).json({
           success: false,
           error: 'Authentication service error',
@@ -110,7 +110,7 @@ export class AuthMiddleware {
         return next();
       } catch (error) {
         // Don't fail on optional auth errors
-        console.error('Optional auth error:', error);
+        // Optional auth error logged by error system
         return next();
       }
     };

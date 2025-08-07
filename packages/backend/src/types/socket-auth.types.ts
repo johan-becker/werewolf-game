@@ -43,9 +43,9 @@ export interface AuthenticatedSocket extends Socket {
 export interface QueuedMessage {
   id: string;
   event: string;
-  data: any;
+  data: unknown;
   timestamp: Date;
-  callback?: (response: any) => void;
+  callback?: (response: unknown) => void;
 }
 
 // Authentication result for socket connections

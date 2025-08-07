@@ -175,7 +175,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
       setIsConnecting(false);
       setError('Failed to create WebSocket connection');
     }
-  }, [tokens, opts, isConnecting]);
+  }, [tokens, opts, isConnecting, handleMessage]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {

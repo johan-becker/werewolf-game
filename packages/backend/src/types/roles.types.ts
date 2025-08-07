@@ -122,7 +122,7 @@ export interface ActionResult {
   message: string;
   action?: string; // Action type that was performed
   target_id?: string; // Target of the action
-  details?: any; // Additional action details
+  details?: Record<string, unknown>; // Additional action details
   error?: string; // Error message if action failed
   revealedInfo?: {
     targetId: string;

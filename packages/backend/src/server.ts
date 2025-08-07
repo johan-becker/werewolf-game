@@ -37,14 +37,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // API Routes FIRST
-console.log('Loading auth routes...');
-console.log('Auth routes object:', authRoutes);
+logger.info('Loading API routes...');
 app.use('/api/auth', authRoutes);
-console.log('Loading user routes...');
 app.use('/api/users', userRoutes);
-console.log('Loading game routes...');
 app.use('/api/games', gameRoutes);
-console.log('All routes loaded successfully');
+logger.info('All routes loaded successfully');
 
 // Test route directly in server
 app.get('/api/test', (req, res) => {
@@ -52,7 +49,7 @@ app.get('/api/test', (req, res) => {
 });
 
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url} - ${req.ip}`);
+  logger.debug(`${req.method} ${req.url} - ${req.ip}`);
   next();
 });
 

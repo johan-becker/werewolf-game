@@ -35,7 +35,7 @@ export class TestDatabaseManager {
 
     this.supabase = createClient(
       process.env.TEST_SUPABASE_URL || 'http://localhost:54321',
-      process.env.TEST_SUPABASE_SERVICE_ROLE_KEY || 'test-key'
+      process.env.TEST_SUPABASE_SERVICE_KEY || 'test-key'
     );
   }
 

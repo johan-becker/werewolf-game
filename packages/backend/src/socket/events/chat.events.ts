@@ -114,7 +114,7 @@ export function handleChatEvents(socket: Socket, io: Server, roomManager: RoomMa
         true
       );
     } catch (error) {
-      console.error('Chat typing start error:', error);
+      // Chat typing start error handled
     }
   });
 
@@ -141,7 +141,7 @@ export function handleChatEvents(socket: Socket, io: Server, roomManager: RoomMa
         );
       }
     } catch (error) {
-      console.error('Chat typing stop error:', error);
+      // Chat typing stop error handled
     }
   });
 

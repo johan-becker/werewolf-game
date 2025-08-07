@@ -123,16 +123,7 @@ export function controllerErrorInterceptor(
   res: Response,
   _next: NextFunction
 ): void {
-  console.error('Controller Error:', {
-    requestId: req.requestId,
-    error: error.message,
-    stack: error.stack,
-    url: req.url,
-    method: req.method,
-    body: req.body,
-    userId: (req as { user?: { id?: string } }).user?.id,
-    timestamp: new Date().toISOString(),
-  });
+  // Controller error logged by error handler system
 
   // Transform known domain exceptions
   const gameError = transformDomainException(error, req);

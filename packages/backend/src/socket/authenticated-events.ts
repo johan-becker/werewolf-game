@@ -74,10 +74,10 @@ export class AuthenticatedSocketEventHandler {
             session: result.metadata,
           });
 
-          console.log(`User ${result.user.userId} authenticated on socket ${socket.id}`);
+          // User authenticated on socket
         }
       } catch (error) {
-        console.error('Authentication event error:', error);
+        // Authentication event error handled
         callback({
           success: false,
           error: {
@@ -152,9 +152,9 @@ export class AuthenticatedSocketEventHandler {
 
         callback(response);
 
-        console.log(`User ${user.userId} created game ${game.id}`);
+        // User created game
       } catch (error) {
-        console.error('Game creation error:', error);
+        // Game creation error handled
         callback({
           success: false,
           error: {
@@ -219,9 +219,9 @@ export class AuthenticatedSocketEventHandler {
           playerCount: game.playerCount || 1,
         });
 
-        console.log(`User ${user.userId} joined game ${game.id}`);
+        // User joined game
       } catch (error) {
-        console.error('Game join error:', error);
+        // Game join error handled
         callback({
           success: false,
           error: {
@@ -259,9 +259,9 @@ export class AuthenticatedSocketEventHandler {
           playerCount: 0, // Would need to get actual count
         });
 
-        console.log(`User ${user.userId} left game ${data.gameId}`);
+        // User left game
       } catch (error) {
-        console.error('Game leave error:', error);
+        // Game leave error handled
         callback({
           success: false,
           error: {
@@ -296,9 +296,9 @@ export class AuthenticatedSocketEventHandler {
           teammates: [],
         });
 
-        console.log(`User ${user.userId} started game ${data.gameId}`);
+        // User started game
       } catch (error) {
-        console.error('Game start error:', error);
+        // Game start error handled
         callback({
           success: false,
           error: {
@@ -359,7 +359,7 @@ export class AuthenticatedSocketEventHandler {
 
         callback(response);
       } catch (error) {
-        console.error('Get game state error:', error);
+        // Get game state error handled
         callback({
           success: false,
           error: {
@@ -411,11 +411,9 @@ export class AuthenticatedSocketEventHandler {
 
         callback(response);
 
-        console.log(
-          `User ${user.userId} performed night action ${data.action} in game ${data.gameId}`
-        );
+        // User performed night action
       } catch (error) {
-        console.error('Night action error:', error);
+        // Night action error handled
         callback({
           success: false,
           error: {
@@ -459,9 +457,9 @@ export class AuthenticatedSocketEventHandler {
 
         callback(response);
 
-        console.log(`User ${user.userId} voted for ${data.targetId} in game ${data.gameId}`);
+        // User voted in game
       } catch (error) {
-        console.error('Vote error:', error);
+        // Vote error handled
         callback({
           success: false,
           error: {
@@ -520,9 +518,9 @@ export class AuthenticatedSocketEventHandler {
 
         callback(response);
 
-        console.log(`User ${user.userId} sent chat message in game ${data.gameId}`);
+        // User sent chat message
       } catch (error) {
-        console.error('Chat error:', error);
+        // Chat error handled
         callback({
           success: false,
           error: {

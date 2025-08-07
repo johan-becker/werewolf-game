@@ -92,10 +92,10 @@ export class WerewolfGameManager {
         message: 'Rollen-Konfiguration gespeichert',
         validation,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        message: `Fehler beim Konfigurieren: ${error.message}`,
+        message: `Fehler beim Konfigurieren: ${error instanceof Error ? error.message : 'Unknown error'}`,
       };
     }
   }
@@ -131,7 +131,7 @@ export class WerewolfGameManager {
   ): Promise<{
     success: boolean;
     message: string;
-    roleAssignments?: Array<{ playerId: string; role: WerewolfRole; roleInfo: any }>;
+    roleAssignments?: Array<{ playerId: string; role: WerewolfRole; roleInfo: Record<string, unknown> }>;
     gameState?: WerewolfGameState;
   }> {
     try {
@@ -183,14 +183,14 @@ export class WerewolfGameManager {
       }
 
       // Vergebe Rollen
-      const playerIds = game.players.map((p: any) => p.user_id);
+      const playerIds = game.players.map((p: { user_id: string }) => p.user_id);
       const roleAssignments = this.roleService.assignRoles(playerIds, config);
 
       // Erstelle WerewolfPlayer Objekte
       const werewolfPlayers: WerewolfPlayer[] = [];
 
       for (const assignment of roleAssignments) {
-        const playerData = game.players.find((p: any) => p.user_id === assignment.playerId);
+        const playerData = game.players.find((p: { user_id: string; profiles: { username: string }; is_host: boolean }) => p.user_id === assignment.playerId);
         if (!playerData) continue;
 
         const werewolfPlayer = this.roleService.createPlayer(
@@ -249,10 +249,10 @@ export class WerewolfGameManager {
         roleAssignments: roleAssignmentsWithInfo,
         gameState,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        message: `Fehler beim Starten: ${error.message}`,
+        message: `Fehler beim Starten: ${error instanceof Error ? error.message : 'Unknown error'}`,
       };
     }
   }
@@ -273,7 +273,7 @@ export class WerewolfGameManager {
   ): Promise<{
     success: boolean;
     message: string;
-    revealedInfo?: any;
+    revealedInfo?: Record<string, unknown>;
     canProceed?: boolean;
   }> {
     try {
@@ -335,10 +335,10 @@ export class WerewolfGameManager {
         revealedInfo: result.revealedInfo,
         canProceed,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        message: `Fehler bei Nacht-Aktion: ${error.message}`,
+        message: `Fehler bei Nacht-Aktion: ${error instanceof Error ? error.message : 'Unknown error'}`,
       };
     }
   }
@@ -349,7 +349,7 @@ export class WerewolfGameManager {
   async resolveCurrentNightPhase(gameId: string): Promise<{
     success: boolean;
     message: string;
-    results: any[];
+    results: Array<Record<string, unknown>>;
     nextPhase: string | null;
     nextRole: WerewolfRole | null;
     nightCompleted: boolean;
@@ -395,10 +395,10 @@ export class WerewolfGameManager {
         gameEnded,
         ...(winner && { winner }),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        message: `Fehler bei Phasen-Auflösung: ${error.message}`,
+        message: `Fehler bei Phasen-Auflösung: ${error instanceof Error ? error.message : 'Unknown error'}`,
         results: [],
         nextPhase: null,
         nextRole: null,
@@ -441,10 +441,10 @@ export class WerewolfGameManager {
         survivors,
         nightDeaths,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        message: `Fehler beim Starten der Tag-Phase: ${error.message}`,
+        message: `Fehler beim Starten der Tag-Phase: ${error instanceof Error ? error.message : 'Unknown error'}`,
         survivors: [],
         nightDeaths: [],
       };
@@ -522,10 +522,10 @@ export class WerewolfGameManager {
         gameEnded,
         ...(winner && { winner }),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        message: `Fehler bei Abstimmung: ${error.message}`,
+        message: `Fehler bei Abstimmung: ${error instanceof Error ? error.message : 'Unknown error'}`,
         votes: {},
         gameEnded: false,
       };
@@ -537,7 +537,7 @@ export class WerewolfGameManager {
   /**
    * Wendet Nacht-Effekte auf Spieler an
    */
-  private async applyNightEffects(gameId: string, results: any[]): Promise<void> {
+  private async applyNightEffects(gameId: string, results: Array<Record<string, unknown>>): Promise<void> {
     const players = this.gamePlayers.get(gameId);
     if (!players) return;
 
@@ -548,10 +548,10 @@ export class WerewolfGameManager {
     for (const result of results) {
       if (result.effects) {
         if (result.effects.deaths) {
-          result.effects.deaths.forEach((id: string) => allDeaths.add(id));
+          (result.effects.deaths as string[]).forEach((id: string) => allDeaths.add(id));
         }
         if (result.effects.protections) {
-          result.effects.protections.forEach((id: string) => allProtections.add(id));
+          (result.effects.protections as string[]).forEach((id: string) => allProtections.add(id));
         }
       }
     }
@@ -647,7 +647,7 @@ export class WerewolfGameManager {
     return this.nightManager.getGameState(gameId);
   }
 
-  getRoleInfo(role: WerewolfRole): any {
+  getRoleInfo(role: WerewolfRole): Record<string, unknown> {
     return this.roleService.getRoleInfo(role);
   }
 
@@ -676,7 +676,7 @@ export class WerewolfGameManager {
   /**
    * Initialize game with players (stub implementation for tests)
    */
-  async initializeGame(gameId: string, players: any[]): Promise<any> {
+  async initializeGame(gameId: string, players: Array<{ id: string; role: string; pack_rank?: string }>): Promise<Record<string, unknown>> {
     // Handle invalid game ID
     if (gameId === 'invalid-game-id') {
       return {
@@ -719,7 +719,7 @@ export class WerewolfGameManager {
   /**
    * Advance game phase (stub implementation for tests)
    */
-  async advancePhase(_gameId: string): Promise<any> {
+  async advancePhase(_gameId: string): Promise<Record<string, unknown>> {
     // TODO: Implement proper phase advancement
     return {
       success: true,
@@ -740,7 +740,7 @@ export class WerewolfGameManager {
   /**
    * Submit night action (stub implementation for tests)
    */
-  async submitNightAction(gameId: string, playerId: string, action: any): Promise<any> {
+  async submitNightAction(gameId: string, playerId: string, action: { action?: string }): Promise<Record<string, unknown>> {
     // Handle invalid actions
     if (action.action && action.action.includes('invalid')) {
       return {
@@ -759,7 +759,7 @@ export class WerewolfGameManager {
   /**
    * Check win conditions (stub implementation for tests)
    */
-  async checkWinConditions(gameId: string, players: any[], options?: any): Promise<any> {
+  async checkWinConditions(gameId: string, players: Array<{ role: string; is_alive: boolean }>, options?: { special_conditions?: { lovers_alive?: boolean; others_eliminated?: boolean } }): Promise<Record<string, unknown>> {
     // Check special conditions first (like lovers victory)
     if (
       options?.special_conditions?.lovers_alive &&
@@ -808,7 +808,7 @@ export class WerewolfGameManager {
   /**
    * Process transformation (stub implementation for tests)
    */
-  async processTransformation(_gameId: string, _playerId: string): Promise<any> {
+  async processTransformation(_gameId: string, _playerId: string): Promise<Record<string, unknown>> {
     // TODO: Implement werewolf transformation logic
     return {
       success: true,
@@ -821,7 +821,7 @@ export class WerewolfGameManager {
   /**
    * Enable pack communication (stub implementation for tests)
    */
-  async enablePackCommunication(_gameId: string): Promise<any> {
+  async enablePackCommunication(_gameId: string): Promise<Record<string, unknown>> {
     // TODO: Implement pack communication logic
     return {
       success: true,
@@ -834,7 +834,7 @@ export class WerewolfGameManager {
   /**
    * Calculate moon phase effects (stub implementation for tests)
    */
-  async calculateMoonPhaseEffects(game: any): Promise<any> {
+  async calculateMoonPhaseEffects(game: { moon_phase: string }): Promise<Record<string, unknown>> {
     // TODO: Implement moon phase effects calculation
     return {
       phase: game.moon_phase,
@@ -854,7 +854,7 @@ export class WerewolfGameManager {
   /**
    * Execute alpha ability (stub implementation for tests)
    */
-  async executeAlphaAbility(gameId: string, playerId: string, ability: any): Promise<any> {
+  async executeAlphaAbility(gameId: string, playerId: string, ability: { type: string }): Promise<Record<string, unknown>> {
     // TODO: Implement alpha werewolf abilities
     return {
       success: true,
@@ -867,7 +867,7 @@ export class WerewolfGameManager {
   /**
    * Handle player disconnection (stub implementation for tests)
    */
-  async handlePlayerDisconnection(_gameId: string, _playerId: string): Promise<any> {
+  async handlePlayerDisconnection(_gameId: string, _playerId: string): Promise<Record<string, unknown>> {
     // TODO: Implement disconnection handling
     return {
       success: true,
@@ -881,7 +881,7 @@ export class WerewolfGameManager {
   /**
    * Batch process night actions (stub implementation for tests)
    */
-  async batchProcessNightActions(gameId: string, actions: any[]): Promise<any> {
+  async batchProcessNightActions(gameId: string, actions: Array<Record<string, unknown>>): Promise<Record<string, unknown>> {
     // TODO: Implement batch action processing
     return {
       success: true,

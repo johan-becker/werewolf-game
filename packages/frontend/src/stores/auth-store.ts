@@ -432,7 +432,13 @@ export const useAuthStore = create<AuthState>()(
 
         // Fetch current user data
         try {
-          const response = await authenticatedApiCall('/users/me', get().tokens!);
+          const currentTokens = get().tokens;
+          if (!currentTokens) {
+            get().logout();
+            return;
+          }
+
+          const response = await authenticatedApiCall('/users/me', currentTokens);
 
           set(state => {
             state.isAuthenticated = true;
@@ -440,7 +446,7 @@ export const useAuthStore = create<AuthState>()(
           });
 
           // Update auth cookie
-          document.cookie = `auth-token=${get().tokens!.accessToken}; path=/; secure; samesite=lax`;
+          document.cookie = `auth-token=${currentTokens.accessToken}; path=/; secure; samesite=lax`;
         } catch {
           get().logout();
         }

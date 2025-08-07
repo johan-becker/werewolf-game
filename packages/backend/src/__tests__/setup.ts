@@ -9,7 +9,7 @@ beforeAll(async () => {
   process.env.DATABASE_URL =
     process.env.TEST_DATABASE_URL || 'postgresql://test:test@localhost:5432/werewolf_test';
   process.env.SUPABASE_URL = process.env.TEST_SUPABASE_URL || 'http://localhost:54321';
-  process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.TEST_SUPABASE_SERVICE_ROLE_KEY || 'test-key';
+  process.env.SUPABASE_SERVICE_KEY = process.env.TEST_SUPABASE_SERVICE_KEY || 'test-key';
 
   // Initialize test database if needed
   // eslint-disable-next-line no-console

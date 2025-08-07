@@ -74,7 +74,12 @@
       "Bash(gh pr checks:*)",
       "Bash(npx next lint:*)",
       "Bash(git rm:*)",
-      "Bash(turbo run:*)"
+      "Bash(turbo run:*)",
+      "Bash(git reset:*)",
+      "Bash(git rev-list:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
   }

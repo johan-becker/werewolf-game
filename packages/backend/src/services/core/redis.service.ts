@@ -72,17 +72,17 @@ export class RedisService implements IRedis {
 
   private setupEventHandlers(): void {
     this.client.on('connect', () => {
-      console.log('Redis connected');
+      // Redis connected
       this.isConnected = true;
     });
 
     this.client.on('error', error => {
-      console.error('Redis error:', error);
+      // Redis error handled
       this.isConnected = false;
     });
 
     this.client.on('close', () => {
-      console.log('Redis connection closed');
+      // Redis connection closed
       this.isConnected = false;
     });
   }

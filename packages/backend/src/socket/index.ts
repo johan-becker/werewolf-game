@@ -12,6 +12,7 @@ import {
   InterServerEvents,
   SocketData,
 } from '../types/socket.types';
+import { logger } from '../utils/logger';
 
 export function initializeSocketServer(httpServer: HttpServer) {
   const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(
@@ -37,9 +38,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
 
   // Connection handler
   io.on('connection', socket => {
-    console.log(
-      `User ${socket.data.username} (${socket.data.userId}) connected from ${socket.handshake.address}`
-    );
+    logger.debug(`User ${socket.data.username} (${socket.data.userId}) connected from ${socket.handshake.address}`);
 
     // Apply rate limiting to events
     socket.use((event, next) => {
@@ -54,7 +53,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
     // Check for reconnection and handle it
     roomManager.handleReconnection(socket).then(gameId => {
       if (gameId) {
-        console.log(`User ${socket.data.username} reconnected to game ${gameId}`);
+        logger.info(`User ${socket.data.username} reconnected to game ${gameId}`);
         // Notify game room about reconnection
         roomManager.broadcastToRoom(io, gameId, 'game:playerReconnected', {
           gameId,
@@ -66,7 +65,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
         gameService
           .getGameDetails(gameId)
           .then(game => socket.emit('game:stateSync', { game }))
-          .catch(error => console.error('Failed to sync game state on reconnection:', error));
+          .catch(error => logger.error('Failed to sync game state on reconnection:', error));
       }
     });
 
@@ -92,7 +91,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
 
     // Handle disconnect with improved logging
     socket.on('disconnect', reason => {
-      console.log(`User ${socket.data.username} disconnected: ${reason}`);
+      logger.debug(`User ${socket.data.username} disconnected: ${reason}`);
 
       // Room manager handles the grace period and cleanup
       const gameId = roomManager.handleDisconnect(socket.data.userId);
@@ -110,7 +109,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
 
     // Handle connection errors
     socket.on('error', (error: any) => {
-      console.error(`Socket error for user ${socket.data.username}:`, error);
+      logger.error(`Socket error for user ${socket.data.username}:`, error);
     });
   });
 
@@ -128,18 +127,18 @@ export function initializeSocketServer(httpServer: HttpServer) {
       const games = await gameService.getGameList();
       roomManager.broadcastToLobby(io, 'lobby:periodicUpdate', { games });
     } catch (error) {
-      console.error('Error in periodic lobby update:', error);
+      logger.error('Error in periodic lobby update:', error);
     }
   }, 30000);
 
   // Health check endpoint for monitoring
   io.engine.on('connection_error', err => {
-    console.error('Socket.IO connection error:', err);
+    logger.error('Socket.IO connection error:', err);
   });
 
   // Graceful shutdown
   const gracefulShutdown = () => {
-    console.log('Starting graceful shutdown of Socket.io server...');
+    logger.info('Starting graceful shutdown of Socket.io server...');
 
     // Notify all connected clients
     io.emit('server:shutdown', {
@@ -150,7 +149,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
     // Give clients time to process shutdown message
     setTimeout(() => {
       io.close(() => {
-        console.log('Socket.io server closed gracefully');
+        logger.info('Socket.io server closed gracefully');
         process.exit(0);
       });
     }, 2000);
@@ -159,6 +158,6 @@ export function initializeSocketServer(httpServer: HttpServer) {
   process.on('SIGTERM', gracefulShutdown);
   process.on('SIGINT', gracefulShutdown);
 
-  console.log('Socket.io server initialized with enhanced authentication and room management');
+  logger.info('Socket.io server initialized with enhanced authentication and room management');
   return io;
 }

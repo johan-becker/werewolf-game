@@ -80,7 +80,7 @@ REDIS_URL=redis://localhost:6379
 JWT_SECRET=werewolf-test-secret-key-do-not-use-in-production
 WEREWOLF_GAME_SECRET=test-werewolf-game-secret
 SUPABASE_URL=http://localhost:54321
-SUPABASE_SERVICE_ROLE_KEY=test-supabase-key
+SUPABASE_SERVICE_KEY=test-supabase-key
 FRONTEND_URL=http://localhost:3000
 BACKEND_URL=http://localhost:8000
 

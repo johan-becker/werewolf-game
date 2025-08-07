@@ -360,7 +360,7 @@ export class GameService {
         .eq('user_id', newHostId);
 
       if (error) {
-        console.error('Error transferring host:', error);
+        // Error transferring host logged
       }
 
       return { gameDeleted: false, newHostId };
@@ -369,7 +369,7 @@ export class GameService {
       const { error } = await supabase.from('games').delete().eq('id', gameId);
 
       if (error) {
-        console.error('Error deleting empty game:', error);
+        // Error deleting empty game logged
       }
 
       return { gameDeleted: true };

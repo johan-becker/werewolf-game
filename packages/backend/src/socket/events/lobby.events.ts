@@ -299,7 +299,7 @@ export function handleLobbyEvents(socket: Socket, io: Server, roomManager?: Room
 
   // Handle disconnect - delegate to room manager
   socket.on('disconnect', async () => {
-    console.log(`User ${socket.data.username} disconnected`);
+    // User disconnected from lobby
 
     // Room manager handles the grace period and cleanup
     const gameId = manager.handleDisconnect(socket.data.userId);
@@ -316,7 +316,7 @@ export function handleLobbyEvents(socket: Socket, io: Server, roomManager?: Room
 
   // Handle reconnection
   socket.on('reconnect', async () => {
-    console.log(`User ${socket.data.username} attempting reconnection`);
+    // User attempting reconnection
 
     const gameId = await manager.handleReconnection(socket);
 
@@ -333,7 +333,7 @@ export function handleLobbyEvents(socket: Socket, io: Server, roomManager?: Room
         const game = await gameService.getGameDetails(gameId);
         socket.emit('game:stateSync', { game });
       } catch (error) {
-        console.error('Failed to sync game state on reconnection:', error);
+        // Failed to sync game state on reconnection
       }
     }
   });

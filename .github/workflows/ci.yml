@@ -91,7 +91,7 @@ jobs:
           SESSION_SECRET: test-session-secret-that-is-at-least-32-characters-long-for-testing
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
 
   test-frontend:
     name: Frontend Tests

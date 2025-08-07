@@ -192,7 +192,7 @@ JWT_REFRESH_SECRET="your-refresh-secret-32-chars"
 # Supabase (optional)
 SUPABASE_URL="https://xxx.supabase.co"
 SUPABASE_ANON_KEY="your-anon-key"
-SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
+SUPABASE_SERVICE_KEY="your-service-role-key"
 
 # Server
 NODE_ENV="development"
