@@ -82,7 +82,8 @@
       "Bash(git fetch:*)",
       "Bash(timeout:*)",
       "Bash(colima start:*)",
-      "Bash(PGPASSWORD=werewolf_password psql -h localhost -p 5432 -U werewolf_user -d werewolf_game -c \"SELECT 1;\")"
+      "Bash(PGPASSWORD=werewolf_password psql -h localhost -p 5432 -U werewolf_user -d werewolf_game -c \"SELECT 1;\")",
+      "Bash(NODE_ENV=development npm run dev)"
     ],
     "deny": []
   }

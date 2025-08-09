@@ -23,7 +23,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: [
+    origin: process.env.CORS_ORIGIN === '*' ? true : [
       process.env.CORS_ORIGIN || 'http://localhost:3001',
       'http://localhost:3000',
       'file://',
@@ -121,7 +121,7 @@ process.on('unhandledRejection', (reason: unknown) => {
   process.exit(1);
 });
 
-httpServer.listen(PORT, () => {
+httpServer.listen(Number(PORT), HOST, () => {
   logger.info(`Server running on http://${HOST}:${PORT}`);
   logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
