@@ -79,7 +79,10 @@
       "Bash(git rev-list:*)",
       "Bash(git branch:*)",
       "Bash(git remote:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(timeout:*)",
+      "Bash(colima start:*)",
+      "Bash(PGPASSWORD=werewolf_password psql -h localhost -p 5432 -U werewolf_user -d werewolf_game -c \"SELECT 1;\")"
     ],
     "deny": []
   }

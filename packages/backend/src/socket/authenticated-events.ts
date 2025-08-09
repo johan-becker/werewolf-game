@@ -23,15 +23,15 @@ import {
   SocketAuthErrorCode,
   ChatResponse,
 } from '../types/socket-auth.types';
-import { GameService } from '../services/game.service';
+import { gameServiceInstance } from '../services/game-service-factory';
 
 export class AuthenticatedSocketEventHandler {
   private io: Server;
-  private gameService: GameService;
+  private gameService: any; // GameService or DevGameService
 
   constructor(io: Server) {
     this.io = io;
-    this.gameService = new GameService();
+    this.gameService = gameServiceInstance;
   }
 
   /**

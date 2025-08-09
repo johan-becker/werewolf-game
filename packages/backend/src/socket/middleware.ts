@@ -4,12 +4,10 @@
  */
 
 import { Socket } from 'socket.io';
-import { createClient } from '@supabase/supabase-js';
 import { ExtendedError } from 'socket.io/dist/namespace';
 // import { AuthSecurityService } from '../services/auth-security.service';
 import { AuthErrorCode } from '../types/auth.types';
-
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+import { supabase, hasSupabaseConfig } from '../lib/supabase';
 
 // const authService = AuthSecurityService.getInstance();
 
@@ -25,6 +23,20 @@ const activeConnections = new Map<
 
 export async function authenticateSocket(socket: Socket, next: (err?: ExtendedError) => void) {
   try {
+    // If Supabase is not configured, allow development mode
+    if (!hasSupabaseConfig || !supabase) {
+      // In development mode, create a mock user
+      if (!socket.data) {
+        socket.data = {};
+      }
+      
+      socket.data.userId = 'dev-user-' + Math.random().toString(36).substr(2, 9);
+      socket.data.username = 'DevUser';
+      
+      console.warn('Socket authentication in development mode - using mock user');
+      return next();
+    }
+
     let token: string | undefined;
 
     // Get token from multiple sources (priority order)

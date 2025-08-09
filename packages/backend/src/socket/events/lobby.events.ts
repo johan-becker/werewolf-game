@@ -1,10 +1,10 @@
 import { Socket, Server } from 'socket.io';
-import { GameService } from '../../services/game.service';
 import { RoomManager } from '../rooms';
 import { RoleFactory } from '../../services/role-factory';
 import { GameRoleConfig } from '../../types/werewolf-roles.types';
+import { gameServiceInstance } from '../../services/game-service-factory';
 
-const gameService = new GameService();
+const gameService = gameServiceInstance;
 
 export function handleLobbyEvents(socket: Socket, io: Server, roomManager?: RoomManager) {
   const manager = roomManager || new RoomManager();

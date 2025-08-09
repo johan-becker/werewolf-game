@@ -5,7 +5,7 @@ import { RoomManager } from './rooms';
 import { handleLobbyEvents } from './events/lobby.events';
 import { handleGameEvents } from './events/game.events';
 import { handleChatEvents } from './events/chat.events';
-import { GameService } from '../services/game.service';
+import { gameServiceInstance } from '../services/game-service-factory';
 import {
   ClientToServerEvents,
   ServerToClientEvents,
@@ -31,7 +31,7 @@ export function initializeSocketServer(httpServer: HttpServer) {
 
   // Initialize services
   const roomManager = new RoomManager();
-  const gameService = new GameService();
+  const gameService = gameServiceInstance;
 
   // Authentication middleware
   io.use(authenticateSocket);
@@ -64,8 +64,8 @@ export function initializeSocketServer(httpServer: HttpServer) {
         // Send current game state to reconnected user
         gameService
           .getGameDetails(gameId)
-          .then(game => socket.emit('game:stateSync', { game }))
-          .catch(error => logger.error('Failed to sync game state on reconnection:', error));
+          .then((game: any) => socket.emit('game:stateSync', { game }))
+          .catch((error: any) => logger.error('Failed to sync game state on reconnection:', error));
       }
     });
 

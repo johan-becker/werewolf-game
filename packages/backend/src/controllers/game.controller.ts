@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
-import { GameService } from '../services/game.service';
+import { gameServiceInstance } from '../services/game-service-factory';
 import { WerewolfGameManager } from '../services/werewolf-game-manager.service';
 import { AuthenticatedRequest } from '../types/auth.types';
 
-const gameService = new GameService();
+const gameService = gameServiceInstance;
 const werewolfGameManager = new WerewolfGameManager();
 
 export class GameController {

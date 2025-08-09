@@ -53,12 +53,37 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-  });
+app.get('/health', async (req, res) => {
+  try {
+    // Test database connection
+    const { PrismaClient } = await import('./generated/prisma');
+    const prisma = new PrismaClient();
+    
+    await prisma.$queryRaw`SELECT 1`;
+    await prisma.$disconnect();
+
+    res.status(200).json({
+      success: true,
+      message: 'Server is running',
+      timestamp: new Date().toISOString(),
+      services: {
+        database: 'connected',
+        server: 'running'
+      }
+    });
+  } catch (error) {
+    logger.error('Health check failed:', error);
+    res.status(503).json({
+      success: false,
+      message: 'Service unavailable',
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+      services: {
+        database: 'error',
+        server: 'running'
+      }
+    });
+  }
 });
 
 app.get('/', (req, res) => {

@@ -4,7 +4,7 @@
  */
 
 import { Response } from 'express';
-import { GameService } from '../services/game.service';
+import { gameServiceInstance } from '../services/game-service-factory';
 
 // Helper function to safely extract error message
 const getErrorMessage = (error: unknown): string => {
@@ -35,10 +35,10 @@ import {
 } from '../types/controller.types';
 
 export class EnhancedGameController {
-  private readonly gameService: GameService;
+  private readonly gameService: any; // GameService or DevGameService
 
   constructor() {
-    this.gameService = new GameService();
+    this.gameService = gameServiceInstance;
   }
 
   /**

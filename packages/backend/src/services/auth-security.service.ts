@@ -4,7 +4,7 @@
  */
 
 import { User } from '@supabase/supabase-js';
-import { supabaseAdmin } from '../lib/supabase';
+import { supabaseAdmin, hasSupabaseConfig } from '../lib/supabase';
 import {
   AuthenticationResult,
   AuthenticatedUser,
@@ -183,12 +183,22 @@ export class AuthSecurityService {
    * Creates authenticated user from Supabase user with security enhancements
    */
   private async createAuthenticatedUser(supabaseUser: User): Promise<AuthenticatedUser> {
-    // Fetch additional user data from database
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('username, created_at, updated_at')
-      .eq('id', supabaseUser.id)
-      .single();
+    let profile = null;
+
+    // Fetch additional user data from database only if Supabase is configured
+    if (hasSupabaseConfig && supabaseAdmin) {
+      try {
+        const result = await supabaseAdmin
+          .from('profiles')
+          .select('username, created_at, updated_at')
+          .eq('id', supabaseUser.id)
+          .single();
+        profile = result.data;
+      } catch (error) {
+        // Log error but continue - profile data is optional
+        logger.warn('Failed to fetch user profile:', error);
+      }
+    }
 
     // Determine user role and permissions (in production, fetch from database)
     const role = await this.determineUserRole(supabaseUser.id);
@@ -209,6 +219,13 @@ export class AuthSecurityService {
 
   private async validateTokenWithSupabase(token: string): Promise<AuthenticationResult> {
     try {
+      if (!hasSupabaseConfig || !supabaseAdmin) {
+        return this.createErrorResult(
+          AuthErrorCode.SERVICE_UNAVAILABLE, 
+          'Authentication service not configured'
+        );
+      }
+
       const {
         data: { user },
         error,

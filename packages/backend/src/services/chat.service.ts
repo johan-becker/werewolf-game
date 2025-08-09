@@ -1,6 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
+import { supabaseAdmin, hasSupabaseConfig } from '../lib/supabase';
 
 export interface ChatMessage {
   id: string;

@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
 import { generateGameCode } from '../utils/gameCode';
 import { CreateGameDTO, GameResponse, PlayerResponse } from '../types/game.types';
 import { RoleService } from './role.service';
@@ -12,10 +11,7 @@ import {
   NightAction,
 } from '../types/roles.types';
 import { GameRoleConfig } from '../types/werewolf-roles.types';
-
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
-
-const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
+import { supabase, supabaseAdmin, hasSupabaseConfig } from '../lib/supabase';
 
 export class GameService {
   private roleService: RoleService;
@@ -53,6 +49,10 @@ export class GameService {
     data: CreateGameDTO,
     _isPrivate: boolean = false
   ): Promise<GameResponse> {
+    if (!hasSupabaseConfig || !supabase || !supabaseAdmin) {
+      throw new Error('Game creation requires Supabase configuration');
+    }
+
     // Validate input
     if (!data.name || data.name.trim().length < 3) {
       throw new Error('Game name must be at least 3 characters long');
@@ -128,22 +128,39 @@ export class GameService {
    * Get list of waiting games
    */
   async getGameList(limit = 20, offset = 0): Promise<GameResponse[]> {
-    const { data: games, error } = await supabase
-      .from('game_overview') // Use the view
-      .select('*')
-      .eq('status', 'waiting')
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    try {
+      // Check if Supabase is properly configured
+      if (!hasSupabaseConfig || !supabase) {
+        // Return empty list for development mode when Supabase isn't configured
+        console.warn('Supabase not configured - returning empty game list for development');
+        return [];
+      }
 
-    if (error) throw new Error(`Failed to fetch games: ${error.message}`);
+      const { data: games, error } = await supabase
+        .from('game_overview') // Use the view
+        .select('*')
+        .eq('status', 'waiting')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    return games.map(this.formatGameResponse);
+      if (error) throw new Error(`Failed to fetch games: ${error.message}`);
+
+      return games.map(this.formatGameResponse);
+    } catch (error) {
+      console.error('Error in getGameList:', error);
+      // Return empty list as fallback
+      return [];
+    }
   }
 
   /**
    * Get game details with players
    */
   async getGameDetails(gameId: string): Promise<GameResponse> {
+    if (!hasSupabaseConfig || !supabaseAdmin) {
+      throw new Error('Getting game details requires Supabase configuration');
+    }
+
     // Get game info using admin client to avoid RLS issues
     const { data: game, error: gameError } = await supabaseAdmin
       .from('games')
@@ -194,6 +211,10 @@ export class GameService {
    * Join game by ID
    */
   async joinGame(gameId: string, userId: string): Promise<GameResponse> {
+    if (!hasSupabaseConfig || !supabase || !supabaseAdmin) {
+      throw new Error('Joining games requires Supabase configuration');
+    }
+
     // Check if game is joinable
     const { data: game } = await supabase
       .from('game_overview')
@@ -231,6 +252,10 @@ export class GameService {
    * Join game by code
    */
   async joinGameByCode(code: string, userId: string): Promise<GameResponse> {
+    if (!hasSupabaseConfig || !supabase || !supabaseAdmin) {
+      throw new Error('Joining games requires Supabase configuration');
+    }
+
     // First find any game with this code
     const { data: game } = await supabase
       .from('game_overview')
